@@ -21,7 +21,7 @@ class LayoutExample(QWidget):
         self.setMinimumSize(screen.width()/2,screen.height()/2)
 
         # addSubWidget
-        self.subWidget = subWidget()
+        self.subWidget = infoWidget()
         self.graphWidget = graphWidget()
         self.layout = QGridLayout()
         self.layout.addWidget(self.subWidget,0,0,0,1)
@@ -35,7 +35,7 @@ class LayoutExample(QWidget):
         # Run the qt application
         qt_app.exec_()
 
-class subWidget(QWidget):
+class infoWidget(QWidget):
     def __init__(self, parent=None):
         super(self.__class__,self).__init__(parent)
         self.layout = QVBoxLayout()  #Vertical layout
