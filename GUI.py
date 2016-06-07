@@ -8,7 +8,33 @@ from PySide.QtCore import *
 qt_app = QApplication(sys.argv)
 
 
-class LayoutExample(QWidget):
+class MainWindow(QMainWindow):
+    def __init__(self):
+        QMainWindow.__init__(self)
+
+        # set Size
+        self.setWindowTitle('Chemics')
+        screen = QDesktopWidget().screenGeometry()
+        self.setMinimumSize(screen.width() / 2, screen.height() / 2)
+
+        #add Menu
+        exitAction = QAction( '&Exit', self)
+        exitAction.setShortcut('Ctrl+Q')
+        exitAction.setStatusTip('Exit application')
+        exitAction.triggered.connect(self.close)
+        menubar = self.menuBar()
+        fileMenu = menubar.addMenu('&File')
+        fileMenu.addAction(exitAction)
+        self.setCentralWidget(ControlPanel())
+
+    def run(self):
+        # Show the form
+        self.show()
+        # Run the qt application
+        qt_app.exec_()
+
+
+class ControlPanel(QWidget):
     ''' An example of PySide/PyQt absolute positioning; the main window
         inherits from QWidget, a convenient widget for an empty window. '''
 
@@ -16,9 +42,9 @@ class LayoutExample(QWidget):
         # Initialize the object as a QWidget and
         # set its title and minimum width
         QWidget.__init__(self)
-        self.setWindowTitle('Chemics')
-        screen = QDesktopWidget().screenGeometry()
-        self.setMinimumSize(screen.width()/2,screen.height()/2)
+
+        #remove border
+        self.setFrame
 
         # addSubWidget
         self.subWidget = infoWidget()
@@ -27,7 +53,6 @@ class LayoutExample(QWidget):
         self.layout.addWidget(self.subWidget,0,0,0,1)
         self.layout.addWidget(self.graphWidget,0,1,0,3)
         self.setLayout(self.layout)
-
 
     def run(self):
         # Show the form
@@ -61,5 +86,5 @@ class graphWidget(QWidget):
         self.setPalette(palette)
 
 # Create an instance of the application window and run it
-app = LayoutExample()
+app = MainWindow()
 app.run()
