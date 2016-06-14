@@ -109,8 +109,9 @@ class graphWidget(QWidget):
 
         self.totalView = totalView()
         self.individualViews = individualViews()
-        self.layout.addWidget(self.totalView)
         self.layout.addWidget(self.individualViews)
+        self.layout.addWidget(self.totalView)
+
 
 class totalView(QGraphicsView):
     def resize(self, height):
@@ -118,7 +119,7 @@ class totalView(QGraphicsView):
 
     def __init__(self, parent=None):
         super(self.__class__, self).__init__(parent)
-        graph = QPixmap("graph.png")
+        graph = QPixmap("full_graph.png")
         self.totalScene = QGraphicsScene()
         self.totalScene.addPixmap(graph)
         self.setScene(self.totalScene)
