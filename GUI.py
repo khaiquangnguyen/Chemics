@@ -1,6 +1,7 @@
 
 import sys
 import os
+import tempfile
 
 from PySide.QtGui import *
 from PySide.QtCore import *
@@ -14,17 +15,25 @@ height = 0
 
 class MainWindow(QMainWindow):
 
-    def __init__(self):
+    def __init__(self,controller):
         QMainWindow.__init__(self)
 
         #declare a bunch of necessary variables
 
         #the peak to show graph
         self.peak = 0
-        #the working directory
-        self.folder = os.getcwd()
+        #the progress of the progam
+        self.progress = 0
+        #the controller of the view
+        self.controller = controller
+        #the progress dialog
+        self.progressDialog = None
         #the gobal width and height for resize of all items inside
+        os.chdir(self.controller.tempFolder)
+        print os.getcwd()
         global width, height
+
+
 
         # set Size
         self.setWindowTitle('Chemics')
@@ -55,9 +64,21 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(ControlPanel())
 
     def folderSelection(self):
-        self.folder = QFileDialog.getExistingDirectory()
-        self.printMessage(self.folder)
+        folder = QFileDialog.getExistingDirectory()
+        self.controller.setFolder(folder)
 
+
+    def showProgress(self):
+        if self.progressDialog is None:
+            self.progressDialog = QProgressDialog("Tasks in progress...", "Cancel", 0, 10, self)
+        self.progressDialog.setWindowModality(Qt.WindowModal)
+        self.progressDialog.show()
+
+    def makeProgress(self, message = None):
+        self.progress += 1
+        self.progressDialog.setValue(self.progress)
+        if message is not None:
+            self.progressDialog.setLabelText(message)
 
 
     def run(self):
@@ -69,15 +90,11 @@ class MainWindow(QMainWindow):
     def resizeEvent(self, resizeEvent):
         self.centralWidget().resize()
 
-    def getFolder(self):
-        return self.folder
-
     def setPeak(self,peak):
         self.peak = peak
 
     def printMessage(self,message):
         self.centralWidget().subWidget.infoArea.addMessage(message)
-
 
 
 class messageArea(QTableWidget):
@@ -248,8 +265,3 @@ class dNlogView(QGraphicsView):
         self.setScene(self.totalScene)
         self.setRenderHint(QPainter.Antialiasing or QPainter.SmoothPixmapTransform or QPainter.HighQualityAntialiasing)
 
-
-
-# Create an instance of the application window and run it
-app = MainWindow()
-app.run()
