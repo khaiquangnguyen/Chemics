@@ -1,8 +1,10 @@
 
 import sys
+import os
 
 from PySide.QtGui import *
 from PySide.QtCore import *
+from settings import *
 
 qt_app = QApplication(sys.argv)
 
@@ -11,28 +13,51 @@ height = 0
 
 
 class MainWindow(QMainWindow):
+
     def __init__(self):
         QMainWindow.__init__(self)
 
+        #declare a bunch of necessary variables
+
+        #the peak to show graph
+        self.peak = 0
+        #the working directory
+        self.folder = os.getcwd()
+        #the gobal width and height for resize of all items inside
+        global width, height
+
         # set Size
         self.setWindowTitle('Chemics')
-        # screen = QDesktopWidget().screenGeometry()
-        # width = screen.width()
-        # height = screen.height()
-        global width, height
         self.setMinimumHeight(100)
         self.setMinimumWidth(100)
         width = self.width()
         height = self.height()
+
         #add Menu
+        menubar = self.menuBar()
+        fileMenu = menubar.addMenu('&File')
+
+        #add select folder button
+        folderSelection = QAction('&Select Folder', self)
+        folderSelection.setShortcut('Ctrl+O')
+        folderSelection.setStatusTip('Select the folder which contains the data files')
+        folderSelection.triggered.connect(self.folderSelection)
+        fileMenu.addAction(folderSelection)
+
+        #add exit button
         exitAction = QAction( '&Exit', self)
         exitAction.setShortcut('Ctrl+Q')
         exitAction.setStatusTip('Exit application')
         exitAction.triggered.connect(self.close)
-        menubar = self.menuBar()
-        fileMenu = menubar.addMenu('&File')
         fileMenu.addAction(exitAction)
+
+        #set central widget
         self.setCentralWidget(ControlPanel())
+
+    def folderSelection(self):
+        self.folder = QFileDialog.getExistingDirectory()
+        self.printMessage(self.folder)
+
 
 
     def run(self):
@@ -43,6 +68,52 @@ class MainWindow(QMainWindow):
 
     def resizeEvent(self, resizeEvent):
         self.centralWidget().resize()
+
+    def getFolder(self):
+        return self.folder
+
+    def setPeak(self,peak):
+        self.peak = peak
+
+    def printMessage(self,message):
+        self.centralWidget().subWidget.infoArea.addMessage(message)
+
+
+
+class messageArea(QTableWidget):
+    def resize(self, height):
+        self.setFixedHeight(height * 2 / 5)
+
+    def __init__(self):
+        QTableWidget.__init__(self)
+        self.setColumnCount(1)
+        self.setRowCount(0)
+        self.verticalHeader().setVisible(False)
+        self.horizontalHeader().setVisible(False)
+        self.horizontalHeader().setStretchLastSection(True)
+        self.setWordWrap(True)
+        self.resizeRowsToContents()
+
+    def addMessage(self, message):
+        ##### add code here to process the message before printing
+        item = QTableWidgetItem(message)
+        self.insertRow(self.rowCount())
+        self.setItem(self.rowCount()-1,0,item)
+
+class controlArea(QWidget):
+    def resize(self, height):
+        self.setFixedHeight(height * 3 / 5)
+
+    def __init__(self):
+        QWidget.__init__(self)
+        self.layout = QVBoxLayout()
+        self.layout.setSpacing(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.layout)
+        self.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.Background, Qt.red)
+        self.setPalette(palette)
 
 class ControlPanel(QWidget):
     ''' An example of PySide/PyQt absolute positioning; the main window
@@ -81,10 +152,18 @@ class infoWidget(QWidget):
         palette = QPalette()
         palette.setColor(QPalette.Background, Qt.red)
         self.setPalette(palette)
+        self.layout.setSpacing(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.controlArea = controlArea()
+        self.infoArea = messageArea()
+        self.layout.addWidget(self.controlArea)
+        self.layout.addWidget(self.infoArea)
 
     def resize(self,width, height):
         self.setFixedWidth(width / 4 )
         self.setFixedHeight(height)
+        self.controlArea.resize(self.height())
+        self.infoArea.resize(self.height())
 
 
 class graphWidget(QWidget):
@@ -119,7 +198,7 @@ class totalView(QGraphicsView):
 
     def __init__(self, parent=None):
         super(self.__class__, self).__init__(parent)
-        graph = QPixmap("full_graph.png")
+        graph = QPixmap(fullGraphFileName)
         self.totalScene = QGraphicsScene()
         self.totalScene.addPixmap(graph)
         self.setScene(self.totalScene)
@@ -149,7 +228,7 @@ class dpView(QGraphicsView):
 
     def __init__(self, parent=None):
         super(self.__class__, self).__init__(parent)
-        graph = QPixmap("graph.png")
+        graph = QPixmap(dpViewFileName)
         self.totalScene = QGraphicsScene()
         self.totalScene.addPixmap(graph)
         self.setScene(self.totalScene)
@@ -163,7 +242,7 @@ class dNlogView(QGraphicsView):
 
     def __init__(self, parent=None):
         super(self.__class__, self).__init__(parent)
-        graph = QPixmap("graph.png")
+        graph = QPixmap(dnLogFileName)
         self.totalScene = QGraphicsScene()
         self.totalScene.addPixmap(graph)
         self.setScene(self.totalScene)
