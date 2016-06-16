@@ -30,17 +30,17 @@ class MainWindow(QMainWindow):
         self.progressDialog = None
         #the gobal width and height for resize of all items inside
         os.chdir(self.controller.tempFolder)
+        #peak Index
         print os.getcwd()
         global width, height
 
-
-
         # set Size
         self.setWindowTitle('Chemics')
-        self.setMinimumHeight(100)
-        self.setMinimumWidth(100)
+        self.setMinimumHeight(800)
+        self.setMinimumWidth(800)
         width = self.width()
         height = self.height()
+
 
         #add Menu
         menubar = self.menuBar()
@@ -62,6 +62,7 @@ class MainWindow(QMainWindow):
 
         #set central widget
         self.setCentralWidget(ControlPanel())
+        self.showMaximized()
 
     def folderSelection(self):
         folder = QFileDialog.getExistingDirectory()
@@ -80,6 +81,8 @@ class MainWindow(QMainWindow):
         if message is not None:
             self.progressDialog.setLabelText(message)
 
+    def showData(self):
+        self.centralWidget().update(self.peak)
 
     def run(self):
         # Show the form
@@ -96,10 +99,58 @@ class MainWindow(QMainWindow):
     def printMessage(self,message):
         self.centralWidget().subWidget.infoArea.addMessage(message)
 
+class ControlPanel(QWidget):
+    ''' An example of PySide/PyQt absolute positioning; the main window
+        inherits from QWidget, a convenient widget for an empty window. '''
+
+    def __init__(self):
+        # Initialize the object as a QWidget and
+        # set its title and minimum width
+        QWidget.__init__(self)
+        # addSubWidget
+        self.subWidget = InfoWidget()
+        self.graphWidget = graphWidget()
+        self.layout = QHBoxLayout()
+        self.layout.setSpacing(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.addWidget(self.subWidget)
+        self.layout.addWidget(self.graphWidget)
+        self.setLayout(self.layout)
+
+    def resize(self):
+        self.subWidget.resize(self.width(),self.height())
+        self.graphWidget.resize(self.width(),self.height())
+
+    def update(self,peakIndex):
+        self.graphWidget.updateImage(peakIndex)
+
+
+class InfoWidget(QWidget):
+    def __init__(self, parent=None):
+        super(self.__class__,self).__init__(parent)
+        self.layout = QVBoxLayout()  #Vertical layout
+        self.setLayout(self.layout)
+
+        #Set color for layout for easier managing
+        self.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.Background, Qt.red)
+        self.setPalette(palette)
+        self.layout.setSpacing(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+
+        self.infoArea = messageArea()
+        self.layout.addWidget(self.infoArea)
+
+    def resize(self, parentWidth, parentHeight):
+        self.setFixedWidth(parentWidth / 4)
+        self.setFixedHeight(parentHeight)
+        self.infoArea.resize(self.width(),self.height())
 
 class messageArea(QTableWidget):
-    def resize(self, height):
-        self.setFixedHeight(height * 2 / 5)
+    def resize(self, parentWidth, parentHeight):
+        self.setFixedHeight(parentHeight)
+        self.setFixedWidth(parentWidth)
 
     def __init__(self):
         QTableWidget.__init__(self)
@@ -117,77 +168,15 @@ class messageArea(QTableWidget):
         self.insertRow(self.rowCount())
         self.setItem(self.rowCount()-1,0,item)
 
-class controlArea(QWidget):
-    def resize(self, height):
-        self.setFixedHeight(height * 3 / 5)
-
-    def __init__(self):
-        QWidget.__init__(self)
-        self.layout = QVBoxLayout()
-        self.layout.setSpacing(0)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(self.layout)
-        self.setAutoFillBackground(True)
-        palette = QPalette()
-        palette.setColor(QPalette.Background, Qt.red)
-        self.setPalette(palette)
-
-class ControlPanel(QWidget):
-    ''' An example of PySide/PyQt absolute positioning; the main window
-        inherits from QWidget, a convenient widget for an empty window. '''
-
-    def __init__(self):
-        # Initialize the object as a QWidget and
-        # set its title and minimum width
-        QWidget.__init__(self)
-
-        #remove border
-
-        # addSubWidget
-        self.subWidget = infoWidget()
-        self.graphWidget = graphWidget()
-        self.layout = QHBoxLayout()
-        self.layout.setSpacing(0)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.addWidget(self.subWidget)
-        self.layout.addWidget(self.graphWidget)
-        self.setLayout(self.layout)
-
-    def resize(self):
-        self.subWidget.resize(self.width(),self.height())
-        self.graphWidget.resize(self.width(),self.height())
-
-
-class infoWidget(QWidget):
-    def __init__(self, parent=None):
-        super(self.__class__,self).__init__(parent)
-        self.layout = QVBoxLayout()  #Vertical layout
-        self.setLayout(self.layout)
-
-        #Set color for layout for easier managing
-        self.setAutoFillBackground(True)
-        palette = QPalette()
-        palette.setColor(QPalette.Background, Qt.red)
-        self.setPalette(palette)
-        self.layout.setSpacing(0)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.controlArea = controlArea()
-        self.infoArea = messageArea()
-        self.layout.addWidget(self.controlArea)
-        self.layout.addWidget(self.infoArea)
-
-    def resize(self,width, height):
-        self.setFixedWidth(width / 4 )
-        self.setFixedHeight(height)
-        self.controlArea.resize(self.height())
-        self.infoArea.resize(self.height())
 
 
 class graphWidget(QWidget):
-    def resize(self, width, height):
-        self.setFixedWidth(width * 3 / 4)
-        self.setFixedHeight(height)
-        self.totalView.resize(self.height())
+    def resize(self, parentWidth, parentHeight):
+        self.setFixedWidth(parentWidth * 3 / 4)
+        self.setFixedHeight(parentHeight)
+        self.totalView.resize(self.width(),self.height())
+        self.controlArea.resize(self.width(),self.height())
+        self.individualViews.resize(self.width(),self.height())
 
     def __init__(self, parent=None):
         super(self.__class__, self).__init__(parent)
@@ -200,25 +189,17 @@ class graphWidget(QWidget):
         palette = QPalette()
         palette.setColor(QPalette.Background, Qt.blue)
         self.setPalette(palette)
-
-        graph = QPixmap("graph.png")
-
         self.totalView = totalView()
         self.individualViews = individualViews()
+        self.controlArea = controlArea()
         self.layout.addWidget(self.individualViews)
+        self.layout.addWidget(self.controlArea)
         self.layout.addWidget(self.totalView)
 
+    def updateImage(self,peakIndex):
+        self.totalView.updateImage()
+        self.individualViews.updateImage(peakIndex)
 
-class totalView(QGraphicsView):
-    def resize(self, height):
-        self.setFixedHeight(height * 2/5)
-
-    def __init__(self, parent=None):
-        super(self.__class__, self).__init__(parent)
-        graph = QPixmap(fullGraphFileName)
-        self.totalScene = QGraphicsScene()
-        self.totalScene.addPixmap(graph)
-        self.setScene(self.totalScene)
 
 class individualViews(QWidget):
     def __init__(self):
@@ -235,17 +216,68 @@ class individualViews(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addWidget(self.dpView)
         self.layout.addWidget(self.dNlogView)
-
         self.setLayout(self.layout)
 
+    def updateImage(self,peakIndex):
+        self.dpView.updateImage(peakIndex)
+        self.dNlogView.updateImage(peakIndex)
 
-class dpView(QGraphicsView):
-    def resize(self, width):
-        self.setFixedWidth(width /2 )
+    def resize(self, parentWidth, parentHeight):
+        self.setFixedWidth(parentWidth)
+        self.setFixedHeight(parentHeight * 1 / 2)
+
+class controlArea(QWidget):
+    def resize(self, parentWidth, parentHeight):
+        self.setFixedHeight(parentHeight * 1 / 10)
+        self.setFixedWidth(parentWidth)
+        self.buttonBox.setFixedSize(self.width(),self.height())
+
+    def __init__(self):
+        QWidget.__init__(self)
+        self.layout = QHBoxLayout()
+        self.layout.setSpacing(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.layout)
+        self.previousButton = QPushButton("Previous")
+        self.nextButton = QPushButton("Next")
+        self.buttonBox = QDialogButtonBox(Qt.Horizontal)
+        self.layout.addChildWidget(self.buttonBox)
+        self.buttonBox.addButton(self.previousButton,QDialogButtonBox.ActionRole)
+        self.buttonBox.addButton(self.nextButton,QDialogButtonBox.ActionRole)
+        self.buttonBox.setCenterButtons(True)
+
+
+class totalView(QGraphicsView):
+    def resize(self, parentWidth, parentHeight):
+        self.setFixedHeight(parentHeight * 2 / 5)
+        self.setFixedWidth(parentWidth)
 
     def __init__(self, parent=None):
         super(self.__class__, self).__init__(parent)
-        graph = QPixmap(dpViewFileName)
+        graph = QPixmap(fullGraphFileName)
+        self.totalScene = QGraphicsScene()
+        self.totalScene.addPixmap(graph)
+        self.setScene(self.totalScene)
+
+    def updateImage(self):
+        graph = QPixmap(fullGraphFileName)
+        self.totalScene = QGraphicsScene()
+        self.totalScene.addPixmap(graph)
+        self.setScene(self.totalScene)
+
+
+class dpView(QGraphicsView):
+    def resize(self, parentWidth, parentHeight):
+        self.setFixedHeight(parentHeight)
+        self.setFixedWidth(parentWidth / 2)
+
+    def __init__(self, parent=None):
+        super(self.__class__, self).__init__(parent)
+        self.totalScene = None
+
+    def updateImage(self,peakIndex):
+        print "hell yeah"
+        graph = QPixmap(singlePeakFileName + 'peakIndex' + ".png")
         self.totalScene = QGraphicsScene()
         self.totalScene.addPixmap(graph)
         self.setScene(self.totalScene)
@@ -254,11 +286,19 @@ class dpView(QGraphicsView):
 
 
 class dNlogView(QGraphicsView):
-    def resize(self, width):
-        self.setFixedWidth(width / 2)
+    def resize(self, parentWidth, parentHeight):
+        self.setFixedHeight(parentHeight)
+        self.setFixedWidth(parentWidth / 2)
 
     def __init__(self, parent=None):
         super(self.__class__, self).__init__(parent)
+        graph = QPixmap(dnLogFileName)
+        self.totalScene = QGraphicsScene()
+        self.totalScene.addPixmap(graph)
+        self.setScene(self.totalScene)
+        self.setRenderHint(QPainter.Antialiasing or QPainter.SmoothPixmapTransform or QPainter.HighQualityAntialiasing)
+
+    def updateImage(self,peakIndex):
         graph = QPixmap(dnLogFileName)
         self.totalScene = QGraphicsScene()
         self.totalScene.addPixmap(graph)
