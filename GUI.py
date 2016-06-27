@@ -223,6 +223,11 @@ class individualViews(QWidget):
         self.layout.addWidget(self.dpView)
         self.layout.addWidget(self.dNlogView)
         self.setLayout(self.layout)
+        # fig = Figure(figsize=(600, 600), dpi=72, facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
+        # ax = fig.add_subplot(111)
+        # ax.plot([0, 1])
+        # canvas = FigureCanvas(fig)
+        # self.layout.addWidget(canvas)
 
     def updateImage(self,peakIndex):
         self.dpView.updateImage(peakIndex)
