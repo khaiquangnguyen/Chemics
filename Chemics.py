@@ -14,11 +14,12 @@ import scipy.constants
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.style.use('ggplot')
-
+import scipy.optimize as opt
 
 
 csvFilePath = "E:\Updated program\Demonstration_Files\CCN data 100203092813.csv"
 txtFilePath = "E:\Updated program\Demonstration_Files\AS_Calibration_SMPS.txt"
+b = 0
 
 class Controller:
     def __init__(self,mode = True):
@@ -26,7 +27,6 @@ class Controller:
         The controller class for the program. ALso handle the task of the model
         """
         # True if testing, false if not
-        self.ccncnSimList = []
         self.mode = mode
         # The view associated with the controller
         self.view = None
@@ -36,8 +36,8 @@ class Controller:
         self.smpsTxtFilePath = []
         # The list of paths to the cccn files
         self.ccncCsvFilePath = []
-        # The current analysing peak
-        self.currPeak = 0
+        # The current analysing peakIndex
+        self.currPeak = 12
         # The total number of peaks
         self.numPeak = 0
         # The single smps file which contains the data
@@ -50,38 +50,46 @@ class Controller:
         self.startTimeEntries = None
         # the list of end time entries
         self.endTimeEntries = None
-        # the date of the experiment
+        # The date of the experiment
         self.date = None
         # the time frame of a a measurement
         self.timeFrame = 135
-        #the content of the csv file
+        # The content of the csv file
         self.csvContent = None
-        #the content of the txt file
+        # The content of the txt file
         self.txtContent = None
-        #The list of all diameter of measurement
+        # The list of all diameter of measurement
         self.diameterList = None
-        #The DNlog data
+        # The DNlog data
         self.dNlog = None
-        #The SMPS and CCNC data
+        # The SMPS and CCNC data
         self.data = None
-        #CCN List
+        # Necessary information
         self.ccnList = None
-        #CN List
         self.cnList = None
         self.ccnFixedList = None
         self.cnFixedList = None
         self.gCnList = None
         self.gCcnList = None
-        self.ccncnSigList = []
+        self.ccncSigList = []
         self.ccnNormalizedList = []
         self.diameterMidpointList = []
+        self.ccncnSimList = []
         self.asyms = []
         self.b = 0
-        self.d = 33.3667106871589
-        self.c  = -18.3807247490387
+        self.d = 0
+        self.c = 0
         self.minCcn = 4
-
-        # os.chdir(self.tempFolder)
+        self.minDp = 0
+        self.maxDp = 0
+        self.maxDpAsym = 0
+        self.minDpAsym = 0
+        #Graph variables
+        self.originalGraph = None
+        self.adjustedGraph = None
+        self.dryDiaGraph = None
+        self.totalGraph = None
+        os.chdir(self.tempFolder)
 
     def setFolder(self,folder):
         """
@@ -91,13 +99,13 @@ class Controller:
         """
         if folder != self.folder:
             self.folder = folder
-            self.getFileNames()
 
     def getFileNames(self):
         """
         Get all the SMPS and CCNC file names from the directory
         :return:
         """
+        self.makeProgress("Searching folder for CCNC and SMPS files...")
         for root, dirs, files in os.walk(self.folder):
             for aFile in files:
                 if aFile.lower().endswith('.txt'):
@@ -106,21 +114,28 @@ class Controller:
                 if aFile.lower().endswith('.csv'):
                     if aFile.lower().startswith("ccn"):
                         self.ccncCsvFilePath.append(os.path.join(self.folder,aFile))
-        self.mergeCSVFiles()
 
     def mergeCSVFiles(self):
         """
         Process the smps and ccnc files
         :return:
         """
+        self.makeProgress("Merging SMPS and CCNC files...")
         self.smpsTxtFilePath = [str(x) for x in self.smpsTxtFilePath]
         self.ccncCsvFilePath = [str(x) for x in self.ccncCsvFilePath]
-        if len(self.smpsTxtFilePath) !=1:
+        if len(self.smpsTxtFilePath) == 1:
+            self.smpsFile = self.smpsTxtFilePath[0]
+            print self.smpsFile
+        elif len(self.smpsTxtFilePath) < 1:
+            self.view.showError("No existing SMPS file found!")
+        else:
             pass
-        if len(self.ccncCsvFilePath) != 1:
+        if len(self.ccncCsvFilePath) < 1:
+            self.view.showError("No existing CCNC file found!")
+        elif len(self.ccncCsvFilePath) == 1:
+            self.ccncFile = self.ccncCsvFilePath[0]
+        else:
             pass
-        self.smpsFile = self.smpsTxtFilePath[0]
-        self.ccncFile = self.ccncCsvFilePath[0]
 
     def getRawDataFromFiles(self, csvFile, txtFile):
         """
@@ -128,18 +143,15 @@ class Controller:
         :param csvFile: the path to the csv file
         :param txtFile: the path to the txt file
         """
+        self.makeProgress("Reading CCNC file...")
         self.csvContent = csvProcessing(csvFile)
         self.date = self.csvContent[0]
-        self.makeProgress("Finish reading csv. Reading txt ...")
+        self.makeProgress("Reading SMPS file...")
         self.txtContent = txtProcessing(txtFile)
-        self.makeProgress("Finish reading txt. Getting necessary information...")
         self.numPeak = len(self.txtContent[0])
         self.startTimeEntries = self.txtContent[2]
         self.endTimeEntries = self.txtContent[2][1:]
-
-
-        # get the number of count
-        loopCount = 0
+        self.makeProgress("Processing raw data from files...")
         additionalEndTime = datetime.strptime(self.endTimeEntries[-1],"%I:%M:%S") + timedelta(seconds = self.timeFrame)
         csvEndTime = datetime.strptime(self.csvContent[1][len(self.csvContent[1])-1][0],"%I:%M:%S")
         timeDiff = additionalEndTime - csvEndTime
@@ -148,27 +160,24 @@ class Controller:
         additionalEndTime = str(additionalEndTime)
         self.endTimeEntries.append(additionalEndTime)
 
-        #add data to the original csv data to match the number of scan with smps for further alignment
-        #the last peak of the smps/ccnc scan should never be taken into account
+        # Add data to the original csv data to match the number of scan with smps for further alignment
+        # the last peakIndex of the smps/ccnc scan should never be taken into account
 
         addLine = self.csvContent[1][len(self.csvContent[1])-1]
         for i in range(timeDiff):
             csvEndTime = csvEndTime + timedelta(seconds=1)
             addLine[0] = str(csvEndTime.time())
             self.csvContent[1].append(addLine)
-        self.makeProgress("Finish getting necessary information. Begin getting data...")
-        self.makeProgress("Finish getting SMPS and CCNC dp data....")
-        self.makeProgress("Finish processing raw data. Working on combined data...")
 
     def getDNlog(self):
         """
-        get the DNlog data from the txt file and saves it to a csv file for easier further processing
+        Get the DNlog data from the txt file and saves it to a csv file for easier further processing
         :param txtFile: the path to the txt file
         :return: save the date to a csv file
         """
 
-        # start producing the data file
-        # get the dNlog position
+        # Start producing the data file
+        self.makeProgress("Acquiring DnLog data...")
         for k in range(3, len(self.txtContent)):
             if re.search('[a-zA-Z]', self.txtContent[k][0]):
                 dNlogPos = k
@@ -185,7 +194,6 @@ class Controller:
             writer = csv.writer(f)
             writer.writerows(dNlogList)
         self.dNlog = dNlogList
-        self.makeProgress("Finish getting DNlog data. Beging getting Dp data...")
 
     def getSMPSAndCCNC(self):
         """
@@ -195,6 +203,7 @@ class Controller:
         :param txtFile: the path to the txt file
         :return: print out the csv file
         """
+        self.makeProgress("Acquiring SMPS and CCNC data...")
         # Get the data from the SMPS file
         csvContent = self.csvContent[1]
         #copy the variable for local usage
@@ -298,6 +307,7 @@ class Controller:
         :param data: the data
         :return: a number indicating the stretch factor
         """
+        self.makeProgress("Calculating shift factor of the CCNC file...")
         data = pandas.read_csv("smps_ccn.csv")
         peakCountCCNCList = []
         peakCountSMPSList = []
@@ -309,30 +319,26 @@ class Controller:
         shiftFactor = None
         aPeakDataForCountPeak = numpy.asarray(data[startTime:endTime]["SMPS Count"])
         indexes = peakutils.indexes(aPeakDataForCountPeak, thres=0.6, min_dist=minDist)
-        # assuming that count peak of smps is always correct, the first peak is in the right position
+        # assuming that count peakIndex of smps is always correct, the first peakIndex is in the right position
         minPosSMPS = indexes[0] + getMinIndex(aPeakDataForCountPeak[indexes[0]:indexes[1]])
 
-        # count peak ccnc
+        # count peakIndex ccnc
         aPeakDataForCountPeak = numpy.asarray(data[startTime:endTime]["CCNC Count"])
         indexes = peakutils.indexes(aPeakDataForCountPeak, thres=0.6, min_dist=minDist)
         minPosCCNC = indexes[0] + getMinIndex(aPeakDataForCountPeak[indexes[0]:])
-
-
-
-        # shiftFactor = minPosCCNC - minPosSMPS
-
-
-        shiftFactor = 8
+        shiftFactor = minPosCCNC - minPosSMPS
+        # shiftFactor = 8
+        self.makeProgress("Transforming the CCNC data to match SMPS data....")
 
         while True:
-            # count peak smps
+            # count peakIndex smps
             aPeakDataForCountPeak = numpy.asarray(data[startTime:endTime]["SMPS Count"])
             indexes = peakutils.indexes(aPeakDataForCountPeak, thres=0.6, min_dist=minDist)
-            # assuming that count peak of smps is always correct, the first peak is in the right position
+            # assuming that count peakIndex of smps is always correct, the first peakIndex is in the right position
             minPos = indexes[0] + getMinIndex(aPeakDataForCountPeak[indexes[0]:indexes[-1]])
             indexes = [x + startTime for x in indexes]
             peakCountSMPSList.append(minPos + startTime)
-            # count peak ccnc
+            # count peakIndex ccnc
             aPeakDataForCountPeak = numpy.asarray(
                 data[startTime + shiftFactor:endTime + shiftFactor]["CCNC Count"])
             indexes = peakutils.indexes(aPeakDataForCountPeak, thres=0.6, min_dist=minDist)
@@ -348,52 +354,22 @@ class Controller:
                 aveSize = data.iloc[startTime + i + shiftFactor, 5]
                 newData.append([scanTime, realTime, dp, smpsCount, ccncCount, aveSize])
             # loop end condition
-            # use end time to check to exclude the last peak
+            # use end time to check to exclude the last peakIndex
             startTime += self.timeFrame
             endTime += self.timeFrame
             if endTime >= len(data):
                 break
-
-        # print len(peakCountSMPSList)
-        # print len(peakCountCCNCList)
-        # print peakCountSMPSList
-        # print peakCountCCNCList
         self.data = newData
         headers = self.data.pop(0)
         self.data = pandas.DataFrame(self.data, columns=headers)
         self.data = dateConvert(self.data)
 
-    def makeOriginalGraph(self):
-        """
-         Visualize the data
-        """
-        self.makeProgress("Finish aligning SMPS and CCNC data...")
-        dataCopied = self.data
-        data = pandas.melt(self.data, id_vars="real time", value_vars=["CCNC Count", "SMPS Count"])
-        fullGraph = ggplot(data, aes('real time', 'value', color='variable')) + theme_bw() + geom_step()
-        fullGraph.save(fullGraphFileName, width=90, height=3.9)
-        self.makeProgress("Finish producing full scale makeOriginalGraph...")
-
-        # do not output the png if in testing mode
-        if self.mode:
-            return
-        for i in range(self.numPeak - 1):
-            startPos = i * self.timeFrame
-            endPos = (i + 1) * self.timeFrame
-            peakData = pandas.melt(dataCopied[startPos:endPos], id_vars="real time", value_vars=["CCNC Count", "SMPS Count"])
-            fullGraph = ggplot(peakData,
-                               aes('real time', 'value', color='variable')) + theme_bw() + geom_step()
-            fileName = singlePeakFileName + str(i) + ".png"
-            fullGraph.save(fileName, width=10, height=6)
-        self.makeProgress("Finish producing individual peak makeOriginalGraph...")
-        self.showData()
-
     def finalizeData(self):
         """
-        Prepare the data in the form of the shiftCalculatorSmooth to finalize the calculation for one peak
+        Prepare the data in the form of the shiftCalculatorSmooth to finalize the calculation for one peakIndex
         :return: a list, which contains the data as in the ShiftCalculatorSmooth
         """
-        self.currPeak = 12
+        self.makeProgress("Finalizing data for full analysis...")
         ccnCNList = []
         dNdLogDpList = []
         startPoint = self.currPeak * self.timeFrame
@@ -409,19 +385,21 @@ class Controller:
         self.ccncnList = ccnCNList
         for i in range(len(ccnList)):
             self.ccncnList.append(ccnList[i] / cnList[i])
-        dropSizeList = list(self.data[startPoint:endPoint]['Ave Size'])
+        self.dropSizeList = list(self.data[startPoint:endPoint]['Ave Size'])
         for i in range(2,len(self.dNlog)):
             self.diameterMidpointList.append(self.dNlog[i][0])
             dNdLogDpList.append(self.dNlog[i][self.currPeak + 1])
         self.ccnNormalizedList = normalizeList(dNdLogDpList)
 
     def initCorrectCharges(self):
+        self.makeProgress("Initializing charge correction...")
         self.cnFixedList = self.cnList[:]
         self.ccnFixedList = self.ccnList[:]
         self.gCcnList = self.ccnFixedList[:]
         self.gCnList = self.cnFixedList[:]
 
     def correctCharges(self):
+        self.makeProgress("Performing charge correction...")
         ##add code here to automatically identify the asymptope
         asymp = 99999
         """
@@ -468,7 +446,7 @@ class Controller:
                 while (True):
                     upperBinBound = (self.diameterList[j] +self.diameterList[j + 1]) / 2
                     lowerBinBound = (self.diameterList[j] + self.diameterList[j - 1]) / 2
-                    if chargeList[n][2] < upperBinBound and chargeList[n][2] >= lowerBinBound:
+                    if upperBinBound > chargeList[n][2] >= lowerBinBound:
                         self.cnFixedList[j] = self.cnFixedList[j] + moveDoubletCounts
                         if chargeList[n][2] < asymp:
                             if self.gCcnList[j] > 0.0000000001:
@@ -483,7 +461,7 @@ class Controller:
                 while (True):
                     upperBinBound = (self.diameterList[j] + self.diameterList[j + 1]) / 2
                     lowerBinBound = (self.diameterList[j] + self.diameterList[j - 1]) / 2
-                    if chargeList[n][3] < upperBinBound and chargeList[n][3] >= lowerBinBound:
+                    if upperBinBound > chargeList[n][3] >= lowerBinBound:
                         self.cnFixedList[j] = self.cnFixedList[j] + moveTripletCounts
                         if chargeList[n][3] < asymp:
                             self.ccnFixedList[j] = self.ccnFixedList[j] + moveTripletCounts * self.ccnList[j] / self.cnList[j]
@@ -498,29 +476,26 @@ class Controller:
 
         self.gCcnList = self.ccnFixedList[:]
         self.gCnList = self.cnFixedList[:]
-        # print self.cnList
-        # print cnFixedList
-        # print self.ccnList
-        # print ccnFixedList
 
     def getConstants(self):
         """
-        Get the necessary constants for the sigmodal fit
+        Get the necessary constants for the sigmoid fit
         :return:
         """
         # determine minDp and minDpAsym
+        self.makeProgress("Acquiring the variables for optimization...")
         increCount = 0
-        #the percentage of the data that must produce a continuous increment to determine a vertical
-        increLength = 0.06 * len(self.ccncnSigList)
+        # The number of the data point that must produce a continuous increment to determine a vertical
+        increLength = 0.06 * len(self.ccncSigList)
         print len(self.ccnFixedList)
         for i in range(1,len(self.ccnFixedList)):
-            if self.ccncnSigList[i] >= self.ccncnSigList[i-1]:
+            if self.ccncSigList[i] >= self.ccncSigList[i-1]:
                 if increCount == 0:
                     self.minDp = self.diameterList[i - 1]
                 increCount += 1
                 if increCount >= increLength:
-                    for j in range(i+1, len(self.ccncnSigList)):
-                        if self.ccncnSigList[j] <= self.ccncnSigList[j-1]:
+                    for j in range(i+1, len(self.ccncSigList)):
+                        if self.ccncSigList[j] <= self.ccncSigList[j-1]:
                             self.minDpAsym = self.diameterList[j]
                             break
                     break
@@ -531,54 +506,90 @@ class Controller:
                 self.minDpAsym = 0
 
         # determine maxDp
-        maxCcnCn = max(self.ccncnSigList)
+        maxCcnCn = max(self.ccncSigList)
         limit = 0.1 * maxCcnCn
         for i in range(1, len(self.ccnFixedList)):
-            if abs(self.ccncnSigList[i] - self.ccncnSigList[i-1]) > limit and i > len(self.ccncnSigList) * 2 / 3:
+            if abs(self.ccncSigList[i] - self.ccncSigList[i-1]) > limit and i > len(self.ccncSigList) * 2 / 3:
                 self.maxDpAsym = self.diameterList[i]
                 break
         self.maxDp = self.maxDpAsym
 
         for i in range(len(self.diameterList)):
-            if self.diameterList[i] > self.minDpAsym and self.diameterList[i] < self.maxDpAsym:
-                self.asyms.append(self.ccncnSigList[i])
+            if self.minDpAsym < self.diameterList[i] < self.maxDpAsym:
+                self.asyms.append(self.ccncSigList[i])
             else:
                 self.asyms.append(0)
 
         self.b = getAveNoneZero(self.asyms)
         self.ccncnSimList.append(0)
         for i in range (1,len(self.diameterList)):
-            if self.diameterList[i] > self.minDp and self.diameterList[i] < self.maxDp:
+            if self.minDp < self.diameterList[i] < self.maxDp:
                 n = self.b / (1 + (self.diameterList[i] / self.d)**self.c)
                 self.ccncnSimList.append(n)
             else:
                 self.ccncnSimList.append(self.ccncnSimList[i - 1])
 
-        print self.b
+    def optimize(self):
+        self.makeProgress("Performing optimization...")
+        xList = []
+        yList = []
+        for i in range(len(self.diameterList)):
+            if self.minDp < self.diameterList[i] < self.maxDp:
+                xList.append(self.diameterList[i])
+                yList.append(self.ccncSigList[i])
+
+        initGuess = [30,-10]
+        xList  = numpy.asarray(xList)
+        yList = numpy.asarray(yList)
+        initGuess = numpy.asarray(initGuess)
+        result = opt.curve_fit(f,xList, yList,initGuess ,bounds = ([self.minDp, -200],[self.maxDp, -10]))
+
+    def makeOriginalGraph(self):
+        """
+         Visualize the data
+        """
+        self.makeProgress("Finish aligning SMPS and CCNC data...")
+        dataCopied = self.data
+        data = pandas.melt(self.data, id_vars="real time", value_vars=["CCNC Count", "SMPS Count"])
+        fullGraph = ggplot(data, aes('real time', 'value', color='variable')) + theme_bw() + geom_step()
+        fullGraph.save(fullGraphFileName, width=90, height=3.9)
+        self.makeProgress("Finish producing full scale makeOriginalGraph...")
+
+        # do not output the png if in testing mode
+        if self.mode:
+            return
+        for i in range(self.numPeak - 1):
+            startPos = i * self.timeFrame
+            endPos = (i + 1) * self.timeFrame
+            peakData = pandas.melt(dataCopied[startPos:endPos], id_vars="real time", value_vars=["CCNC Count", "SMPS Count"])
+            fullGraph = ggplot(peakData,
+                               aes('real time', 'value', color='variable')) + theme_bw() + geom_step()
+            fileName = singlePeakFileName + str(i) + ".png"
+            fullGraph.save(fileName, width=10, height=6)
+        self.makeProgress("Finish producing individual peakIndex makeOriginalGraph...")
+        self.showData()
 
     def makeAdjustedGraph(self):
         data  = pandas.DataFrame({"SMPS": self.cnList, "CCNC": self.ccnList})
         graph = data.plot(kind = 'line')
         graph.set_axis_bgcolor("white")
         graph.grid(color = '0.65')
-        plt.show()
+        self.adjustedGraph = graph.get_figure()
 
     def makeDryDiamterGraph(self):
-        # data = pandas.DataFrame({"scan time": scanList, "SMPS": self.cnList, "CCNC": self.ccnList})
-        # data = pandas.melt(data, id_vars="scan time", value_vars=["SMPS", "CCNC"])
-        # fullGraph = ggplot(data, aes('scan time', 'value', color='variable')) + theme_bw() + geom_step()
-        # print fullGraph
-        dataRaw = pandas.DataFrame({"dp": self.diameterList, "ccn/cn": self.ccncnList, "ccn/cn Fixed": self.ccncnSigList})
-        # graph = dataRaw.plot(kind ='scatter', x = 'dp', y = 'ccn/cn')
-        # graph = dataRaw.plot(kind='scatter', x='dp', y='ccn/cn Fixed')
-
-        plt.plot(self.diameterList,self.ccncnList, marker = 'o')
-        plt.plot(self.diameterList, self.ccncnSigList, marker='o')
+        plt.figure(2)
+        dataRaw = pandas.DataFrame({"dp": self.diameterList, "ccn/cn": self.ccncnList, "ccn/cn Fixed": self.ccncSigList})
+        plt.plot(self.diameterList,self.ccncnList, 'ro')
+        plt.plot(self.diameterList, self.ccncSigList, 'bo')
         plt.plot(self.diameterMidpointList, self.ccnNormalizedList)
+        plt.plot(self.diameterList, self.ccncnSimList)
+        plt.gca().axes.set_ylim([-0.2, 1.2])
+        plt.gca().set_axis_bgcolor("white")
+        plt.grid(color = '0.65')
 
+        self.dryDiaGraph = plt.figure(2)
         # graph.set_axis_bgcolor("white")
         # graph.grid(color='0.65')
-        plt.show()
 
     def makeGraphs(self):
         """
@@ -586,8 +597,9 @@ class Controller:
         :return:
         """
         # self.makeOriginalGraph()
-        # self.makeAdjustedGraph()
+        self.makeAdjustedGraph()
         self.makeDryDiamterGraph()
+        self.changeView()
 
     def run(self):
         """
@@ -595,16 +607,28 @@ class Controller:
         :return:
         """
         if not self.mode:
-            pass
-            # if self.view:
-            #     self.getRawDataFromFiles(self.ccncCsvFilePath, self.smpsTxtFilePath)
-            #     self.getDNlog()
-            #     self.getSMPSAndCCNC()
-            #     self.matchSMPSCCNCData()
-            # else:
-            #     view = MainWindow(self)
-            #     self.setView(view)
-            #     view.run()
+            if not self.view:
+                view = MainWindow(self)
+                self.setView(view)
+                view.run()
+            else:
+                self.getFileNames()
+                self.mergeCSVFiles()
+                self.getRawDataFromFiles(self.ccncFile, self.smpsFile)
+                self.getDNlog()
+                self.getSMPSAndCCNC()
+                self.matchSMPSCCNCData()
+                self.finalizeData()
+                removeSmallCcn(self.ccnList, self.minCcn)
+                self.initCorrectCharges()
+                for i in range(10):
+                    self.correctCharges()
+                for i in range(len(self.ccnFixedList)):
+                    self.ccncSigList.append(self.ccnFixedList[i] / self.cnFixedList[i])
+                self.getConstants()
+                self.optimize()
+                self.makeGraphs()
+
         else:
             self.getRawDataFromFiles(csvFilePath, txtFilePath)
             self.getDNlog()
@@ -618,10 +642,15 @@ class Controller:
             for i in range(10):
                 self.correctCharges()
             for i in range(len(self.ccnFixedList)):
-                self.ccncnSigList.append(self.ccnFixedList[i] / self.cnFixedList[i])
+                self.ccncSigList.append(self.ccnFixedList[i] / self.cnFixedList[i])
             self.getConstants()
+            self.optimize()
             # self.makeGraphs()
 
+    def changeView(self):
+        print self.adjustedGraph
+        print self.dryDiaGraph
+        self.view.updateFigures(self.adjustedGraph,self.dryDiaGraph)
 
     def setView(self,view):
         """
@@ -642,7 +671,6 @@ class Controller:
         else:
             print message
 
-
 def removeSmallCcn(ccnList, minValue):
     for i in range(len(ccnList)):
         if ccnList[i] < minValue:
@@ -657,6 +685,17 @@ def getAveNoneZero(aList):
             count += 1
     return sum / count
 
+
+def f(x, d, c):
+    """
+    The function for the optimization method
+    :param x: the variable
+    :param d: the first optimizing parameter
+    :param c: the second optimizing parameter
+    :return:
+    """
+    return 0.903 / (1+(x/d)**c)
+
 def normalizeList(aList):
     """
     Normalize a list by divide for the largest number
@@ -664,7 +703,7 @@ def normalizeList(aList):
     :return: the output list after normalized
     """
     aList = [float(x) for x in aList]
-    maxValue = max(aList)
+    maxValue = max(aList[10:])
     for x in range(len(aList)):
         aList[x] /= maxValue
     return aList
@@ -849,7 +888,7 @@ def cleanseZero(aList):
     return aList
 
 def main():
-    controller = Controller(True)
+    controller = Controller(False)
     controller.run()
 
 if __name__ == '__main__':
