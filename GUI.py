@@ -1,14 +1,13 @@
 
 import sys
 import os
-import tempfile
-
 from PySide.QtGui import *
 from PySide.QtCore import *
 from settings import *
 import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+import time
 
 matplotlib.use('Qt4Agg')
 matplotlib.rcParams['backend.qt4']='PySide'
@@ -24,8 +23,6 @@ class MainWindow(QMainWindow):
 
     def __init__(self,controller):
         QMainWindow.__init__(self)
-        # The peakIndex to show graph
-        self.peakIndex = 0
         # The progress of the program
         self.progress = 0
         # The controller of the view
@@ -75,34 +72,47 @@ class MainWindow(QMainWindow):
         # dialog.setViewMode(QFileDialog.Detail)
         folder = dialog.getExistingDirectory(options = QFileDialog.Directory)
         if folder:
-            print folder
             self.controller.setFolder(folder)
-            self.controller.run()
 
-    def showProgress(self):
-        """
-        Show the progress dialog
-        """
-        if self.progressDialog is None:
-            self.progressDialog = QProgressDialog("Tasks in progress...", "Cancel", 0, 23, self)
-        self.progressDialog.setWindowModality(Qt.WindowModal)
-        self.progressDialog.show()
-
-    def makeProgress(self, message = None):
+    def makeProgress(self, message = None, maxValue = None, complete = False, value = 1):
         """
         Progress the progress dialog bar
+        :param maxValue: the maximum of the progress dialog. Used to signal reset progress dialog
+        :param complete: whether the progress is the completion of the whole procedure
         :param message: the message to show on the progress dialog
         """
-        self.progress += 1
-        self.progressDialog.setValue(self.progress)
-        if message is not None:
-            self.progressDialog.setLabelText(message)
 
-    def showData(self):
-        self.centralWidget().update(self.peakIndex)
+        if maxValue is not None:
+            self.progress = 0
+            if self.progressDialog is not None:
+                self.progressDialog.reset()
+                self.progressDialog.setValue(0)
+                self.progressDialog.setRange(0,maxValue)
+                if message is not None:
+                    self.progressDialog.setLabelText(message)
+                self.progressDialog.setWindowModality(Qt.WindowModal)
+                self.progressDialog.show()
+            else:
+                self.progressDialog = QProgressDialog("Tasks in progress...", "Cancel", 0, maxValue, self)
+                self.progressDialog.setWindowModality(Qt.WindowModal)
+                self.progressDialog.show()
+
+        else:
+            if self.progressDialog is not None:
+                if complete == True:
+                    self.progressDialog.setValue(self.progressDialog.maximum())
+                    self.progressDialog.reset()
+                else:
+                    if message is not None:
+                        self.progressDialog.setLabelText(message)
+                    self.progress += 1
+                    qApp.processEvents()
+                    time.sleep(0.1)
+                    self.progressDialog.setValue(self.progress)
 
     def showError(self, errorMessage = 'Unknown Error!'):
         self.progressDialog.reset()
+        self.progressDialog = None
         print self.progressDialog
         warning = QMessageBox()
         warning.setIcon(QMessageBox.Warning)
@@ -110,39 +120,39 @@ class MainWindow(QMainWindow):
         warning.exec_()
 
     def run(self):
-        # Show the form
         self.show()
-        # Run the qt application
         qt_app.exec_()
 
     def resizeEvent(self, resizeEvent):
-        """
-        When resize
-        """
         self.centralWidget().resize()
 
-    def setPeakIndex(self, peak):
-        self.peakIndex = peak
-
     def updateFigures(self,adjustedFigure,diaFigure):
-        print "update Figures"
         self.centralWidget().graphWidget.individualViews.dpView.updateFigure(adjustedFigure)
         self.centralWidget().graphWidget.individualViews.dNlogView.updateFigure(diaFigure)
 
-class ControlPanel(QWidget):
-    ''' An example of PySide/PyQt absolute positioning; the main window
-        inherits from QWidget, a convenient widget for an empty window. '''
+    def updatePeak(self,peak):
+        self.controller.updatePeak(peak)
 
-    def __init__(self,parent = None):
+    def getPeak(self):
+        return self.controller.currPeak
+
+    def getMaxPeak(self):
+        return self.controller.maxPeak
+
+
+
+
+class ControlPanel(QWidget):
+    def __init__(self, mainWindow = None):
         QWidget.__init__(self)
         # addSubWidget
-        self.subWidget = InfoWidget(parent)
-        self.graphWidget = graphWidget(parent)
+        self.infoWidget = InfoWidget(mainWindow)
+        self.graphWidget = graphWidget(mainWindow)
+
         self.layout = QHBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-
-        self.layout.addWidget(self.subWidget)
+        self.layout.addWidget(self.infoWidget)
         self.layout.addWidget(self.graphWidget)
         self.setLayout(self.layout)
 
@@ -152,16 +162,12 @@ class ControlPanel(QWidget):
         self.setPalette(palette)
 
     def resize(self):
-        self.subWidget.resize(self.width(),self.height())
+        self.infoWidget.resize(self.width(), self.height())
         self.graphWidget.resize(self.width(),self.height())
 
-    def update(self,peakIndex):
-        self.graphWidget.updateImage(peakIndex)
-
-
 class InfoWidget(QWidget):
-    def __init__(self, parent=None):
-        super(self.__class__,self).__init__(parent)
+    def __init__(self, mainWindow=None):
+        super(self.__class__,self).__init__(mainWindow)
         self.layout = QVBoxLayout()  #Vertical layout
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
@@ -212,30 +218,22 @@ class graphWidget(QWidget):
         self.controlArea.resize(self.width(),self.height())
         self.individualViews.resize(self.width(),self.height())
 
-    def __init__(self, parent=None):
-        super(self.__class__, self).__init__(parent)
+    def __init__(self, mainWindow=None):
+        super(self.__class__, self).__init__(mainWindow)
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.totalView = totalView()
         self.individualViews = individualViews()
-        self.controlArea = controlArea(parent)
+        self.controlArea = controlArea(mainWindow)
         self.layout.addWidget(self.individualViews)
         self.layout.addWidget(self.controlArea)
         self.layout.addWidget(self.totalView)
 
-    def updateImage(self,peakIndex):
-        self.totalView.updateFigure()
-
 class individualViews(QWidget):
     def __init__(self):
-        # Initialize the object as a QWidget and
-        # set its title and minimum width
         QWidget.__init__(self)
-
-        # remove border
-        # addSubWidget
         self.dpView = dpView()
         self.dNlogView = dNlogView()
         self.layout = QHBoxLayout()
@@ -244,11 +242,6 @@ class individualViews(QWidget):
         self.layout.addWidget(self.dpView)
         self.layout.addWidget(self.dNlogView)
         self.setLayout(self.layout)
-        # fig = Figure(figsize=(600, 600), dpi=72, facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
-        # ax = fig.add_subplot(111)
-        # ax.plot([0, 1])
-        # canvas = FigureCanvas(fig)
-        # self.layout.addWidget(canvas)
 
     def resize(self, parentWidth, parentHeight):
         self.setFixedWidth(parentWidth)
@@ -276,8 +269,8 @@ class CustomButton(QPushButton):
 
 
 # class CustomLabel(QLabel):
-#     def __init__(self, text, parent=None):
-#         self.parent = parent
+#     def __init__(self, text, mainWindow=None):
+#         self.mainWindow = mainWindow
 #         QLabel.__init__(self, text)
 #         font = QFont()
 #         self.setFont(font)
@@ -299,16 +292,16 @@ class controlArea(QWidget):
         self.previousButton.resize(self.width(),self.height())
         self.showMinScale.resize(self.width(), self.height())
 
-    def __init__(self,parent = None):
-        self.parent = parent
+    def __init__(self, mainWindow = None):
+        self.mainWindow = mainWindow
         QWidget.__init__(self)
         self.layout = QHBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
 
-        self.previousButton = CustomButton("Previous Peak", parent)
-        self.nextButton = CustomButton("Next Peakm n", parent)
-        self.showMinScale = CustomButton("Min Graph ", parent)
+        self.previousButton = CustomButton("Previous Peak", mainWindow)
+        self.nextButton = CustomButton("Next Peak", mainWindow)
+        self.showMinScale = CustomButton("Min Graph ", mainWindow)
         self.previousButton.clicked.connect(self.previousButtonClicked)
         self.nextButton.clicked.connect(self.nextButtonClicked)
         self.layout.addWidget(self.previousButton)
@@ -316,21 +309,16 @@ class controlArea(QWidget):
         self.layout.addWidget(self.showMinScale)
         self.setLayout(self.layout)
 
-        #background color
         self.setAutoFillBackground(True)
         palette = QPalette()
         palette.setColor(QPalette.Background, "#37474F")
         self.setPalette(palette)
 
     def nextButtonClicked(self):
-        self.parent.peak +=1
-        self.parent.peak = min (self.parent.peak, maxPeak-1)
-        self.parent.updateFigures()
+        self.mainWindow.updatePeak(min(self.mainWindow.getPeak() + 1, self.mainWindow.getMaxPeak() - 1))
 
     def previousButtonClicked(self):
-        self.parent.peak -=1
-        self.parent.peak = max(0,self.parent.peak)
-        self.parent.updateFigures()
+        self.mainWindow.updatePeak(max(0, self.mainWindow.getPeak() - 1))
 
 class totalView(FigureCanvas):
     def resize(self, parentWidth, parentHeight):
@@ -344,27 +332,24 @@ class totalView(FigureCanvas):
     def updateFigure(self, figure):
         self.figure = figure
 
-
-
 class dpView(FigureCanvas):
     def resize(self, parentWidth, parentHeight):
         self.setFixedHeight(parentHeight)
         self.setFixedWidth(parentWidth / 2)
 
-    def __init__(self, parent=None):
+    def __init__(self, mainWindow=None):
         super(self.__class__, self).__init__(Figure())
 
     def updateFigure(self, figure):
         self.figure = figure
         self.draw()
 
-
 class dNlogView(FigureCanvas):
     def resize(self, parentWidth, parentHeight):
         self.setFixedHeight(parentHeight)
         self.setFixedWidth(parentWidth / 2)
 
-    def __init__(self, parent=None):
+    def __init__(self, mainWindow=None):
         super(self.__class__, self).__init__(Figure())
 
     def updateFigure(self, figure):
