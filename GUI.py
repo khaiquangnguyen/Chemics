@@ -106,9 +106,8 @@ class MainWindow(QMainWindow):
                     if message is not None:
                         self.progressDialog.setLabelText(message)
                     self.progress += 1
-                    qApp.processEvents()
-                    time.sleep(0.1)
                     self.progressDialog.setValue(self.progress)
+                qApp.processEvents()
 
     def showError(self, errorMessage = 'Unknown Error!'):
         self.progressDialog.reset()

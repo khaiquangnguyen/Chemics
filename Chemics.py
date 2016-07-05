@@ -16,7 +16,7 @@ import matplotlib
 matplotlib.style.use('ggplot')
 import scipy.optimize as opt
 import time
-
+from PySide import QtGui
 
 csvFilePath = "E:\Updated program\Demonstration_Files\CCN data 100203092813.csv"
 txtFilePath = "E:\Updated program\Demonstration_Files\AS_Calibration_SMPS.txt"
@@ -50,7 +50,7 @@ class OptimizationError(Exception):
         pass
 
 
-class Controller:
+class Controller():
     def __init__(self,mode = True):
         """"
         The controller class for the program. ALso handle the task of the model
@@ -469,6 +469,7 @@ class Controller:
         frac3List = fractionCalculation(self.diameterList,3)
         chargeList = []
         for i in self.diameterList:
+            QtGui.qApp.processEvents()
             aDList = [0]
             for k in range(1,4):
                 c = calCC(i * 10 ** -9, lambdaAir)
@@ -482,6 +483,9 @@ class Controller:
         maxUpperBinBound = (self.diameterList[-1] + self.diameterList[-2]) / 2
         lenDpList = len(self.diameterList)
         for i in range(lenDpList):
+
+            QtGui.qApp.processEvents()
+
             n = lenDpList - i - 1
             moveDoubletCounts = frac2List[n] / (frac1List[n] + frac2List[n] + frac3List[n]) * self.cnList[n]
             moveTripletCounts = frac3List[n] / (frac1List[n]  + frac2List[n]  +frac3List[n]) * self.cnList[n]
@@ -517,6 +521,7 @@ class Controller:
                     j -= 1
 
         for i in range(len(self.ccnFixedList)):
+            QtGui.qApp.processEvents()
             if self.ccnFixedList[i] / self.cnFixedList[i] < -0.01:
                 self.ccnFixedList[i] = 0
 
@@ -756,7 +761,7 @@ class Controller:
             self.initCorrectCharges()
             # Since the program requires to press the button a few times
             # We are going to simulate that action by looping
-            for i in range(10):
+            for i in range(5):
                 self.correctCharges()
             for i in range(len(self.ccnFixedList)):
                 self.ccncSigList.append(self.ccnFixedList[i] / self.cnFixedList[i])
