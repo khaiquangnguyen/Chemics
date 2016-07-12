@@ -130,6 +130,7 @@ class MainWindow(QMainWindow):
         self.centralWidget().graphWidget.individualViews.dNlogView.updateFigure(diaFigure)
 
     def updatePeak(self,peak):
+        print peak
         self.controller.updatePeak(peak)
 
     def getPeak(self):
@@ -314,7 +315,7 @@ class controlArea(QWidget):
         self.setPalette(palette)
 
     def nextButtonClicked(self):
-        self.mainWindow.updatePeak(min(self.mainWindow.getPeak() + 1, self.mainWindow.getMaxPeak() - 1))
+        self.mainWindow.updatePeak(min(self.mainWindow.getPeak() + 1, self.mainWindow.getMaxPeak() - 2))
 
     def previousButtonClicked(self):
         self.mainWindow.updatePeak(max(0, self.mainWindow.getPeak() - 1))

@@ -7,12 +7,13 @@ from scipy import signal
 import numpy
 import peakutils
 from scipy import *
-from settings import *
+from scipy import stats
 from GUI import *
 import tempfile
 import scipy.constants
 import matplotlib.pyplot as plt
 import matplotlib
+
 matplotlib.style.use('ggplot')
 import scipy.optimize as opt
 import time
@@ -21,29 +22,37 @@ from PySide import QtGui
 csvFilePath = "E:\Updated program\Demonstration_Files\CCN data 100203092813.csv"
 txtFilePath = "E:\Updated program\Demonstration_Files\AS_Calibration_SMPS.txt"
 b = 0
+
+
 class FileNotFoundError(Exception):
     def __init__(self):
         pass
+
 
 class FileProcessingError(Exception):
     def __init__(self):
         pass
 
+
 class DNlogDataError(Exception):
     def __init__(self):
         pass
+
 
 class DataError(Exception):
     def __init__(self):
         pass
 
+
 class DataMatchingException(Exception):
     def __init__(self):
         pass
 
+
 class DataPreparationError(Exception):
     def __init__(self):
         pass
+
 
 class OptimizationError(Exception):
     def __init__(self):
@@ -51,7 +60,7 @@ class OptimizationError(Exception):
 
 
 class Controller():
-    def __init__(self,mode = True):
+    def __init__(self, mode=True):
         """"
         The controller class for the program. ALso handle the task of the model
         """
@@ -91,6 +100,8 @@ class Controller():
         self.diameterList = None
         # The DNlog data
         self.dNlog = None
+        # The super saturation
+        self.ssList = []
         # The SMPS and CCNC data
         self.data = None
         # Necessary information
@@ -119,12 +130,14 @@ class Controller():
         self.maxDp = 0
         self.maxDpAsym = 0
         self.minDpAsym = 0
+        self.dp50 = []
 
         self.bList = []
         self.dList = []
         self.cList = []
+        self.dp50List = []
 
-        #Graph variables
+        # Graph variables
         self.originalGraph = None
         self.adjustedGraph = None
         self.dryDiaGraph = None
@@ -134,9 +147,12 @@ class Controller():
         self.dryDiaGraphList = []
         self.originalGraphList = []
 
+        self.peakCountSMPSList = []
+        self.peakCountCCNCList = []
+
         os.chdir(self.tempFolder)
 
-    def setFolder(self,folder):
+    def setFolder(self, folder):
         """
         Set the folder where data is stored
         :param folder: path to folder
@@ -160,7 +176,7 @@ class Controller():
                         self.smpsTxtFilePath.append(os.path.join(self.folder, aFile))
                 if aFile.lower().endswith('.csv'):
                     if aFile.lower().startswith("ccn"):
-                        self.ccncCsvFilePath.append(os.path.join(self.folder,aFile))
+                        self.ccncCsvFilePath.append(os.path.join(self.folder, aFile))
             break
 
     def mergeCSVFiles(self):
@@ -197,10 +213,12 @@ class Controller():
             self.maxPeak = len(self.txtContent[0])
             self.startTimeEntries = self.txtContent[2]
             self.endTimeEntries = self.txtContent[2][1:]
-            self.timeFrame = datetime.strptime(self.endTimeEntries[0],"%I:%M:%S") - datetime.strptime(self.startTimeEntries[0],"%I:%M:%S")
+            self.timeFrame = datetime.strptime(self.endTimeEntries[0], "%I:%M:%S") - datetime.strptime(
+                self.startTimeEntries[0], "%I:%M:%S")
             self.timeFrame = int(self.timeFrame.total_seconds())
-            additionalEndTime = datetime.strptime(self.endTimeEntries[-1],"%I:%M:%S") + timedelta(seconds = self.timeFrame)
-            csvEndTime = datetime.strptime(self.csvContent[1][len(self.csvContent[1])-1][0],"%I:%M:%S")
+            additionalEndTime = datetime.strptime(self.endTimeEntries[-1], "%I:%M:%S") + timedelta(
+                seconds=self.timeFrame)
+            csvEndTime = datetime.strptime(self.csvContent[1][len(self.csvContent[1]) - 1][0], "%I:%M:%S")
             timeDiff = additionalEndTime - csvEndTime
             additionalEndTime = additionalEndTime.time()
             timeDiff = int(timeDiff.total_seconds())
@@ -212,7 +230,7 @@ class Controller():
         # Add data to the original csv data to match the number of scan with smps for further alignment
         # the last currPeak of the smps/ccnc scan should never be taken into account
 
-        addLine = self.csvContent[1][len(self.csvContent[1])-1]
+        addLine = self.csvContent[1][len(self.csvContent[1]) - 1]
         for i in range(timeDiff):
             csvEndTime = csvEndTime + timedelta(seconds=1)
             addLine[0] = str(csvEndTime.time())
@@ -251,7 +269,7 @@ class Controller():
         try:
             # Get the data from the SMPS file
             csvContent = self.csvContent[1]
-            #copy the variable for local usage
+            # copy the variable for local usage
             txtContent = self.txtContent
             startTime = self.startTimeEntries
             width = self.maxPeak
@@ -298,13 +316,16 @@ class Controller():
             sizeList = [0.625] + [0.875]
             size = 1.25
             binPos = 25
+            aSSList = []
             for i in range(0, width - 1):
                 sizeList.append(size)
                 size += 0.5
             # get the position of the time and the average size for each scan
+            ssList = []
             for i in range(count):
                 aCountList = [i + 1]
                 aSizeList = [i + 1]
+                aSSList = []
                 for j in range(0, len(startTime)):
                     timeStamp = startTime[j]
                     for k in range(0, len(csvContent)):
@@ -313,6 +334,7 @@ class Controller():
                     sizeSum = 0
                     countSum = 0
                     aCountList.append(csvContent[k + i][-3])
+                    aSSList.append(float(csvContent[k + i][1]))
                     for m in range(0, 20):
                         sizeSum += sizeList[m] * float(csvContent[k + i][binPos + m])
                         size += 0.5
@@ -324,25 +346,37 @@ class Controller():
                         aSizeList.append(sizeSum / countSum)
                 ccnList.append(aCountList)
                 aveSizeList.append(aSizeList)
+                ssList.append(aSSList)
 
             # Combine the SMPS and CCNC data into the same file
             # and in a continuous form for easier processing
+            #
+            maxNum = 0
+            for i in range(len(ssList[0])):
+                maxNum = ssList[0][i]
+                for j in range(len(ssList)):
+                    if ssList[j][i] > maxNum:
+                        maxNum = ssList[j][i]
 
+                        # totalSum += float(ssList[j][i])
+                self.ssList.append(maxNum)
+            #
+            print self.ssList
             # aLine has scan Time, dp, real time, SMPS count ccnc count, and ave Size
-            aLine = []
             timeStamp = startTime[0]
             timeStamp = datetime.strptime(timeStamp, "%I:%M:%S")
-
             title = ["scan time"] + ["real time"] + ["dp"] + ["SMPS Count"] + ["CCNC Count"] + ["Ave Size"]
             smpsCcnList = []
             for i in range(0, width):
                 for j in range(len(ccnList)):
-                    aLine = [smpsList[j][1]] + [timeStamp.time()] + [float(smpsList[j][0])] + [float(smpsList[j][i + 2])] + [
-                        float(ccnList[j][i + 1])] + [float(aveSizeList[j][i + 1])]
+                    aLine = [smpsList[j][1]] + [timeStamp.time()] + [float(smpsList[j][0])] + [
+                        float(smpsList[j][i + 2])] + [
+                                float(ccnList[j][i + 1])] + [float(aveSizeList[j][i + 1])]
                     timeStamp = timeStamp + timedelta(seconds=1)
                     smpsCcnList.append(aLine)
             self.data = pandas.DataFrame(smpsCcnList, columns=title)
-        except Exception:
+        except Exception as e:
+            print e
             raise DataError()
 
     def matchSMPSCCNCData(self):
@@ -357,15 +391,9 @@ class Controller():
             endTime = self.timeFrame
             newData = [self.data.columns.values.tolist()]
 
-
-
             # need to do something to calculate the correct min Dist
             minDist = 16
 
-
-
-
-            shiftFactor = None
             aPeakDataForCountPeak = numpy.asarray(self.data[startTime:endTime]["SMPS Count"])
             indexes = peakutils.indexes(aPeakDataForCountPeak, thres=0.6, min_dist=minDist)
             # assuming that count currPeak of smps is always correct, the first currPeak is in the right position
@@ -384,14 +412,14 @@ class Controller():
                 # assuming that count currPeak of smps is always correct, the first currPeak is in the right position
                 minPos = indexes[0] + getMinIndex(aPeakDataForCountPeak[indexes[0]:indexes[-1]])
                 indexes = [x + startTime for x in indexes]
-                peakCountSMPSList.append(minPos + startTime)
+                self.peakCountSMPSList.append(minPos + startTime)
                 # count currPeak ccnc
                 aPeakDataForCountPeak = numpy.asarray(
                     self.data[startTime + shiftFactor:endTime + shiftFactor]["CCNC Count"])
                 indexes = peakutils.indexes(aPeakDataForCountPeak, thres=0.6, min_dist=minDist)
                 minPos = indexes[0] + getMinIndex(aPeakDataForCountPeak[indexes[0]:indexes[-1]])
                 indexes = [x + startTime for x in indexes]
-                peakCountCCNCList.append(minPos + startTime)
+                self.peakCountCCNCList.append(minPos + startTime)
                 for i in range(self.timeFrame):
                     scanTime = i + 1
                     realTime = self.data.iat[startTime + i, 1]
@@ -412,6 +440,33 @@ class Controller():
         except:
             raise DataMatchingException()
 
+    def peakAlignAndGraph(self):
+        figure = plt.figure(0)
+        y = numpy.asarray(self.peakCountCCNCList)
+        x = numpy.asarray(self.peakCountSMPSList)
+        result = scipy.stats.linregress(x, y)
+        slope = result[0]
+        yIntercept = result[1]
+
+        # Recalculate the position of the smps
+        correctedIndexList = []
+        for i in range(len(self.data)):
+            correctedIndexList.append(round((i * slope + yIntercept) * 10))
+
+        print correctedIndexList
+        # for i in range(len(self.data)):
+        # plt.figure(1)
+        plt.plot(x, y, "ro", picker=5)
+        plt.plot(x, x * slope + yIntercept)
+        textToShow = str(slope) + "* x" + " + " + str(yIntercept)
+        plt.text(x[4], y[3], textToShow)
+        figure.canvas.mpl_connect('pick_event', self.onPick)
+        plt.show()
+
+    def onPick(self, event):
+        thedot = event.artist
+        print event.ind
+
     def finalizeData(self):
         """
         Prepare the data in the form of the shiftCalculatorSmooth to finalize the calculation for one currPeak
@@ -420,12 +475,12 @@ class Controller():
         ccnCNList = []
         dNdLogDpList = []
         startPoint = self.currPeak * self.timeFrame
-        endPoint = (self.currPeak +1 )* self.timeFrame
+        endPoint = (self.currPeak + 1) * self.timeFrame
         self.diameterList = list(self.data[startPoint:endPoint]['dp'])
         ccnList = list(self.data[startPoint:endPoint]['CCNC Count'])
         cnList = list(self.data[startPoint:endPoint]['SMPS Count'])
 
-        #modify this to get a decently good number
+        # modify this to get a decently good number
         cnList = [x * 0.2 for x in cnList]
         self.ccnList = ccnList
         self.cnList = cnList
@@ -434,7 +489,7 @@ class Controller():
         for i in range(len(ccnList)):
             self.ccncnList.append(ccnList[i] / cnList[i])
         self.dropSizeList = list(self.data[startPoint:endPoint]['Ave Size'])
-        for i in range(2,len(self.dNlog)):
+        for i in range(2, len(self.dNlog)):
             self.diameterMidpointList.append(self.dNlog[i][0])
             dNdLogDpList.append(self.dNlog[i][self.currPeak + 1])
         self.ccnNormalizedList = normalizeList(dNdLogDpList)
@@ -462,22 +517,24 @@ class Controller():
         p = 1013
         nair = 0.000001458 * t ** 1.5 / (t + 110.4)
         lambdaAir = 2 * nair / 100 / p / (8 * 28.84 / pi / 8.314 / t) ** 0.5 * 1000 ** 0.5
-        coeficientList = [[-0.0003,-0.1014,0.3073,-0.3372,0.1023,-0.0105],[-2.3484,0.6044,0.48,0.0013,-0.1553,0.032],[-44.4756,79.3772,-62.89,26.4492,-5.748,0.5049]]
+        coeficientList = [[-0.0003, -0.1014, 0.3073, -0.3372, 0.1023, -0.0105],
+                          [-2.3484, 0.6044, 0.48, 0.0013, -0.1553, 0.032],
+                          [-44.4756, 79.3772, -62.89, 26.4492, -5.748, 0.5049]]
         # frac0List = fractionCalculation(self.diameterList,0,coeficientList[0])
-        frac1List = fractionCalculation(self.diameterList,1,coeficientList[1])
-        frac2List = fractionCalculation(self.diameterList,2,coeficientList[2])
-        frac3List = fractionCalculation(self.diameterList,3)
+        frac1List = fractionCalculation(self.diameterList, 1, coeficientList[1])
+        frac2List = fractionCalculation(self.diameterList, 2, coeficientList[2])
+        frac3List = fractionCalculation(self.diameterList, 3)
         chargeList = []
         for i in self.diameterList:
             QtGui.qApp.processEvents()
             aDList = [0]
-            for k in range(1,4):
+            for k in range(1, 4):
                 c = calCC(i * 10 ** -9, lambdaAir)
                 dp = 10 ** 9 * findDp(i * 10 ** -9 / c, lambdaAir, k)
                 aDList.append(dp)
             chargeList.append(aDList)
 
-        #second part of correct charges
+        # second part of correct charges
         self.cnFixedList = self.cnList[:]
         self.ccnFixedList = self.ccnList[:]
         maxUpperBinBound = (self.diameterList[-1] + self.diameterList[-2]) / 2
@@ -488,19 +545,20 @@ class Controller():
 
             n = lenDpList - i - 1
             moveDoubletCounts = frac2List[n] / (frac1List[n] + frac2List[n] + frac3List[n]) * self.cnList[n]
-            moveTripletCounts = frac3List[n] / (frac1List[n]  + frac2List[n]  +frac3List[n]) * self.cnList[n]
+            moveTripletCounts = frac3List[n] / (frac1List[n] + frac2List[n] + frac3List[n]) * self.cnList[n]
             self.cnFixedList[n] = self.cnFixedList[n] - moveDoubletCounts - moveTripletCounts
             self.ccnFixedList[n] = self.ccnFixedList[n] - moveDoubletCounts - moveTripletCounts
             if chargeList[n][2] <= maxUpperBinBound:
                 j = lenDpList - 2
                 while (True):
-                    upperBinBound = (self.diameterList[j] +self.diameterList[j + 1]) / 2
+                    upperBinBound = (self.diameterList[j] + self.diameterList[j + 1]) / 2
                     lowerBinBound = (self.diameterList[j] + self.diameterList[j - 1]) / 2
                     if upperBinBound > chargeList[n][2] >= lowerBinBound:
                         self.cnFixedList[j] = self.cnFixedList[j] + moveDoubletCounts
                         if chargeList[n][2] < asymp:
                             if self.gCcnList[j] > epsilon:
-                                self.ccnFixedList[j] = self.ccnFixedList[j] + moveDoubletCounts * self.gCcnList[j] / self.gCnList[j]
+                                self.ccnFixedList[j] = self.ccnFixedList[j] + moveDoubletCounts * self.gCcnList[j] / \
+                                                                              self.gCnList[j]
                         else:
                             self.ccnFixedList[j] = self.ccnFixedList[j] + moveDoubletCounts
                         break
@@ -514,7 +572,8 @@ class Controller():
                     if upperBinBound > chargeList[n][3] >= lowerBinBound:
                         self.cnFixedList[j] = self.cnFixedList[j] + moveTripletCounts
                         if chargeList[n][3] < asymp:
-                            self.ccnFixedList[j] = self.ccnFixedList[j] + moveTripletCounts * self.ccnList[j] / self.cnList[j]
+                            self.ccnFixedList[j] = self.ccnFixedList[j] + moveTripletCounts * self.ccnList[j] / \
+                                                                          self.cnList[j]
                         else:
                             self.ccnFixedList[j] = self.ccnFixedList[j] + moveTripletCounts
                         break
@@ -541,8 +600,8 @@ class Controller():
             if asymList[i] > 1:
                 increCount = 0
                 self.minDp = self.diameterList[i]
-                for j in range(i+1, i + increLength):
-                    if asymList[i] > 1:
+                for j in range(i + 1, i + increLength):
+                    if j < len(asymList) and asymList[j] > 1:
                         increCount += 1
                 if increCount > increLength / 2:
                     exitLoop = True
@@ -564,7 +623,7 @@ class Controller():
 
         # determine maxDp
         for i in range(j, len(self.ccnFixedList)):
-            if abs(self.ccncSigList[i] - self.ccncSigList[i-1]) > 0.1:
+            if abs(self.ccncSigList[i] - self.ccncSigList[i - 1]) > 0.1:
                 self.maxDpAsym = self.diameterList[i]
                 break
         self.maxDp = self.maxDpAsym
@@ -577,9 +636,9 @@ class Controller():
                 asymsList.append(0)
         self.b = getAveNoneZero(asymsList)
         self.ccncnSimList.append(0)
-        for i in range (1,len(self.diameterList)):
+        for i in range(1, len(self.diameterList)):
             if self.minDp < self.diameterList[i] < self.maxDp:
-                n = self.b / (1 + (self.diameterList[i] / self.d)**self.c)
+                n = self.b / (1 + (self.diameterList[i] / self.d) ** self.c)
                 self.ccncnSimList.append(n)
             else:
                 self.ccncnSimList.append(self.ccncnSimList[i - 1])
@@ -593,14 +652,15 @@ class Controller():
                     xList.append(self.diameterList[i])
                     yList.append(self.ccncSigList[i])
 
-            initGuess = [30,-10]
-            xList  = numpy.asarray(xList)
+            initGuess = [30, -10]
+            xList = numpy.asarray(xList)
             yList = numpy.asarray(yList)
             # initGuess = numpy.asarray(initGuess)
-            result = opt.curve_fit(f,xList, yList,bounds = ([self.minDp, -200],[self.maxDp, -1]), method = "trf")
+            result = opt.curve_fit(f, xList, yList, bounds=([self.minDp, -200], [self.maxDp, -1]), method="trf")
             self.d = result[0][0]
             self.c = result[0][1]
             self.ccncnSimList = [0]
+
             for i in range(1, len(self.diameterList)):
                 if self.minDp < self.diameterList[i] < self.maxDp:
                     n = self.b / (1 + (self.diameterList[i] / self.d) ** self.c)
@@ -610,25 +670,26 @@ class Controller():
         except:
             raise OptimizationError()
 
+    # def getDp50(self):
+    #     self.dp50 =(1/0.5 - 1)**(1/self.c)*self.d
+
     def makeAdjustedGraph(self):
-        data  = pandas.DataFrame({"SMPS": self.cnList, "CCNC": self.ccnList})
-        graph = data.plot(kind = 'line')
+        data = pandas.DataFrame({"SMPS": self.cnList, "CCNC": self.ccnList})
+        graph = data.plot(kind='line')
         graph.set_axis_bgcolor("white")
-        graph.grid(color = '0.65')
+        graph.grid(color='0.65')
         self.adjustedGraphList.append(plt.gcf())
 
     def makeDryDiamterGraph(self):
         plt.figure()
-        plt.plot(self.diameterList,self.ccncnList, 'ro')
+        plt.plot(self.diameterList, self.ccncnList, 'ro')
         plt.plot(self.diameterList, self.ccncSigList, 'bo')
         plt.plot(self.diameterMidpointList, self.ccnNormalizedList)
         plt.plot(self.diameterList, self.ccncnSimList)
         plt.gca().axes.set_ylim([-0.2, 1.2])
         plt.gca().set_axis_bgcolor("white")
-        plt.grid(color = '0.65')
+        plt.grid(color='0.65')
         self.dryDiaGraphList.append(plt.gcf())
-        # graph.set_axis_bgcolor("white")
-        # graph.grid(color='0.65')
 
     def makeGraphs(self):
         """
@@ -639,10 +700,9 @@ class Controller():
         self.makeAdjustedGraph()
         self.makeDryDiamterGraph()
 
-
     def preparationProcedure(self):
         try:
-            self.makeProgress(maxValue = 7)
+            self.makeProgress(maxValue=7)
             self.makeProgress("Searching folder for CCNC and SMPS files...")
             self.getFileNames()
             self.makeProgress("Merging SMPS and CCNC files...")
@@ -655,7 +715,7 @@ class Controller():
             self.getSMPSAndCCNC()
             self.makeProgress("Transforming the CCNC data to match SMPS data....")
             self.matchSMPSCCNCData()
-            self.makeProgress(complete = True)
+            self.makeProgress(complete=True)
         except FileNotFoundError:
             self.view.showError("Can't file SMPS or CCNC files in folder: " + str(self.folder))
             raise DataPreparationError()
@@ -704,7 +764,6 @@ class Controller():
             # self.view.showError("The data is not optimizable. No optimal soluation found!")
             print "There is an error on peak"
 
-
     def getPeakData(self):
         # startPoint = self.currPeak * self.timeFrame
         # endPoint = (self.currPeak + 1) * self.timeFrame
@@ -720,7 +779,6 @@ class Controller():
         self.c = self.cList[self.currPeak]
         self.adjustedGraph = self.adjustedGraphList[self.currPeak]
         self.dryDiaGraph = self.dryDiaGraphList[self.currPeak]
-
 
     def run(self):
         """
@@ -740,15 +798,15 @@ class Controller():
                 else:
                     # -1 because we kind of making up the last peak for alignment
                     # 5 for 5 step for each peak procesisng
-                    self.makeProgress( "Preparing data for peak processing...", maxValue = self.maxPeak * 12)
+                    self.makeProgress("Preparing data for peak processing...", maxValue=self.maxPeak * 12)
                     for i in range(0, self.maxPeak - 1):
                         self.currPeak = i
-                        self.makeProgress("Processing peak " + str(i + 1), value = 0)
+                        self.makeProgress("Processing peak " + str(i + 1), value=0)
                         # time.sleep(0.1)
                         self.ProcessingProcedure()
                     # reset currPeak
                     self.currPeak = -1
-                    self.makeProgress(complete = True)
+                    self.makeProgress(complete=True)
                     self.updatePeak(0)
 
         else:
@@ -756,30 +814,31 @@ class Controller():
             self.getDNlog()
             self.getSMPSAndCCNC()
             self.matchSMPSCCNCData()
+            # self.peakAlignAndGraph()
             self.finalizeData()
-            removeSmallCcn(self.ccnList, self.minCcn)
-            self.initCorrectCharges()
+            # removeSmallCcn(self.ccnList, self.minCcn)
+            # self.initCorrectCharges()
             # Since the program requires to press the button a few times
             # We are going to simulate that action by looping
-            for i in range(5):
-                self.correctCharges()
-            for i in range(len(self.ccnFixedList)):
-                self.ccncSigList.append(self.ccnFixedList[i] / self.cnFixedList[i])
-            self.getConstants()
-            self.optimize()
-            self.makeGraphs()
+            # for i in range(5):
+            #     self.correctCharges()
+            # for i in range(len(self.ccnFixedList)):
+            #     self.ccncSigList.append(self.ccnFixedList[i] / self.cnFixedList[i])
+            # self.getConstants()
+            # self.optimize()
+            # self.makeGraphs()
 
-    def updatePeak(self,peak):
+    def updatePeak(self, peak):
         if peak != self.currPeak:
             self.currPeak = peak
             self.getPeakData()
+            print self.b
             self.changeView()
-            print "123"
 
     def changeView(self):
         self.view.updateFigures(self.adjustedGraph, self.dryDiaGraph)
 
-    def setView(self,view):
+    def setView(self, view):
         """
         Set the view for the controller
         :param view: the view which associate with the controller
@@ -790,17 +849,19 @@ class Controller():
         if not self.mode:
             self.view.showData()
 
-    def makeProgress(self,message = None, maxValue = None, complete = False, value = 1):
+    def makeProgress(self, message=None, maxValue=None, complete=False, value=1):
         if not self.mode:
             self.view.makeProgress(message, maxValue, complete, value)
 
         else:
             print message
 
+
 def removeSmallCcn(ccnList, minValue):
     for i in range(len(ccnList)):
         if ccnList[i] < minValue:
             ccnList[i] = 0
+
 
 def getAveNoneZero(aList):
     sum = 0
@@ -814,6 +875,7 @@ def getAveNoneZero(aList):
     else:
         return 0
 
+
 def f(x, d, c):
     """
     The function for the optimization method
@@ -822,14 +884,14 @@ def f(x, d, c):
     :param c: the second optimizing parameter
     :return:
     """
-    return 0.903 / (1+(x/d)**c)
+    return 0.903 / (1 + (x / d) ** c)
 
 
 def getAsym(xList, yList):
     asymList = []
-    for i in range(0, len(xList)-1):
-        if (xList[i+1] - xList[i]) != 0:
-            asymList.append((yList[i+1] - yList[i])/ (xList[i+1] - xList[i]) * 100)
+    for i in range(0, len(xList) - 1):
+        if (xList[i + 1] - xList[i]) != 0:
+            asymList.append((yList[i + 1] - yList[i]) / (xList[i + 1] - xList[i]) * 100)
         else:
             asymList.append(9999)
         if 0 > asymList[i] > -0.001:
@@ -849,13 +911,14 @@ def normalizeList(aList):
         aList[x] /= maxValue
     return aList
 
+
 def csvProcessing(filePath):
     """
     read in the csv file with the name filePath
     :param filePath: the path to the csv file
     :return: a list, which represents the csv
     """
-    with open(filePath,'r') as csvFile:
+    with open(filePath, 'r') as csvFile:
         reader = csv.reader(csvFile, delimiter=' ')
         line = 0
         # convert to list for easier processing
@@ -865,7 +928,7 @@ def csvProcessing(filePath):
 
         # get the date
         date = csvContent[1][1]
-        date =date.replace(",", "")
+        date = date.replace(",", "")
 
         # get the time
         time = csvContent[2][0]
@@ -878,15 +941,16 @@ def csvProcessing(filePath):
         csvContent = csvContent[3:]
 
         # process the csv
-        for i in range(0,len(csvContent)):
+        for i in range(0, len(csvContent)):
             # remove empty string in each row
-            csvContent[i] = filter(None,csvContent[i])
+            csvContent[i] = filter(None, csvContent[i])
             # remove the "," character in each item
             for j in range(0, len(csvContent[i])):
                 csvContent[i][j] = csvContent[i][j].replace(",", "")
         return date, csvContent
 
-def txtProcessing (filePath):
+
+def txtProcessing(filePath):
     """
     read in the txt file and process the txt with the path filePath
     :param filePath: the path to the file
@@ -904,7 +968,7 @@ def txtProcessing (filePath):
         txtContent = txtContent[13:]
 
         # remove the unnecessary title
-        for i in range(0,3):
+        for i in range(0, 3):
             txtContent[i] = txtContent[i][1:]
         txtContent = txtContent[0:3] + txtContent[4:]
 
@@ -912,6 +976,7 @@ def txtProcessing (filePath):
         for i in range(0, len(txtContent)):
             txtContent[i] = filter(None, txtContent[i])
         return txtContent
+
 
 def getMinIndex(data):
     """
@@ -927,11 +992,13 @@ def getMinIndex(data):
             minValue = data[i]
     return minPos
 
+
 def dateConvert(df):
     dt = df.index
     df['real time'] = dt
     df.reset_index(drop=True)
     return df
+
 
 def makeMinGraph(smpsList, ccncList):
     """
@@ -940,6 +1007,7 @@ def makeMinGraph(smpsList, ccncList):
     :param ccncList:
     :return:
     """
+
 
 def printList(aList):
     """
@@ -951,7 +1019,8 @@ def printList(aList):
         print(row)
     print()
 
-def fractionCalculation(aList, chargeNumber, coeffList = None):
+
+def fractionCalculation(aList, chargeNumber, coeffList=None):
     """
     :param aList: the input list
     :param coeffList: the list of coefficient
@@ -965,29 +1034,31 @@ def fractionCalculation(aList, chargeNumber, coeffList = None):
     t = scipy.constants.zero_Celsius + 25
     z = 0.875
     p = 1013
-    nair = 0.000001458 * t**1.5 / (t + 110.4)
-    lambdaAir = 2*nair/100/p/(8*28.84/pi/8.314/t)**0.5*1000**0.5
+    nair = 0.000001458 * t ** 1.5 / (t + 110.4)
+    lambdaAir = 2 * nair / 100 / p / (8 * 28.84 / pi / 8.314 / t) ** 0.5 * 1000 ** 0.5
 
     if (chargeNumber <= 2):
         for i in range(len(aList)):
             l = log10(aList[i])
             sum = 0
             for j in range(len(coeffList)):
-                sum += coeffList[j] * l**j
+                sum += coeffList[j] * l ** j
             newList.append(10 ** sum)
     else:
         for i in (aList):
-            #divide the equation for easier processing
-            f1 = e / sqrt(4 * pi ** 2 *e0 *i * 10 **(-9) *k * t)
-            f2 = -((chargeNumber - (2 * pi *e0 *i * 10**(-9) *k *t /e ** 2)*log(z)) ** 2)
-            f3 = (4 * pi *e0 *i * 10 **(-9) *k *t /e ** 2)
+            # divide the equation for easier processing
+            f1 = e / sqrt(4 * pi ** 2 * e0 * i * 10 ** (-9) * k * t)
+            f2 = -((chargeNumber - (2 * pi * e0 * i * 10 ** (-9) * k * t / e ** 2) * log(z)) ** 2)
+            f3 = (4 * pi * e0 * i * 10 ** (-9) * k * t / e ** 2)
             value = f1 * exp(f2 / f3)
             newList.append(value)
 
     return newList
 
+
 def calCC(dp, lambdaAir):
     return 1 + 2 * lambdaAir / dp * (1.257 + 0.4 * exp(-1.1 * dp / 2 / lambdaAir))
+
 
 def findDp(dp, lambdaAir, n):
     dpOld = dp * 1 * n
@@ -1000,8 +1071,10 @@ def findDp(dp, lambdaAir, n):
             dpOld = dpNew
     return dpNew
 
+
 def aveList(aList):
     return sum(aList) / len(aList)
+
 
 def movingAve(aList, n):
     """
@@ -1016,6 +1089,7 @@ def movingAve(aList, n):
         newList.append(newElement)
     return newList
 
+
 def cleanseZero(aList):
     """
     Change all 0 in the list to a very small number
@@ -1028,11 +1102,69 @@ def cleanseZero(aList):
             aList[i] = epsilon
     return aList
 
+
+def makeKappaGraph():
+    klines = pandas.read_excel("klines.xlsx", header=1)
+    header = klines.columns
+    diaList = klines[header[1]]
+    ax = plt.figure()
+    plt.gca().set_axis_bgcolor("white")
+
+    for i in range(2, len(header)):
+        y = klines[header[i]]
+        plt.loglog(diaList, y)
+        plt.ylim([0.1, 1.5])
+        plt.xlim([10, 200])
+        plt.grid(True, which='both', color="0.85")
+    plt.show()
+
+
+def calKappa(ss, dp50):
+    lookup = pandas.read_excel("kCal.xlsx", header=None, sheetname="lookup")
+    rowIndex = int(math.floor(dp50 - 9))
+    matchRow = list(lookup.loc[rowIndex][2:])
+    valueRow = list(lookup.loc[0][2:])
+    a = getCorrectNum(matchRow, ss)
+    cIndex = a[1]
+    a = a[0]
+    b = getCorrectNum(matchRow, ss, bigger = False)
+    dIndex = b[1]
+    b = b[0]
+    c = valueRow[cIndex]
+    d = valueRow[dIndex]
+    apparentKappa =(ss - (a - (a - b) / (c - d) * c)) / ((a - b) / (c - d))
+    anaKappa = 1
+    trueSc = 1
+
+
+def getCorrectNum(aList, number, bigger=True):
+    """
+    Get a number approximately around number
+    Assuming the aList is sorted in descending order
+    :param bigger: if bigger, return the minimum number bigger than number, otherwise
+                    return the maximum number smaller than number
+    :param aList: the list
+    :param number: the number
+    :return: the correct number
+    """
+    num = aList[0]
+    for i in range(1, len(aList)):
+        if aList[i] < number:
+            if bigger:
+                return (num, i -1)
+            else:
+                return (aList[i], i)
+        else:
+            num = aList[i]
+    return num
+
+
 def main():
-    controller = Controller(False)
-    controller.run()
+    # controller = Controller(True)
+    # controller.run()
+    # makeKappaGraph()
+    calKappa(0.4, 61.6)
+
 
 if __name__ == '__main__':
     main()
-
-
