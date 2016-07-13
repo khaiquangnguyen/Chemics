@@ -23,17 +23,10 @@ class MainWindow(QMainWindow):
 
     def __init__(self,controller):
         QMainWindow.__init__(self)
-        # The progress of the program
         self.progress = 0
-        # The controller of the view
         self.controller = controller
-        # The progress dialog
         self.progressDialog = None
-
-        # Set the temporary working folder for whatever usage
         os.chdir(self.controller.tempFolder)
-
-        # Set size
         self.setWindowTitle('Chemics')
         self.setMinimumHeight(800)
         self.setMinimumWidth(800)
@@ -69,7 +62,6 @@ class MainWindow(QMainWindow):
         """
         dialog = QFileDialog()
         dialog.setFileMode(QFileDialog.Directory)
-        # dialog.setViewMode(QFileDialog.Detail)
         folder = dialog.getExistingDirectory(options = QFileDialog.Directory)
         if folder:
             self.controller.setFolder(folder)
@@ -94,6 +86,7 @@ class MainWindow(QMainWindow):
                 self.progressDialog.show()
             else:
                 self.progressDialog = QProgressDialog("Tasks in progress...", "Cancel", 0, maxValue, self)
+                self.progressDialog.canceled.connect(self.cancelProgress)
                 self.progressDialog.setWindowModality(Qt.WindowModal)
                 self.progressDialog.show()
 
@@ -110,13 +103,23 @@ class MainWindow(QMainWindow):
                 qApp.processEvents()
 
     def showError(self, errorMessage = 'Unknown Error!'):
-        self.progressDialog.reset()
-        self.progressDialog = None
-        print self.progressDialog
+        """
+        Show the error message
+        :param errorMessage: The message to show in the error message
+        """
+        if self.progressDialog is not None:
+            self.progressDialog.reset()
+            self.progressDialog = None
         warning = QMessageBox()
         warning.setIcon(QMessageBox.Warning)
         warning.setText(errorMessage)
         warning.exec_()
+
+    def cancelProgress(self):
+        """
+        Action when the cancel button of the progress bar is clicked
+        """
+        self.controller.cancelProgress()
 
     def run(self):
         self.show()
@@ -126,11 +129,15 @@ class MainWindow(QMainWindow):
         self.centralWidget().resize()
 
     def updateFigures(self,adjustedFigure,diaFigure):
+        """
+        Update the two figures in the adjust-figure area and diameter-figure area
+        :param adjustedFigure: the figure to update into the area
+        :param diaFigure: the figure to update into the area
+        """
         self.centralWidget().graphWidget.individualViews.dpView.updateFigure(adjustedFigure)
         self.centralWidget().graphWidget.individualViews.dNlogView.updateFigure(diaFigure)
 
     def updatePeak(self,peak):
-        print peak
         self.controller.updatePeak(peak)
 
     def getPeak(self):
@@ -139,8 +146,12 @@ class MainWindow(QMainWindow):
     def getMaxPeak(self):
         return self.controller.maxPeak
 
-
-
+    def updateTotalViewFigure(self, aFigure):
+        """
+        Update the figure in the total view. Either the graph of the whole experiment or of the minimum
+        :param aFigure: The figure to update
+        """
+        self.centralWidget().graphWidget.totalView.updateFigure(aFigure)
 
 class ControlPanel(QWidget):
     def __init__(self, mainWindow = None):
@@ -290,7 +301,7 @@ class controlArea(QWidget):
         self.setFixedWidth(parentWidth)
         self.nextButton.resize(self.width(),self.height())
         self.previousButton.resize(self.width(),self.height())
-        self.showMinScale.resize(self.width(), self.height())
+        self.showMinGraphButton.resize(self.width(), self.height())
 
     def __init__(self, mainWindow = None):
         self.mainWindow = mainWindow
@@ -301,12 +312,17 @@ class controlArea(QWidget):
 
         self.previousButton = CustomButton("Previous Peak", mainWindow)
         self.nextButton = CustomButton("Next Peak", mainWindow)
-        self.showMinScale = CustomButton("Min Graph ", mainWindow)
+        self.showMinGraphButton = CustomButton("Min Graph ", mainWindow)
+        self.showTotalGraphButton = CustomButton("Full Graph", mainWindow)
+        self.optimizeButton = CustomButton("Optimize", mainWindow)
+
         self.previousButton.clicked.connect(self.previousButtonClicked)
         self.nextButton.clicked.connect(self.nextButtonClicked)
+        self.optimizeButton.clicked.connect(self.optimize)
         self.layout.addWidget(self.previousButton)
         self.layout.addWidget(self.nextButton)
-        self.layout.addWidget(self.showMinScale)
+        self.layout.addWidget(self.showMinGraphButton)
+        self.layout.addWidget(self.optimizeButton)
         self.setLayout(self.layout)
 
         self.setAutoFillBackground(True)
@@ -320,17 +336,25 @@ class controlArea(QWidget):
     def previousButtonClicked(self):
         self.mainWindow.updatePeak(max(0, self.mainWindow.getPeak() - 1))
 
+    def optimize(self):
+        self.mainWindow.controller.optimizationProcedure()
+
 class totalView(FigureCanvas):
     def resize(self, parentWidth, parentHeight):
         self.setFixedHeight(parentHeight * 2 / 5)
         self.setFixedWidth(parentWidth)
 
-    def __init__(self, parent=None):
+    def __init__(self, mainWindow=None):
         super(self.__class__, self).__init__(Figure())
-
 
     def updateFigure(self, figure):
         self.figure = figure
+        self.draw()
+
+        # A hack to make the figure update to the size of the Figure Canvas
+        h = self.height()
+        self.setFixedHeight(h / 2)
+        self.setFixedHeight(h)
 
 class dpView(FigureCanvas):
     def resize(self, parentWidth, parentHeight):
@@ -343,6 +367,10 @@ class dpView(FigureCanvas):
     def updateFigure(self, figure):
         self.figure = figure
         self.draw()
+        h = self.height()
+        self.setFixedHeight(h / 2)
+        self.setFixedHeight(h)
+
 
 class dNlogView(FigureCanvas):
     def resize(self, parentWidth, parentHeight):
@@ -355,3 +383,7 @@ class dNlogView(FigureCanvas):
     def updateFigure(self, figure):
         self.figure = figure
         self.draw()
+        h = self.height()
+        self.setFixedHeight(h / 2)
+        self.setFixedHeight(h)
+

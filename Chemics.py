@@ -13,6 +13,7 @@ import tempfile
 import scipy.constants
 import matplotlib.pyplot as plt
 import matplotlib
+from sys import exit
 
 matplotlib.style.use('ggplot')
 import scipy.optimize as opt
@@ -44,7 +45,7 @@ class DataError(Exception):
         pass
 
 
-class DataMatchingException(Exception):
+class DataMatchingError(Exception):
     def __init__(self):
         pass
 
@@ -58,6 +59,9 @@ class OptimizationError(Exception):
     def __init__(self):
         pass
 
+class InterruptError(Exception):
+    def __init__(self):
+        pass
 
 class Controller():
     def __init__(self, mode=True):
@@ -138,17 +142,19 @@ class Controller():
         self.dp50List = []
 
         # Graph variables
-        self.originalGraph = None
         self.adjustedGraph = None
         self.dryDiaGraph = None
-        self.totalGraph = None
+        self.minCompareGraph = None
 
         self.adjustedGraphList = []
         self.dryDiaGraphList = []
-        self.originalGraphList = []
 
         self.peakCountSMPSList = []
         self.peakCountCCNCList = []
+
+        self.optimized = False
+        self.cancel = False
+        self.completedStep = 0
 
         os.chdir(self.tempFolder)
 
@@ -156,16 +162,15 @@ class Controller():
         """
         Set the folder where data is stored
         :param folder: path to folder
-        :return:
         """
-        if folder != self.folder:
-            self.folder = folder
-            self.run()
+        self.completedStep = 0
+        self.folder = folder
+        self.run()
+
 
     def getFileNames(self):
         """
         Get all the SMPS and CCNC file names from the directory
-        :return:
         """
         self.smpsTxtFilePath = []
         self.ccncCsvFilePath = []
@@ -182,7 +187,6 @@ class Controller():
     def mergeCSVFiles(self):
         """
         Process the smps and ccnc files
-        :return:
         """
         self.smpsTxtFilePath = [str(x) for x in self.smpsTxtFilePath]
         self.ccncCsvFilePath = [str(x) for x in self.ccncCsvFilePath]
@@ -240,7 +244,6 @@ class Controller():
         """
         Get the DNlog data from the txt file and saves it to a csv file for easier further processing
         :param txtFile: the path to the txt file
-        :return: save the date to a csv file
         """
         try:
             # Start producing the data file
@@ -264,7 +267,6 @@ class Controller():
         and then combine them into a single csv file for easier further processing
         :param csvFile: the path to the csv file
         :param txtFile: the path to the txt file
-        :return: print out the csv file
         """
         try:
             # Get the data from the SMPS file
@@ -361,7 +363,6 @@ class Controller():
                         # totalSum += float(ssList[j][i])
                 self.ssList.append(maxNum)
             #
-            print self.ssList
             # aLine has scan Time, dp, real time, SMPS count ccnc count, and ave Size
             timeStamp = startTime[0]
             timeStamp = datetime.strptime(timeStamp, "%I:%M:%S")
@@ -375,14 +376,12 @@ class Controller():
                     timeStamp = timeStamp + timedelta(seconds=1)
                     smpsCcnList.append(aLine)
             self.data = pandas.DataFrame(smpsCcnList, columns=title)
-        except Exception as e:
-            print e
+        except:
             raise DataError()
 
     def matchSMPSCCNCData(self):
         """
             Calculate the stretch factor of the ccnc measurement
-            :return: a number indicating the stretch factor
             """
         try:
             peakCountCCNCList = []
@@ -438,10 +437,13 @@ class Controller():
             self.data = pandas.DataFrame(newData, columns=headers)
             self.data = dateConvert(self.data)
         except:
-            raise DataMatchingException()
+            raise DataMatchingError()
 
     def peakAlignAndGraph(self):
-        figure = plt.figure(0)
+        """
+        A graph of peak alignment, and also allow interaction to select peak to process
+        """
+        figure = plt.figure()
         y = numpy.asarray(self.peakCountCCNCList)
         x = numpy.asarray(self.peakCountSMPSList)
         result = scipy.stats.linregress(x, y)
@@ -453,24 +455,31 @@ class Controller():
         for i in range(len(self.data)):
             correctedIndexList.append(round((i * slope + yIntercept) * 10))
 
-        print correctedIndexList
-        # for i in range(len(self.data)):
-        # plt.figure(1)
         plt.plot(x, y, "ro", picker=5)
         plt.plot(x, x * slope + yIntercept)
         textToShow = str(slope) + "* x" + " + " + str(yIntercept)
         plt.text(x[4], y[3], textToShow)
+        plt.gca().set_axis_bgcolor("white")
+        plt.grid(color='0.65')
         figure.canvas.mpl_connect('pick_event', self.onPick)
-        plt.show()
+
+        if not self.minCompareGraph:
+            self.minCompareGraph = plt.gcf()
+        else:
+            self.minCompareGraph.clf()
+            plt.close(self.minCompareGraph)
+            self.minCompareGraph = plt.gcf()
 
     def onPick(self, event):
+        """
+        When a dot on the graph is selected
+        """
         thedot = event.artist
-        print event.ind
+
 
     def finalizeData(self):
         """
-        Prepare the data in the form of the shiftCalculatorSmooth to finalize the calculation for one currPeak
-        :return: a list, which contains the data as in the ShiftCalculatorSmooth
+        Convert data to separate lists for easier access. Also normalize and calculate necessary lists
         """
         ccnCNList = []
         dNdLogDpList = []
@@ -495,18 +504,19 @@ class Controller():
         self.ccnNormalizedList = normalizeList(dNdLogDpList)
 
     def initCorrectCharges(self):
+        """
+        Initiate the correct charge procedure
+        """
         self.cnFixedList = self.cnList[:]
         self.ccnFixedList = self.ccnList[:]
         self.gCcnList = self.ccnFixedList[:]
         self.gCnList = self.cnFixedList[:]
 
     def correctCharges(self):
-        ##add code here to automatically identify the asymptope
+        """
+        Perform charge correction
+        """
         asymp = 99999
-        """
-        Correct the charges
-        :return:
-        """
         newList = []
         epsilon = 0.0000000001
         e = scipy.constants.e
@@ -525,6 +535,7 @@ class Controller():
         frac2List = fractionCalculation(self.diameterList, 2, coeficientList[2])
         frac3List = fractionCalculation(self.diameterList, 3)
         chargeList = []
+
         for i in self.diameterList:
             QtGui.qApp.processEvents()
             aDList = [0]
@@ -539,10 +550,9 @@ class Controller():
         self.ccnFixedList = self.ccnList[:]
         maxUpperBinBound = (self.diameterList[-1] + self.diameterList[-2]) / 2
         lenDpList = len(self.diameterList)
+
         for i in range(lenDpList):
-
             QtGui.qApp.processEvents()
-
             n = lenDpList - i - 1
             moveDoubletCounts = frac2List[n] / (frac1List[n] + frac2List[n] + frac3List[n]) * self.cnList[n]
             moveTripletCounts = frac3List[n] / (frac1List[n] + frac2List[n] + frac3List[n]) * self.cnList[n]
@@ -589,6 +599,7 @@ class Controller():
 
     def getConstants(self):
         """
+        Acquire the necessary constants from the data to perform sigmodal fit
         """
         # determine minDp and minDpAsym
 
@@ -644,6 +655,9 @@ class Controller():
                 self.ccncnSimList.append(self.ccncnSimList[i - 1])
 
     def optimize(self):
+        """
+        Perform optimization, which is basically sigmodal fit
+        """
         try:
             xList = []
             yList = []
@@ -670,17 +684,31 @@ class Controller():
         except:
             raise OptimizationError()
 
-    # def getDp50(self):
-    #     self.dp50 =(1/0.5 - 1)**(1/self.c)*self.d
-
     def makeAdjustedGraph(self):
+        """
+        Make the comparable CCN and CN graph after adjustment of minimum peak
+        """
         data = pandas.DataFrame({"SMPS": self.cnList, "CCNC": self.ccnList})
         graph = data.plot(kind='line')
         graph.set_axis_bgcolor("white")
         graph.grid(color='0.65')
         self.adjustedGraphList.append(plt.gcf())
 
-    def makeDryDiamterGraph(self):
+    def makeCCNGraph(self):
+        """
+        Make graph for the CCN data. Used to cross check for peak alignment.
+        """
+        plt.figure()
+        plt.plot(self.diameterList, self.ccncnList, 'ro')
+        plt.gca().axes.set_ylim([-0.2, 1.2])
+        plt.gca().set_axis_bgcolor("white")
+        plt.grid(color='0.65')
+        self.dryDiaGraphList.append(plt.gcf())
+
+    def makeFullDryDiameterGraph(self):
+        """
+        Make complete graph of the dry diameter after optimization and sigmodal fit
+        """
         plt.figure()
         plt.plot(self.diameterList, self.ccncnList, 'ro')
         plt.plot(self.diameterList, self.ccncSigList, 'bo')
@@ -691,48 +719,33 @@ class Controller():
         plt.grid(color='0.65')
         self.dryDiaGraphList.append(plt.gcf())
 
-    def makeGraphs(self):
+    def makeInitialGraphs(self):
         """
-        Handle all of the graph making of the program
-        :return:
+        Make initial graph without optimizations
         """
-        # plt.ioff()
+        plt.ioff()
         self.makeAdjustedGraph()
-        self.makeDryDiamterGraph()
+        self.makeCCNGraph()
 
-    def preparationProcedure(self):
+    def makeOptimizedGraphs(self):
+        """
+        Make complete graphs after optimization
+        """
+        plt.ioff()
+        self.makeAdjustedGraph()
+        self.makeFullDryDiameterGraph()
+
+    def singlePeakProcessingProcedure(self):
         try:
-            self.makeProgress(maxValue=7)
-            self.makeProgress("Searching folder for CCNC and SMPS files...")
-            self.getFileNames()
-            self.makeProgress("Merging SMPS and CCNC files...")
-            self.mergeCSVFiles()
-            self.makeProgress("Processing raw data from files...")
-            self.getRawDataFromFiles(self.ccncFile, self.smpsFile)
-            self.makeProgress("Acquiring DnLog data...")
-            self.getDNlog()
-            self.makeProgress("Acquiring SMPS and CCNC data...")
-            self.getSMPSAndCCNC()
-            self.makeProgress("Transforming the CCNC data to match SMPS data....")
-            self.matchSMPSCCNCData()
-            self.makeProgress(complete=True)
-        except FileNotFoundError:
-            self.view.showError("Can't file SMPS or CCNC files in folder: " + str(self.folder))
-            raise DataPreparationError()
-        except FileProcessingError:
-            self.view.showError("Can't process the SMPS or CCNC files!")
-            raise DataPreparationError()
-        except DNlogDataError:
-            self.view.showError("Can't process DNlog data from the SMPS file!")
-            raise DataPreparationError()
-        except DataError:
-            self.view.showError("Can't process data from SMPS or CCNC files!")
-            raise DataPreparationError()
-        except DataMatchingException:
-            self.view.showError("Can't match SMPS and CCNC data!")
-            raise DataPreparationError()
+            self.ccncSigList = []
+            self.finalizeData()
+            self.makeProgress()
+            self.makeInitialGraphs()
+            self.makeProgress()
+        except OptimizationError:
+            print "There is an error on peak"
 
-    def ProcessingProcedure(self):
+    def singlePeakOptimizationProcedure(self):
         try:
             self.ccncSigList = []
             self.finalizeData()
@@ -750,7 +763,6 @@ class Controller():
             self.makeProgress()
             self.optimize()
             self.makeProgress()
-            # Acquire data produced
             self.bList.append(self.b)
             self.dList.append(self.d)
             self.cList.append(self.c)
@@ -758,81 +770,159 @@ class Controller():
             self.ccncnFullList.append(self.ccncnList)
             self.ccncSigFullList.append(self.ccncSigList)
             self.ccncnSimFullList.append(self.ccncnSimList)
-            self.makeGraphs()
+            self.makeOptimizedGraphs()
             self.makeProgress()
         except OptimizationError:
             # self.view.showError("The data is not optimizable. No optimal soluation found!")
             print "There is an error on peak"
 
+    def preparationProcedure(self):
+        """
+        The process necessary to read in and pre-process the data
+        """
+        try:
+            self.makeProgress(maxValue=7)
+            self.makeProgress("Searching folder for CCNC and SMPS files...")
+            self.getFileNames()
+            self.makeProgress("Merging SMPS and CCNC files...")
+            self.mergeCSVFiles()
+            self.makeProgress("Processing raw data from files...")
+            self.getRawDataFromFiles(self.ccncFile, self.smpsFile)
+            self.makeProgress("Acquiring DnLog data...")
+            self.getDNlog()
+            self.makeProgress("Acquiring SMPS and CCNC data...")
+            self.getSMPSAndCCNC()
+            self.makeProgress("Transforming the CCNC data to match SMPS data....")
+            self.matchSMPSCCNCData()
+            self.completedStep = 1
+            self.makeProgress(complete=True)
+        except FileNotFoundError:
+            self.view.showError("Can't file SMPS or CCNC files in folder: " + str(self.folder))
+            raise DataPreparationError()
+        except FileProcessingError:
+            self.view.showError("Can't process the SMPS or CCNC files!")
+            raise DataPreparationError()
+        except DNlogDataError:
+            self.view.showError("Can't process DNlog data from the SMPS file!")
+            raise DataPreparationError()
+        except DataError:
+            self.view.showError("Can't process data from SMPS or CCNC files!")
+            raise DataPreparationError()
+        except DataMatchingError:
+            self.view.showError("Can't match SMPS and CCNC data!")
+            raise DataPreparationError()
+        except InterruptError:
+            self.view.showError("The preparation process is cancelled")
+            raise DataPreparationError()
+
+    def initialProcessProcedure(self):
+        # -1 because we kind of making up the last peak for alignment
+        # 5 for 5 step for each peak processing
+        try:
+            if self.completedStep < 1:
+                self.view.showError("Data preparation process is not completed.")
+                raise InterruptError
+            # clear all figures
+            for aFigure in self.adjustedGraphList:
+                aFigure.clf()
+                plt.close(aFigure)
+            for aFigure in self.dryDiaGraphList:
+                aFigure.clf()
+                plt.close(aFigure)
+            self.makeProgress("Preparing data for peak processing...", maxValue=self.maxPeak * 3)
+
+            self.dryDiaGraphList = []
+            self.adjustedGraphList = []
+            for i in range(0, self.maxPeak - 1):
+                self.currPeak = i
+                self.makeProgress("Processing peak " + str(i + 1), value=0)
+                self.singlePeakProcessingProcedure()
+            # reset currPeak
+            self.currPeak = -1
+            self.completedStep = 2
+            self.makeProgress(complete=True)
+            self.updatePeak(0)
+        except InterruptError:
+            self.view.showError("The data initialization process is cancelled")
+
+
+    def optimizationProcedure(self):
+        """
+        The optimization process for all peaks
+        """
+        try:
+            if self.completedStep < 2:
+                self.view.showError("Data initialization process is not completed.")
+                return
+            # clear all figures
+            for aFigure in self.adjustedGraphList:
+                aFigure.clf()
+                plt.close(aFigure)
+            for aFigure in self.dryDiaGraphList:
+                aFigure.clf()
+                plt.close(aFigure)
+            self.makeProgress("Preparing data for peak processing...", maxValue=self.maxPeak * 12)
+            self.optimized = True
+            self.dryDiaGraphList = []
+            self.adjustedGraphList = []
+            for i in range(0, self.maxPeak - 1):
+                self.currPeak = i
+                self.makeProgress("Processing peak " + str(i + 1), value=0)
+                self.singlePeakOptimizationProcedure()
+            # reset currPeak
+            self.currPeak = -1
+            self.completedStep = 3
+            self.makeProgress(complete=True)
+            self.updatePeak(0)
+        except InterruptError:
+            self.view.showError("The optimization process is cancelled")
+
     def getPeakData(self):
-        # startPoint = self.currPeak * self.timeFrame
-        # endPoint = (self.currPeak + 1) * self.timeFrame
-        # self.diameterList = list(self.data[startPoint:endPoint]['dp'])
-        # self.ccnList = list(self.data[startPoint:endPoint]['CCNC Count'])
-        # self.cnList = list(self.data[startPoint:endPoint]['SMPS Count'])
-        # self.cnList = [x * 0.2 for x in self.cnList]
-        # self.ccncnList = self.ccncnFullList[self.currPeak]
-        # self.dropSizeList = list(self.data[startPoint:endPoint]['Ave Size'])
-        # self.ccnNormalizedList = self.ccnNormalizedFullList[self.currPeak]
-        self.b = self.bList[self.currPeak]
-        self.d = self.dList[self.currPeak]
-        self.c = self.cList[self.currPeak]
+        """
+        Get the information of the current peak
+        """
+        if self.optimized:
+            self.b = self.bList[self.currPeak]
+            self.d = self.dList[self.currPeak]
+            self.c = self.cList[self.currPeak]
         self.adjustedGraph = self.adjustedGraphList[self.currPeak]
         self.dryDiaGraph = self.dryDiaGraphList[self.currPeak]
 
     def run(self):
         """
         The main running procedure of the program
-        :return:
         """
+        # If not testing
         if not self.mode:
+            # If view is not exist, initiate the view
             if not self.view:
                 view = MainWindow(self)
                 self.setView(view)
                 view.run()
+
+            # Run the procedure
             else:
                 try:
                     self.preparationProcedure()
-                except:
+                except DataPreparationError:
                     pass
                 else:
-                    # -1 because we kind of making up the last peak for alignment
-                    # 5 for 5 step for each peak procesisng
-                    self.makeProgress("Preparing data for peak processing...", maxValue=self.maxPeak * 12)
-                    for i in range(0, self.maxPeak - 1):
-                        self.currPeak = i
-                        self.makeProgress("Processing peak " + str(i + 1), value=0)
-                        # time.sleep(0.1)
-                        self.ProcessingProcedure()
-                    # reset currPeak
-                    self.currPeak = -1
-                    self.makeProgress(complete=True)
-                    self.updatePeak(0)
+                    self.initialProcessProcedure()
+                    self.peakAlignAndGraph()
+                    print self.minCompareGraph
+                    self.view.updateTotalViewFigure(self.minCompareGraph)
 
         else:
             self.getRawDataFromFiles(csvFilePath, txtFilePath)
             self.getDNlog()
             self.getSMPSAndCCNC()
             self.matchSMPSCCNCData()
-            # self.peakAlignAndGraph()
             self.finalizeData()
-            # removeSmallCcn(self.ccnList, self.minCcn)
-            # self.initCorrectCharges()
-            # Since the program requires to press the button a few times
-            # We are going to simulate that action by looping
-            # for i in range(5):
-            #     self.correctCharges()
-            # for i in range(len(self.ccnFixedList)):
-            #     self.ccncSigList.append(self.ccnFixedList[i] / self.cnFixedList[i])
-            # self.getConstants()
-            # self.optimize()
-            # self.makeGraphs()
 
     def updatePeak(self, peak):
         if peak != self.currPeak:
             self.currPeak = peak
             self.getPeakData()
-            print self.b
             self.changeView()
 
     def changeView(self):
@@ -852,10 +942,14 @@ class Controller():
     def makeProgress(self, message=None, maxValue=None, complete=False, value=1):
         if not self.mode:
             self.view.makeProgress(message, maxValue, complete, value)
-
         else:
             print message
+        if self.cancel == True:
+            self.cancel = False
+            raise InterruptError()
 
+    def cancelProgress(self):
+        self.cancel = True
 
 def removeSmallCcn(ccnList, minValue):
     for i in range(len(ccnList)):
@@ -1075,7 +1169,6 @@ def findDp(dp, lambdaAir, n):
 def aveList(aList):
     return sum(aList) / len(aList)
 
-
 def movingAve(aList, n):
     """
     Calculate a new list based on the moving average of n elements
@@ -1089,7 +1182,6 @@ def movingAve(aList, n):
         newList.append(newElement)
     return newList
 
-
 def cleanseZero(aList):
     """
     Change all 0 in the list to a very small number
@@ -1101,7 +1193,6 @@ def cleanseZero(aList):
         if aList[i] == 0:
             aList[i] = epsilon
     return aList
-
 
 def makeKappaGraph():
     klines = pandas.read_excel("klines.xlsx", header=1)
@@ -1160,10 +1251,10 @@ def getCorrectNum(aList, number, bigger=True):
 
 
 def main():
-    # controller = Controller(True)
-    # controller.run()
+    controller = Controller(False)
+    controller.run()
     # makeKappaGraph()
-    calKappa(0.4, 61.6)
+    # calKappa(0.4, 61.6)
 
 
 if __name__ == '__main__':
