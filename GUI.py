@@ -137,6 +137,15 @@ class MainWindow(QMainWindow):
         self.centralWidget().graphWidget.individualViews.dpView.updateFigure(adjustedFigure)
         self.centralWidget().graphWidget.individualViews.dNlogView.updateFigure(diaFigure)
 
+    def updateGeneralInfo(self):
+        """
+        Update the information area
+        """
+        self.centralWidget().infoWidget.infoArea.updateGeneralInfo()
+
+    def updatePeakInfo(self):
+        self.centralWidget().infoWidget.infoArea.updatePeakInfo()
+
     def updatePeak(self,peak):
         self.controller.updatePeak(peak)
 
@@ -183,7 +192,7 @@ class InfoWidget(QWidget):
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.infoArea = messageArea()
+        self.infoArea = messageArea(mainWindow)
         self.layout.addWidget(self.infoArea)
 
     def resize(self, parentWidth, parentHeight):
@@ -195,30 +204,117 @@ class messageArea(QTableWidget):
     def resize(self, parentWidth, parentHeight):
         self.setFixedHeight(parentHeight)
         self.setFixedWidth(parentWidth)
+        self.verticalHeader().setDefaultSectionSize(self.height() / 15)
 
-    def __init__(self):
+    def __init__(self, mainWindow = None):
         QTableWidget.__init__(self)
         self.setColumnCount(1)
         self.setRowCount(0)
+        self.setShowGrid(False)
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().setVisible(False)
         self.horizontalHeader().setStretchLastSection(True)
+        self.verticalHeader().setDefaultSectionSize(self.height() / 15)
         self.setWordWrap(True)
         self.resizeRowsToContents()
         self.setFrameStyle(QFrame.NoFrame)
+        self.mainWindow = mainWindow
+
 
         #set background color
         self.setAutoFillBackground(True)
         palette = QPalette()
         palette.setColor(QPalette.Base, "#fbfbfb")
         self.setPalette(palette)
-        # self.addMessage("121331231321321")
+
+    def updateGeneralInfo(self):
+        header = sectionHeader("Data Information")
+        self.insertRow(self.rowCount())
+        self.setCellWidget(self.rowCount() - 1, 0, header)
+        self.addMessage(self.mainWindow.controller.folder)
+        self.addMessage(self.mainWindow.controller.date)
+        self.addMessage(self.mainWindow.controller.startTimeEntries[0] + "--> " + self.mainWindow.controller.endTimeEntries[-1])
+        self.addMessage(self.mainWindow.controller.timeFrame)
+        self.addMessage(self.mainWindow.controller.maxPeak - 1)
+        header = sectionHeader("Peak Information")
+        self.insertRow(self.rowCount())
+        self.setCellWidget(self.rowCount() - 1, 0, header)
+
+    def updatePeakInfo(self):
+        if self.rowCount() > 7:
+            for i in range(7):
+                self.removeRow(self.rowCount()-1)
+        print self.rowCount()
+        self.addMessage(self.mainWindow.getPeak())
+        self.addMessage(self.mainWindow.controller.superSaturation)
+        self.addMessage(self.mainWindow.controller.dp50)
+        self.addMessage(self.mainWindow.controller.dp50LessCount)
+        self.addMessage(self.mainWindow.controller.dp50MoreCount)
+        self.addMessage(self.mainWindow.controller.dp50Wet)
+        self.addMessage(self.mainWindow.controller.dp50Plus20)
+
 
     def addMessage(self, message):
         ##### add code here to process the message before printing
-        item = QTableWidgetItem(message)
+        message = str(message)
+        item = outerTableItem(message)
         self.insertRow(self.rowCount())
-        self.setItem(self.rowCount()-1,0,item)
+        self.setCellWidget(self.rowCount()-1,0,item)
+
+
+class outerTableItem(QWidget):
+    def __init__(self,message):
+        QWidget.__init__(self)
+        self.layout = QVBoxLayout()
+        margin = self.height() / 100
+        self.layout.setContentsMargins(0, margin, 0, margin)
+        self.insideItem = tableItem(message)
+        self.layout.addWidget(self.insideItem)
+        self.setLayout(self.layout)
+
+class tableItem(QWidget):
+    def __init__(self,message):
+        QWidget.__init__(self)
+        self.layout = QGridLayout()
+        self.layout.setHorizontalSpacing(5)
+        self.fieldText = fieldTextCustom(message)
+        self.infoText = infoTextCustom(message)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.addWidget(self.fieldText,0,0,1,1)
+        self.layout.addWidget(self.infoText,0,1,1,2)
+        self.setLayout(self.layout)
+
+        self.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.Base, "#000000")
+        self.setPalette(palette)
+
+class sectionHeader(QWidget):
+    def __init__(self, header):
+        QWidget.__init__(self)
+        self.layout = QVBoxLayout()
+        margin = self.height() / 100
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.header = QLabel(header)
+        self.layout.addWidget(self.header)
+        self.setLayout(self.layout)
+
+
+class fieldTextCustom(QLabel):
+    def __init__(self,message):
+        QLabel.__init__(self,message)
+        self.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.Base, "#ffffff")
+        self.setPalette(palette)
+
+class infoTextCustom(QLabel):
+    def __init__(self, message):
+        QLabel.__init__(self, message)
+        self.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.Base, "#ffffff")
+        self.setPalette(palette)
 
 
 class graphWidget(QWidget):

@@ -108,8 +108,8 @@ class Controller():
         self.ssList = []
         # The SMPS and CCNC data
         self.data = None
-        # Necessary information
 
+        # Necessary information
         self.ccnList = None
         self.cnList = None
         self.ccnFixedList = None
@@ -134,7 +134,12 @@ class Controller():
         self.maxDp = 0
         self.maxDpAsym = 0
         self.minDpAsym = 0
-        self.dp50 = []
+        self.dp50 = 0
+        self.superSaturation = 0
+        self.dp50LessCount = 0
+        self.dp50MoreCount = 0
+        self.dp50Wet = 0
+        self.dp50Plus20 = 0
 
         self.bList = []
         self.dList = []
@@ -155,6 +160,8 @@ class Controller():
         self.optimized = False
         self.cancel = False
         self.completedStep = 0
+
+        self.currentPoint = None
 
         os.chdir(self.tempFolder)
 
@@ -444,8 +451,8 @@ class Controller():
         A graph of peak alignment, and also allow interaction to select peak to process
         """
         figure = plt.figure()
-        y = numpy.asarray(self.peakCountCCNCList)
         x = numpy.asarray(self.peakCountSMPSList)
+        y = numpy.asarray(self.peakCountCCNCList)
         result = scipy.stats.linregress(x, y)
         slope = result[0]
         yIntercept = result[1]
@@ -454,9 +461,9 @@ class Controller():
         correctedIndexList = []
         for i in range(len(self.data)):
             correctedIndexList.append(round((i * slope + yIntercept) * 10))
-
         plt.plot(x, y, "ro", picker=5)
         plt.plot(x, x * slope + yIntercept)
+        self.currentPoint, = plt.plot(x[0],y[0],'bo')
         textToShow = str(slope) + "* x" + " + " + str(yIntercept)
         plt.text(x[4], y[3], textToShow)
         plt.gca().set_axis_bgcolor("white")
@@ -474,8 +481,15 @@ class Controller():
         """
         When a dot on the graph is selected
         """
-        thedot = event.artist
-
+        peak = event.ind
+        self.updatePeak(peak)
+        line = event.artist
+        x = line.get_xdata()[event.ind]
+        y = line.get_ydata()[event.ind]
+        # plt.plot(x,y,"bo")
+        self.currentPoint.set_xdata(x)
+        self.currentPoint.set_ydata(y)
+        self.view.updateTotalViewFigure(self.minCompareGraph)
 
     def finalizeData(self):
         """
@@ -841,7 +855,12 @@ class Controller():
             self.currPeak = -1
             self.completedStep = 2
             self.makeProgress(complete=True)
+            self.view.updateGeneralInfo()
+            #
             self.updatePeak(0)
+            self.peakAlignAndGraph()
+            self.view.updateTotalViewFigure(self.minCompareGraph)
+
         except InterruptError:
             self.view.showError("The data initialization process is cancelled")
 
@@ -887,6 +906,27 @@ class Controller():
             self.c = self.cList[self.currPeak]
         self.adjustedGraph = self.adjustedGraphList[self.currPeak]
         self.dryDiaGraph = self.dryDiaGraphList[self.currPeak]
+        self.superSaturation = self.ssList[self.currPeak]
+        self.dp50 = self.d
+        self.dp50LessCount = 0
+        self.dp50MoreCount = 0
+        for i in self.diameterList:
+            if i >= self.dp50:
+                self.dp50MoreCount += 1
+            else:
+                self.dp50LessCount += 1
+        for i in range(1,len(self.diameterList)):
+            if i > self.dp50:
+                self.dp50Wet = self.dropSizeList[i-1]
+                break
+        for i in range(1, len(self.diameterList)):
+            if i > (self.dp50 + 20):
+                self.dp50Plus20 = self.dropSizeList[i - 1]
+                break
+
+        self.view.updateFigures(self.adjustedGraph, self.dryDiaGraph)
+        self.view.updatePeakInfo()
+
 
     def run(self):
         """
@@ -908,9 +948,7 @@ class Controller():
                     pass
                 else:
                     self.initialProcessProcedure()
-                    self.peakAlignAndGraph()
-                    print self.minCompareGraph
-                    self.view.updateTotalViewFigure(self.minCompareGraph)
+
 
         else:
             self.getRawDataFromFiles(csvFilePath, txtFilePath)
@@ -923,10 +961,6 @@ class Controller():
         if peak != self.currPeak:
             self.currPeak = peak
             self.getPeakData()
-            self.changeView()
-
-    def changeView(self):
-        self.view.updateFigures(self.adjustedGraph, self.dryDiaGraph)
 
     def setView(self, view):
         """
