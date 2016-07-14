@@ -3,7 +3,7 @@ import sys
 import os
 from PySide.QtGui import *
 from PySide.QtCore import *
-from settings import *
+import settings
 import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
@@ -178,7 +178,7 @@ class ControlPanel(QWidget):
 
         self.setAutoFillBackground(True)
         palette = QPalette()
-        palette.setColor(QPalette.Background, Qt.white)
+        palette.setColor(QPalette.Background, settings.mainBackgroundColor)
         self.setPalette(palette)
 
     def resize(self):
@@ -204,7 +204,7 @@ class messageArea(QTableWidget):
     def resize(self, parentWidth, parentHeight):
         self.setFixedHeight(parentHeight)
         self.setFixedWidth(parentWidth)
-        self.verticalHeader().setDefaultSectionSize(self.height() / 15)
+        self.verticalHeader().setDefaultSectionSize(self.height() / 20)
 
     def __init__(self, mainWindow = None):
         QTableWidget.__init__(self)
@@ -214,7 +214,7 @@ class messageArea(QTableWidget):
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().setVisible(False)
         self.horizontalHeader().setStretchLastSection(True)
-        self.verticalHeader().setDefaultSectionSize(self.height() / 15)
+        self.verticalHeader().setDefaultSectionSize(self.height() / 20)
         self.setWordWrap(True)
         self.resizeRowsToContents()
         self.setFrameStyle(QFrame.NoFrame)
@@ -224,7 +224,7 @@ class messageArea(QTableWidget):
         #set background color
         self.setAutoFillBackground(True)
         palette = QPalette()
-        palette.setColor(QPalette.Base, "#fbfbfb")
+        palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
         self.setPalette(palette)
 
     def updateGeneralInfo(self):
@@ -244,7 +244,6 @@ class messageArea(QTableWidget):
         if self.rowCount() > 7:
             for i in range(7):
                 self.removeRow(self.rowCount()-1)
-        print self.rowCount()
         self.addMessage(self.mainWindow.getPeak())
         self.addMessage(self.mainWindow.controller.superSaturation)
         self.addMessage(self.mainWindow.controller.dp50)
@@ -266,7 +265,7 @@ class outerTableItem(QWidget):
     def __init__(self,message):
         QWidget.__init__(self)
         self.layout = QVBoxLayout()
-        margin = self.height() / 100
+        margin = self.height() / 200
         self.layout.setContentsMargins(0, margin, 0, margin)
         self.insideItem = tableItem(message)
         self.layout.addWidget(self.insideItem)
@@ -276,7 +275,7 @@ class tableItem(QWidget):
     def __init__(self,message):
         QWidget.__init__(self)
         self.layout = QGridLayout()
-        self.layout.setHorizontalSpacing(5)
+        self.layout.setHorizontalSpacing(3)
         self.fieldText = fieldTextCustom(message)
         self.infoText = infoTextCustom(message)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -286,7 +285,7 @@ class tableItem(QWidget):
 
         self.setAutoFillBackground(True)
         palette = QPalette()
-        palette.setColor(QPalette.Base, "#000000")
+        palette.setColor(QPalette.Base, settings.infoAreaItemBackgroundColor)
         self.setPalette(palette)
 
 class sectionHeader(QWidget):
@@ -299,22 +298,59 @@ class sectionHeader(QWidget):
         self.layout.addWidget(self.header)
         self.setLayout(self.layout)
 
+        self.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.Base, settings.infoAreaHeaderColor)
+        self.setPalette(palette)
+
+        font = QFont()
+        size = max(4, self.height() * 3 / 10)
+        font.setPointSize(size)
+        self.setFont(font)
+
+    def resizeEvent(self,event):
+        font = self.font()
+        size = max(4, self.height() * 3 / 10)
+        font.setPointSize(size)
+        self.setFont(font)
+
+
 
 class fieldTextCustom(QLabel):
     def __init__(self,message):
         QLabel.__init__(self,message)
         self.setAutoFillBackground(True)
         palette = QPalette()
-        palette.setColor(QPalette.Base, "#ffffff")
+        palette.setColor(QPalette.Base, settings.infoAreaItemColor)
         self.setPalette(palette)
+        font = QFont()
+        size = max(4, self.height() * 3 / 10)
+        font.setPointSize(size)
+        self.setFont(font)
+
+    def resizeEvent(self, event):
+        font = self.font()
+        size = max(4, self.height() * 3 / 10)
+        font.setPointSize(size)
+        self.setFont(font)
 
 class infoTextCustom(QLabel):
     def __init__(self, message):
         QLabel.__init__(self, message)
         self.setAutoFillBackground(True)
         palette = QPalette()
-        palette.setColor(QPalette.Base, "#ffffff")
+        palette.setColor(QPalette.Base, settings.infoAreaItemColor)
         self.setPalette(palette)
+        font = QFont()
+        size = max(4, self.height() * 3 / 10)
+        font.setPointSize(size)
+        self.setFont(font)
+
+    def resizeEvent(self, event):
+        font = self.font()
+        size = max(4, self.height() * 3 / 10)
+        font.setPointSize(size)
+        self.setFont(font)
 
 
 class graphWidget(QWidget):
@@ -423,7 +459,7 @@ class controlArea(QWidget):
 
         self.setAutoFillBackground(True)
         palette = QPalette()
-        palette.setColor(QPalette.Background, "#37474F")
+        palette.setColor(QPalette.Background, settings.controlAreaBackgroundColor)
         self.setPalette(palette)
 
     def nextButtonClicked(self):
