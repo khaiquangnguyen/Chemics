@@ -496,14 +496,8 @@ class Controller():
         When a dot on the graph is selected
         """
         peak = event.ind
-        self.updatePeak(peak)
-        line = event.artist
-        x = line.get_xdata()[event.ind]
-        y = line.get_ydata()[event.ind]
-        # plt.plot(x,y,"bo")
-        self.currentPoint.set_xdata(x)
-        self.currentPoint.set_ydata(y)
-        self.view.updateTotalViewFigure(self.minCompareGraph)
+        if peak != self.currentPeak:
+            self.updatePeak(peak)
 
     def finalizeData(self):
         """
@@ -914,13 +908,12 @@ class Controller():
             self.makeProgress(complete=True)
             self.view.updateGeneralInfo()
             #
-            self.updatePeak(0)
             self.peakAlignAndGraph()
+            self.updatePeak(0)
             self.view.updateTotalViewFigure(self.minCompareGraph)
 
         except InterruptError:
             self.view.showError("The data initialization process is cancelled")
-
 
     def optimizationProcedure(self):
         """
@@ -982,6 +975,9 @@ class Controller():
                 break
 
         self.view.updateFigures(self.adjustedGraph, self.dryDiaGraph)
+        self.view.updateTotalViewFigure(self.minCompareGraph)
+        self.currentPoint.set_xdata(numpy.asarray(self.peakCountSMPSList)[self.currPeak])
+        self.currentPoint.set_ydata(numpy.asarray(self.peakCountCCNCList)[self.currPeak])
         self.view.updatePeakInfo()
 
 

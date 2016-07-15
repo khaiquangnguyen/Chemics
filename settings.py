@@ -14,6 +14,11 @@ infoAreaFieldColor = "#9E9E9E"
 controlAreaBackgroundColor = "#212121"
 buttonColor = "#FAFAFA"
 
+simpleButtonColor = "#BDBDBD"
+simpleButtonTextColor = "#000000"
+specialButtonColor = "#BDBDBD"
+
+
 infoAreaHeaderColor = "#212121"
 infoAreaHeaderFontColor = "#EEEEEE"
 

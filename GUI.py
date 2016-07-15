@@ -331,7 +331,7 @@ class fieldTextCustom(QLabel):
 
     def resizeEvent(self, event):
         font = self.font()
-        size = max(10, self.height() * 3 / 9)
+        size = max(10, self.height() * 3 / 10)
         font.setPointSize(size)
         self.setFont(font)
 
@@ -342,7 +342,7 @@ class infoTextCustom(QLabel):
         self.setAutoFillBackground(True)
         palette = QPalette()
         palette.setColor(QPalette.Base, settings.infoAreaItemColor)
-        palette.setColor(QPalette.Text, settings.infoAreaItemBackgroundColor)
+        palette.setColor(QPalette.Text, settings.infoAreaFontColor)
         self.setPalette(palette)
         self.setContentsMargins(10, 0, 0, 0)
         font = QFont()
@@ -352,7 +352,7 @@ class infoTextCustom(QLabel):
 
     def resizeEvent(self, event):
         font = self.font()
-        size = max(10, self.height() * 3 / 9)
+        size = max(10, self.height() * 3 / 10)
         font.setPointSize(size)
         self.setFont(font)
 
@@ -398,19 +398,27 @@ class individualViews(QWidget):
 
 
 class CustomButton(QPushButton):
-    def __init__(self, text,parent=None):
+    def __init__(self, text,parent=None,style = 0):
         self.parent = parent
         QPushButton.__init__(self, text)
         font = QFont()
         self.setFont(font)
         self.setFlat(True)
         self.setAutoFillBackground(True)
+        palette = self.palette()
+        if style == 1:
+            palette.setColor(QPalette.Button, settings.specialButtonColor)
+            palette.setColor(QPalette.ButtonText, settings.simpleButtonTextColor)
+        else:
+            palette.setColor(QPalette.Button, settings.simpleButtonColor)
+            palette.setColor(QPalette.ButtonText, settings.simpleButtonTextColor)
+        self.setPalette(palette)
 
     def resize(self,parentWidth, parentHeight):
-        self.setFixedHeight(parentHeight * 3 / 8 )
+        self.setFixedHeight(parentHeight / 3 )
         self.setFixedWidth(parentWidth / 12)
         font = QFont()
-        size = max(5,self.height() / 3.5)
+        size = max(1,self.height() * 3 / 10)
         font.setPointSize(size)
         self.setFont(font)
 
@@ -421,27 +429,52 @@ class controlArea(QWidget):
         self.nextButton.resize(self.width(),self.height())
         self.previousButton.resize(self.width(),self.height())
         self.showMinGraphButton.resize(self.width(), self.height())
+        self.optimizeButton.resize(self.width(), self.height())
+        self.showTotalGraphButton.resize(self.width(), self.height())
+        self.calKappa.resize(self.width(), self.height())
+        self.addSecond.resize(self.width(), self.height())
+        self.subSecond.resize(self.width(), self.height())
 
     def __init__(self, mainWindow = None):
         self.mainWindow = mainWindow
         QWidget.__init__(self)
-        self.layout = QHBoxLayout()
-        self.layout.setSpacing(0)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout = QGridLayout()
+        self.layout.setVerticalSpacing(10)
+        self.layout.setHorizontalSpacing(5)
+        self.layout.setContentsMargins(0, 10, 60, 10)
 
-        self.previousButton = CustomButton("Previous Peak", mainWindow)
-        self.nextButton = CustomButton("Next Peak", mainWindow)
-        self.showMinGraphButton = CustomButton("Min Graph ", mainWindow)
-        self.showTotalGraphButton = CustomButton("Full Graph", mainWindow)
-        self.optimizeButton = CustomButton("Optimize", mainWindow)
-
+        self.previousButton = CustomButton("Previous Run", mainWindow)
+        self.nextButton = CustomButton("Next Run", mainWindow)
+        self.showMinGraphButton = CustomButton("Minimum Graph ", mainWindow,1)
+        self.showTotalGraphButton = CustomButton("Complete Graph", mainWindow,1)
+        self.optimizeButton = CustomButton("Fit Sigmoid", mainWindow,1)
+        self.calKappa = CustomButton("Calculate Kappa", mainWindow,1)
+        self.addSecond = CustomButton("+1 second", mainWindow)
+        self.subSecond = CustomButton("-1 second", mainWindow)
         self.previousButton.clicked.connect(self.previousButtonClicked)
         self.nextButton.clicked.connect(self.nextButtonClicked)
         self.optimizeButton.clicked.connect(self.optimize)
-        self.layout.addWidget(self.previousButton)
-        self.layout.addWidget(self.nextButton)
-        self.layout.addWidget(self.showMinGraphButton)
-        self.layout.addWidget(self.optimizeButton)
+
+        self.layout.setColumnStretch(0,0)
+
+        self.layout.addWidget(self.showMinGraphButton, 2, 1, 3, 1,alignment = 2)
+        self.layout.addWidget(self.showTotalGraphButton, 2, 2, 3, 1, alignment = 1)
+
+        self.layout.addWidget(self.previousButton,4,3,4,1)
+        self.layout.addWidget(self.nextButton,4,4,4,1)
+        self.layout.addWidget(self.subSecond, 0, 3, 3, 1)
+        self.layout.addWidget(self.addSecond, 0, 4, 3, 1)
+
+        self.layout.addWidget(self.optimizeButton,2,5,3,1, alignment = 2)
+        self.layout.addWidget(self.calKappa,2,6,3,1, alignment = 0)
+        self.layout.addWidget(QWidget(),2,7,3,1)
+
+        for i in range(self.layout.columnCount()):
+            self.layout.setColumnStretch(i,1)
+            self.layout.setColumnMinimumWidth(i,self.width() / 8)
+        for i in range(self.layout.rowCount()):
+            self.layout.setRowStretch(i, 1)
+            self.layout.setRowMinimumHeight(i,self.height()/7)
         self.setLayout(self.layout)
 
         self.setAutoFillBackground(True)
