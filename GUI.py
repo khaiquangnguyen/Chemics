@@ -176,10 +176,6 @@ class ControlPanel(QWidget):
         self.layout.addWidget(self.graphWidget)
         self.setLayout(self.layout)
 
-        self.setAutoFillBackground(True)
-        palette = QPalette()
-        palette.setColor(QPalette.Background, settings.mainBackgroundColor)
-        self.setPalette(palette)
 
     def resize(self):
         self.infoWidget.resize(self.width(), self.height())
@@ -204,7 +200,7 @@ class messageArea(QTableWidget):
     def resize(self, parentWidth, parentHeight):
         self.setFixedHeight(parentHeight)
         self.setFixedWidth(parentWidth)
-        self.verticalHeader().setDefaultSectionSize(self.height() / 20)
+        self.verticalHeader().setDefaultSectionSize(self.height() / 25)
 
     def __init__(self, mainWindow = None):
         QTableWidget.__init__(self)
@@ -214,12 +210,11 @@ class messageArea(QTableWidget):
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().setVisible(False)
         self.horizontalHeader().setStretchLastSection(True)
-        self.verticalHeader().setDefaultSectionSize(self.height() / 20)
+        self.verticalHeader().setDefaultSectionSize(self.height() / 25)
         self.setWordWrap(True)
         self.resizeRowsToContents()
         self.setFrameStyle(QFrame.NoFrame)
         self.mainWindow = mainWindow
-
 
         #set background color
         self.setAutoFillBackground(True)
@@ -231,11 +226,11 @@ class messageArea(QTableWidget):
         header = sectionHeader("Data Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
-        self.addMessage(self.mainWindow.controller.folder)
-        self.addMessage(self.mainWindow.controller.date)
-        self.addMessage(self.mainWindow.controller.startTimeEntries[0] + "--> " + self.mainWindow.controller.endTimeEntries[-1])
-        self.addMessage(self.mainWindow.controller.timeFrame)
-        self.addMessage(self.mainWindow.controller.maxPeak - 1)
+        self.addMessage("Folder",self.mainWindow.controller.folder)
+        self.addMessage("Date",self.mainWindow.controller.date)
+        self.addMessage("Time frame",self.mainWindow.controller.startTimeEntries[0] + " to " + self.mainWindow.controller.endTimeEntries[-1])
+        self.addMessage("Time per run",self.mainWindow.controller.timeFrame)
+        self.addMessage("Total run",self.mainWindow.controller.maxPeak - 1)
         header = sectionHeader("Peak Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
@@ -244,43 +239,43 @@ class messageArea(QTableWidget):
         if self.rowCount() > 7:
             for i in range(7):
                 self.removeRow(self.rowCount()-1)
-        self.addMessage(self.mainWindow.getPeak())
-        self.addMessage(self.mainWindow.controller.superSaturation)
-        self.addMessage(self.mainWindow.controller.dp50)
-        self.addMessage(self.mainWindow.controller.dp50LessCount)
-        self.addMessage(self.mainWindow.controller.dp50MoreCount)
-        self.addMessage(self.mainWindow.controller.dp50Wet)
-        self.addMessage(self.mainWindow.controller.dp50Plus20)
+        self.addMessage("Current run",self.mainWindow.getPeak())
+        self.addMessage("Saturation",self.mainWindow.controller.superSaturation)
+        self.addMessage("dp50", self.mainWindow.controller.dp50)
+        self.addMessage("<dp50 counts",self.mainWindow.controller.dp50LessCount)
+        self.addMessage(">dp50 counts",self.mainWindow.controller.dp50MoreCount)
+        self.addMessage("dp50(West)",self.mainWindow.controller.dp50Wet)
+        self.addMessage("dp50+20",self.mainWindow.controller.dp50Plus20)
 
 
-    def addMessage(self, message):
+    def addMessage(self, field,message):
         ##### add code here to process the message before printing
         message = str(message)
-        item = outerTableItem(message)
+        item = outerTableItem(field,message)
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount()-1,0,item)
 
 
 class outerTableItem(QWidget):
-    def __init__(self,message):
+    def __init__(self,field,message):
         QWidget.__init__(self)
         self.layout = QVBoxLayout()
-        margin = self.height() / 200
+        margin = self.height() / 400
         self.layout.setContentsMargins(0, margin, 0, margin)
-        self.insideItem = tableItem(message)
+        self.insideItem = tableItem(field,message)
         self.layout.addWidget(self.insideItem)
         self.setLayout(self.layout)
 
 class tableItem(QWidget):
-    def __init__(self,message):
+    def __init__(self,field,message):
         QWidget.__init__(self)
         self.layout = QGridLayout()
-        self.layout.setHorizontalSpacing(3)
-        self.fieldText = fieldTextCustom(message)
+        self.layout.setHorizontalSpacing(5)
+        self.fieldText = fieldTextCustom(field)
         self.infoText = infoTextCustom(message)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addWidget(self.fieldText,0,0,1,1)
-        self.layout.addWidget(self.infoText,0,1,1,2)
+        self.layout.addWidget(self.infoText,0,1,1,3)
         self.setLayout(self.layout)
 
         self.setAutoFillBackground(True)
@@ -292,9 +287,12 @@ class sectionHeader(QWidget):
     def __init__(self, header):
         QWidget.__init__(self)
         self.layout = QVBoxLayout()
-        margin = self.height() / 100
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setContentsMargins(5, 0, 0, 0)
         self.header = QLabel(header)
+        palette = self.header.palette()
+        palette.setColor(QPalette.Text, settings.infoAreaHeaderFontColor)
+        self.header.setPalette(palette)
+
         self.layout.addWidget(self.header)
         self.setLayout(self.layout)
 
@@ -304,13 +302,14 @@ class sectionHeader(QWidget):
         self.setPalette(palette)
 
         font = QFont()
-        size = max(4, self.height() * 3 / 10)
+        size = max(10, self.height() * 3 / 9)
         font.setPointSize(size)
         self.setFont(font)
 
     def resizeEvent(self,event):
         font = self.font()
-        size = max(4, self.height() * 3 / 10)
+        font.setStyleStrategy(QFont.PreferAntialias or QFont.PreferQuality)
+        size = max(10, self.height() * 3 / 9)
         font.setPointSize(size)
         self.setFont(font)
 
@@ -321,8 +320,10 @@ class fieldTextCustom(QLabel):
         QLabel.__init__(self,message)
         self.setAutoFillBackground(True)
         palette = QPalette()
-        palette.setColor(QPalette.Base, settings.infoAreaItemColor)
+        palette.setColor(QPalette.Base, settings.infoAreaFieldColor)
+        palette.setColor(QPalette.Text, settings.infoAreaFontColor)
         self.setPalette(palette)
+        self.setContentsMargins(5,0,0,0)
         font = QFont()
         size = max(4, self.height() * 3 / 10)
         font.setPointSize(size)
@@ -330,9 +331,10 @@ class fieldTextCustom(QLabel):
 
     def resizeEvent(self, event):
         font = self.font()
-        size = max(4, self.height() * 3 / 10)
+        size = max(10, self.height() * 3 / 9)
         font.setPointSize(size)
         self.setFont(font)
+
 
 class infoTextCustom(QLabel):
     def __init__(self, message):
@@ -340,7 +342,9 @@ class infoTextCustom(QLabel):
         self.setAutoFillBackground(True)
         palette = QPalette()
         palette.setColor(QPalette.Base, settings.infoAreaItemColor)
+        palette.setColor(QPalette.Text, settings.infoAreaItemBackgroundColor)
         self.setPalette(palette)
+        self.setContentsMargins(10, 0, 0, 0)
         font = QFont()
         size = max(4, self.height() * 3 / 10)
         font.setPointSize(size)
@@ -348,7 +352,7 @@ class infoTextCustom(QLabel):
 
     def resizeEvent(self, event):
         font = self.font()
-        size = max(4, self.height() * 3 / 10)
+        size = max(10, self.height() * 3 / 9)
         font.setPointSize(size)
         self.setFont(font)
 
@@ -410,23 +414,6 @@ class CustomButton(QPushButton):
         font.setPointSize(size)
         self.setFont(font)
 
-
-# class CustomLabel(QLabel):
-#     def __init__(self, text, mainWindow=None):
-#         self.mainWindow = mainWindow
-#         QLabel.__init__(self, text)
-#         font = QFont()
-#         self.setFont(font)
-#
-#     def resize(self, parentWidth, parentHeight):
-#         self.setFixedHeight(parentHeight * 3 / 8)
-#         self.setFixedWidth(parentWidth / 12)
-#         font = QFont()
-#         size = max(5, self.height() * 3/ 4)
-#         font.setPointSize(size)
-#         self.setFont(font)
-#
-
 class controlArea(QWidget):
     def resize(self, parentWidth, parentHeight):
         self.setFixedHeight(parentHeight * 1 / 10)
@@ -477,7 +464,8 @@ class totalView(FigureCanvas):
         self.setFixedWidth(parentWidth)
 
     def __init__(self, mainWindow=None):
-        super(self.__class__, self).__init__(Figure())
+        fig = Figure(facecolor=settings.graphBackgroundColor)
+        super(self.__class__, self).__init__(fig)
 
     def updateFigure(self, figure):
         self.figure = figure
@@ -494,7 +482,8 @@ class dpView(FigureCanvas):
         self.setFixedWidth(parentWidth / 2)
 
     def __init__(self, mainWindow=None):
-        super(self.__class__, self).__init__(Figure())
+        fig = Figure(facecolor=settings.graphBackgroundColor)
+        super(self.__class__, self).__init__(fig)
 
     def updateFigure(self, figure):
         self.figure = figure
@@ -510,7 +499,8 @@ class dNlogView(FigureCanvas):
         self.setFixedWidth(parentWidth / 2)
 
     def __init__(self, mainWindow=None):
-        super(self.__class__, self).__init__(Figure())
+        fig = Figure(facecolor=settings.graphBackgroundColor)
+        super(self.__class__, self).__init__(fig)
 
     def updateFigure(self, figure):
         self.figure = figure

@@ -14,7 +14,7 @@ import scipy.constants
 import matplotlib.pyplot as plt
 import matplotlib
 from sys import exit
-
+import settings
 matplotlib.style.use('ggplot')
 import scipy.optimize as opt
 import time
@@ -450,7 +450,17 @@ class Controller():
         """
         A graph of peak alignment, and also allow interaction to select peak to process
         """
-        figure = plt.figure()
+        figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        plt.axes(frameon=False)
+        plt.grid(color='0.5')
+        plt.axhline(0, color='0.6', linewidth=4)
+        plt.axvline(0, color='0.6', linewidth=4)
+        plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+        plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+        plt.gca().yaxis.label.set_color('0.6')
+        plt.gca().xaxis.label.set_color('0.6')
+        figure.canvas.mpl_connect('pick_event', self.onPick)
+
         x = numpy.asarray(self.peakCountSMPSList)
         y = numpy.asarray(self.peakCountCCNCList)
         result = scipy.stats.linregress(x, y)
@@ -461,14 +471,18 @@ class Controller():
         correctedIndexList = []
         for i in range(len(self.data)):
             correctedIndexList.append(round((i * slope + yIntercept) * 10))
-        plt.plot(x, y, "ro", picker=5)
-        plt.plot(x, x * slope + yIntercept)
-        self.currentPoint, = plt.plot(x[0],y[0],'bo')
+        plt.plot(x, x * slope + yIntercept, linewidth = 4, color = '#43A047', label = "Regression line")
+        plt.plot(x, y, "o", ms = 10, color = "#43A047",picker=15, mew = 0, label = "Minimum")
         textToShow = str(slope) + "* x" + " + " + str(yIntercept)
-        plt.text(x[4], y[3], textToShow)
-        plt.gca().set_axis_bgcolor("white")
-        plt.grid(color='0.65')
-        figure.canvas.mpl_connect('pick_event', self.onPick)
+        self.currentPoint, = plt.plot(x[0],y[0],'o', color = "#81C784", ms = 12, mew = 0)
+        plt.text(x[4], y[3], textToShow, color = "#81C784" )
+        plt.xlabel("SMPS minumum point")
+        plt.ylabel("CCNC minimum point")
+
+        handles, labels = plt.gca().get_legend_handles_labels()
+        legend = plt.legend(handles, labels,loc="upper right", bbox_to_anchor=(1,0.7))
+        legend.get_frame().set_facecolor('#9E9E9E')
+
 
         if not self.minCompareGraph:
             self.minCompareGraph = plt.gcf()
@@ -702,35 +716,78 @@ class Controller():
         """
         Make the comparable CCN and CN graph after adjustment of minimum peak
         """
-        data = pandas.DataFrame({"SMPS": self.cnList, "CCNC": self.ccnList})
-        graph = data.plot(kind='line')
-        graph.set_axis_bgcolor("white")
-        graph.grid(color='0.65')
+        figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        plt.axes(frameon=False)
+        plt.grid(color='0.5')
+        plt.axhline(0, color='0.6', linewidth=4)
+        plt.axvline(0, color='0.6', linewidth=4)
+        plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+        plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+        plt.gca().yaxis.label.set_color('0.6')
+        plt.gca().xaxis.label.set_color('0.6')
+        x = range(self.timeFrame)
+
+        plt.plot(x, self.cnList, linewidth = 4, color = '#EF5350', label = "CN")
+        plt.plot(x, self.ccnList, linewidth = 4, color = '#2196F3',label = "CCN")
+        handles, labels = plt.gca().get_legend_handles_labels()
+        legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0, 0.9))
+        legend.get_frame().set_facecolor('#9E9E9E')
+
+        plt.xlabel("Scan time(s)")
+        plt.ylabel("Concentration(cm3)")
+
         self.adjustedGraphList.append(plt.gcf())
 
     def makeCCNGraph(self):
         """
         Make graph for the CCN data. Used to cross check for peak alignment.
         """
-        plt.figure()
-        plt.plot(self.diameterList, self.ccncnList, 'ro')
-        plt.gca().axes.set_ylim([-0.2, 1.2])
-        plt.gca().set_axis_bgcolor("white")
-        plt.grid(color='0.65')
+        figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        plt.axes(frameon=False)
+        plt.grid(color='0.5')
+        plt.axhline(0, color='0.6', linewidth=2)
+        plt.axvline(0, color='0.6', linewidth=4)
+        plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+        plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+        plt.gca().yaxis.label.set_color('0.6')
+        plt.gca().xaxis.label.set_color('0.6')
+        plt.plot(self.diameterList, self.ccncnList, 'o', color="#2196F3", mew=0.5,mec = "#0D47A1",  ms = 9, label = "CCN/CN")
+        plt.gca().axes.set_ylim([-0.1, 1.2])
+        handles, labels = plt.gca().get_legend_handles_labels()
+        legend = plt.legend(handles, labels,loc="upper right", bbox_to_anchor=(1,0.9))
+        legend.get_frame().set_facecolor('#9E9E9E')
+        plt.xlabel("Diameter (nm)")
+        plt.ylabel("CCN/CN")
         self.dryDiaGraphList.append(plt.gcf())
 
     def makeFullDryDiameterGraph(self):
         """
         Make complete graph of the dry diameter after optimization and sigmodal fit
         """
-        plt.figure()
-        plt.plot(self.diameterList, self.ccncnList, 'ro')
-        plt.plot(self.diameterList, self.ccncSigList, 'bo')
-        plt.plot(self.diameterMidpointList, self.ccnNormalizedList)
-        plt.plot(self.diameterList, self.ccncnSimList)
-        plt.gca().axes.set_ylim([-0.2, 1.2])
-        plt.gca().set_axis_bgcolor("white")
-        plt.grid(color='0.65')
+        figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        plt.axes(frameon=False)
+        plt.grid(color='0.5')
+        plt.axhline(0, color='0.6', linewidth=4)
+        plt.axvline(0, color='0.6', linewidth=4)
+        plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+        plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+        plt.gca().yaxis.label.set_color('0.6')
+        plt.gca().xaxis.label.set_color('0.6')
+        plt.gca().axes.set_ylim([-0.1, 1.2])
+
+        plt.plot(self.diameterMidpointList, self.ccnNormalizedList, linewidth=4, color='#43A047', label="dN/dLogDP")
+        plt.plot(self.diameterList, self.ccncnSimList, linewidth=5, color='#EF5350', label="Sigmodal Fit")
+        plt.plot(self.diameterList, self.ccncnList, 'o', color="#2196F3", mew=0.5,mec = "#1976D2",  ms = 9, label = "CCN/CN")
+        plt.plot(self.diameterList, self.ccncSigList, 'o', color="#1565C0", mew=0.5,mec = "#0D47A1",  ms = 9, label = "CCN/CN (Corrected)")
+
+
+        plt.xlabel("Dry diameter(nm)")
+        plt.ylabel("CCN/CN ratio and Normalized dN/dLogDP")
+
+        handles, labels = plt.gca().get_legend_handles_labels()
+        legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.7, 1.1))
+        legend.get_frame().set_facecolor('#9E9E9E')
+
         self.dryDiaGraphList.append(plt.gcf())
 
     def makeInitialGraphs(self):
@@ -1232,7 +1289,7 @@ def makeKappaGraph():
     klines = pandas.read_excel("klines.xlsx", header=1)
     header = klines.columns
     diaList = klines[header[1]]
-    ax = plt.figure()
+    ax = plt.figure(facecolor=settings.graphBackgroundColor)
     plt.gca().set_axis_bgcolor("white")
 
     for i in range(2, len(header)):
