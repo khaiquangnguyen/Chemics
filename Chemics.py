@@ -150,6 +150,7 @@ class Controller():
         self.adjustedGraph = None
         self.dryDiaGraph = None
         self.minCompareGraph = None
+        self.kappaGraph = None
 
         self.adjustedGraphList = []
         self.dryDiaGraphList = []
@@ -831,6 +832,7 @@ class Controller():
             self.bList.append(self.b)
             self.dList.append(self.d)
             self.cList.append(self.c)
+            self.dp50List.append(self.dp50)
             self.ccnNormalizedFullList.append(self.ccnNormalizedList)
             self.ccncnFullList.append(self.ccncnList)
             self.ccncSigFullList.append(self.ccncSigList)
@@ -980,6 +982,31 @@ class Controller():
         self.currentPoint.set_ydata(numpy.asarray(self.peakCountCCNCList)[self.currPeak])
         self.view.updatePeakInfo()
 
+    def makeKappaGraph(self):
+        klines = pandas.read_excel("klines.xlsx", header=1)
+        header = klines.columns
+        diaList = klines[header[1]]
+        figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        plt.axes(frameon=False)
+        plt.grid(color='0.5')
+        plt.axhline(0, color='0.6', linewidth=4)
+        plt.axvline(0, color='0.6', linewidth=4)
+        plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+        plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+        plt.gca().yaxis.label.set_color('0.6')
+        plt.gca().xaxis.label.set_color('0.6')
+        for i in range(2, len(header)):
+            y = klines[header[i]]
+            plt.loglog(diaList, y, label = "k = " + str(header[i]))
+            plt.ylim([0.1, 1.5])
+            plt.xlim([10, 200])
+            plt.grid(True, which='both', color= "0.85")
+        plt.xlabel("Dry diameter(nm)")
+        plt.ylabel("Super Saturation(%)")
+        handles, labels = plt.gca().get_legend_handles_labels()
+        legend = plt.legend(handles, labels, loc="upper right", bbox_to_anchor=(1, 0.7))
+        legend.get_frame().set_facecolor('#9E9E9E')
+        self.kappaGraph = plt.gcf()
 
     def run(self):
         """
@@ -1043,7 +1070,6 @@ def removeSmallCcn(ccnList, minValue):
         if ccnList[i] < minValue:
             ccnList[i] = 0
 
-
 def getAveNoneZero(aList):
     sum = 0
     count = 0
@@ -1056,7 +1082,6 @@ def getAveNoneZero(aList):
     else:
         return 0
 
-
 def f(x, d, c):
     """
     The function for the optimization method
@@ -1066,7 +1091,6 @@ def f(x, d, c):
     :return:
     """
     return 0.903 / (1 + (x / d) ** c)
-
 
 def getAsym(xList, yList):
     asymList = []
@@ -1281,20 +1305,6 @@ def cleanseZero(aList):
             aList[i] = epsilon
     return aList
 
-def makeKappaGraph():
-    klines = pandas.read_excel("klines.xlsx", header=1)
-    header = klines.columns
-    diaList = klines[header[1]]
-    ax = plt.figure(facecolor=settings.graphBackgroundColor)
-    plt.gca().set_axis_bgcolor("white")
-
-    for i in range(2, len(header)):
-        y = klines[header[i]]
-        plt.loglog(diaList, y)
-        plt.ylim([0.1, 1.5])
-        plt.xlim([10, 200])
-        plt.grid(True, which='both', color="0.85")
-    plt.show()
 
 
 def calKappa(ss, dp50):
@@ -1336,12 +1346,11 @@ def getCorrectNum(aList, number, bigger=True):
             num = aList[i]
     return num
 
-
 def main():
     controller = Controller(False)
     controller.run()
     # makeKappaGraph()
-    # calKappa(0.4, 61.6)
+    # calKappaButton(0.4, 61.6)
 
 
 if __name__ == '__main__':
