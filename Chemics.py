@@ -181,6 +181,9 @@ class Controller():
         self.trueSC = 0
         self.kappaExcel = None
 
+        self.kappaCalculatedDict = {}
+        self.alphaPineneDict = {}
+
     def setFolder(self, folder):
         """
         Set the folder where data is stored
@@ -706,10 +709,13 @@ class Controller():
             initGuess = [30, -10]
             xList = numpy.asarray(xList)
             yList = numpy.asarray(yList)
-            # initGuess = numpy.asarray(initGuess)
             result = opt.curve_fit(f, xList, yList, bounds=([self.minDp, -200], [self.maxDp, -1]), method="trf")
             self.d = result[0][0]
             self.c = result[0][1]
+            self.bList.append(self.b)
+            self.dList.append(self.d)
+            self.cList.append(self.c)
+            self.dp50List.append((self.d, self.ssList[self.currPeak]))
             self.ccncnSimList = [0]
 
             for i in range(1, len(self.diameterList)):
@@ -718,6 +724,8 @@ class Controller():
                     self.ccncnSimList.append(n)
                 else:
                     self.ccncnSimList.append(self.ccncnSimList[i - 1])
+
+
         except:
             raise OptimizationError()
 
@@ -843,10 +851,6 @@ class Controller():
             self.makeProgress()
             self.optimize()
             self.makeProgress()
-            self.bList.append(self.b)
-            self.dList.append(self.d)
-            self.cList.append(self.c)
-            self.dp50List.append(self.dp50)
             self.ccnNormalizedFullList.append(self.ccnNormalizedList)
             self.ccncnFullList.append(self.ccncnList)
             self.ccncSigFullList.append(self.ccncSigList)
@@ -1020,46 +1024,104 @@ class Controller():
             plt.loglog(diaList, y, label=str(header[i]), linewidth = 4)
 
         handles, labels = plt.gca().get_legend_handles_labels()
-        legend = plt.legend(handles, labels, loc="top left", bbox_to_anchor=(0.15, 1))
+        legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.15, 1))
         legend.get_frame().set_facecolor('#9E9E9E')
         self.kappaGraph = plt.gcf()
 
     def calKappa(self):
-        self.kappaExcel = pandas.read_excel("kCal.xlsx", header=None, sheetname=["lookup", "sc calcs"])
+        self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
+        self.kappaExcel = pandas.read_excel("kCal.xlsx", header=None, sheetname=["lookup","apKappa"])
         lookup = self.kappaExcel["lookup"]
-        scCalcs = self.kappaExcel['sc calcs']
-
+        apKappa = self.kappaExcel['apKappa']
         # Calculate constants (mostly)
-        sc = list(scCalcs[1:][4])
-        [int(x) for x in sc]
-        iKappa = 0.00567
-        self.sc = (max(sc) - 1) * 100
-        dd = 280
-        self.asc = (exp(sqrt(4 * self.aParam ** 3 / (27 * iKappa * (dd * 0.000000001) ** 3))) - 1) * 100
-        sc2 = list(scCalcs[2:][8])
-        [int(x) for x in sc2]
-        self.sc2 = (max(sc2) - 1) * 100
-        trueSC = list(scCalcs[2:][1])
-        [int(x) for x in sc2]
-        self.trueSC = (max(sc2) - 1) * 100
+        # scCalcsC1 = []
+        # sc = list(scCalcs.iloc[1:][4])
+        # iKappa = 0.00567
+        # self.sc = (max(sc) - 1) * 100
+        # dd = 280
+        # self.asc = (exp(sqrt(4 * self.aParam ** 3 / (27 * iKappa * (dd * 0.000000001) ** 3))) - 1) * 100
+        # sc2 = list(scCalcs.iloc[2:][8])
+        # self.sc2 = (max(sc2) - 1) * 100
+        # trueSC = list(scCalcs.iloc[2:][1])
+        # self.trueSC = (max(sc2) - 1) * 100
 
         # Calculate each kappa
+        self.kappaCalculatedDict[0.2] = []
+        self.kappaCalculatedDict[0.4] = []
+        self.kappaCalculatedDict[0.6] = []
+        self.kappaCalculatedDict[0.8] = []
+        self.kappaCalculatedDict[0.1] = []
         for i in range(len(self.dp50List)):
-            ss = self.ssList[i]
-            dp50 = self.dp50List[i]
+            ss = self.dp50List[i][1]
+            dp50 = self.dp50List[i][0]
             rowIndex = int(math.floor(dp50 - 9))
-            matchRow = list(lookup.loc[rowIndex][2:])
-            valueRow = list(lookup.loc[0][2:])
+            matchRow = list(lookup.iloc[rowIndex][1:])
+            valueRow = list(lookup.iloc[0][1:])
             a = getCorrectNum(matchRow, ss)
             cIndex = a[1]
             a = a[0]
-            b = getCorrectNum(matchRow, ss, bigger=False)
-            dIndex = b[1]
-            b = b[0]
-            c = valueRow[cIndex]
-            d = valueRow[dIndex]
+            # b = getCorrectNum(matchRow, ss, bigger=False)
+            # dIndex = b[1]
+            # b = b[0]
+            if cIndex != (len(matchRow) - 1):
+                b = matchRow[cIndex + 1]
+                c = valueRow[cIndex]
+                d = valueRow[cIndex + 1]
+            else:
+                c = valueRow[cIndex]
+                b = 0
+                d = 0
             self.appKappa = (ss - (a - (a - b) / (c - d) * c)) / ((a - b) / (c - d))
             self.anaKappa = (4 * self.aParam ** 3) / (27 * (dp50 * 0.000000001) ** 3 * log(ss / 100 + 1) ** 2)
+            kDevi = (self.appKappa-self.anaKappa)/self.appKappa * 100
+            if ss in self.kappaCalculatedDict.keys():
+                self.kappaCalculatedDict[ss].append([dp50, self.appKappa, self.anaKappa,kDevi])
+            else:
+                self.kappaCalculatedDict[ss] = ([dp50, self.appKappa, self.anaKappa, kDevi])
+
+
+        for aKey in self.kappaCalculatedDict.keys():
+            aSSList = self.kappaCalculatedDict[aKey]
+            dp50List = []
+            appKappaList = []
+            anaKappaList = []
+            meanDevList = []
+            if aSSList:
+                for aSS in aSSList:
+                    dp50List.append(aSS[0])
+                    appKappaList.append(aSS[1])
+                    anaKappaList.append(aSS[2])
+                    meanDevList.append(aSS[3])
+
+            if float(aKey) == 0.2:
+                dp50List.extend(list(apKappa.iloc[1:12][1]))
+                appKappaList.extend(list(apKappa.iloc[1:12][2]))
+                anaKappaList.extend(list(apKappa.iloc[1:12][3]))
+            elif float(aKey) == 0.4:
+                dp50List.extend(list(apKappa.iloc[12:32][1]))
+                appKappaList.extend(list(apKappa.iloc[12:32][2]))
+                anaKappaList.extend(list(apKappa.iloc[12:32][3]))
+            elif float(aKey) == 0.6:
+                dp50List.extend(list(apKappa.iloc[32:54][1]))
+                appKappaList.extend(list(apKappa.iloc[32:54][2]))
+                anaKappaList.extend(list(apKappa.iloc[32:54][3]))
+            elif float(aKey) == 0.8:
+                dp50List.extend(list(apKappa.iloc[54:78][1]))
+                appKappaList.extend(list(apKappa.iloc[54:78][2]))
+                anaKappaList.extend(list(apKappa.iloc[54:78][3]))
+            elif float(aKey) == 1:
+                dp50List.extend(list(apKappa.iloc[78:96][1]))
+                appKappaList.extend(list(apKappa.iloc[78:96][2]))
+                anaKappaList.extend(list(apKappa.iloc[78:96][3]))
+            meanDp = average(dp50List)
+            stdDp = numpy.std(dp50List)
+            meanApp = average(appKappaList)
+            stdApp = numpy.std(appKappaList)
+            meanAna = average(anaKappaList)
+            stdAna = numpy.std(anaKappaList)
+            meanDev = average(meanDevList)
+            devMean = (meanApp - meanAna) / meanApp * 100
+            self.alphaPineneDict[aKey] = (meanDp, stdDp, meanApp, stdApp, meanAna, stdAna, meanDev, devMean)
 
     def run(self):
         """
@@ -1374,19 +1436,19 @@ def getCorrectNum(aList, number, bigger=True):
     for i in range(1, len(aList)):
         if aList[i] < number:
             if bigger:
-                return (num, i -1)
+                return (num, i - 1)
             else:
                 return (aList[i], i)
         else:
             num = aList[i]
-    return num
-
-
-
+    return (aList[-1], len(aList) -1 )
 
 
 def main():
     controller = Controller(False)
+    # controller.run()
+    controller.calKappa()
+    # test()
 
 if __name__ == '__main__':
     main()

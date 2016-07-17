@@ -190,8 +190,8 @@ class ControlPanel(QWidget):
         self.layout.addWidget(self.graphWidget)
         self.setLayout(self.layout)
         self.mainWindow.controller.makeKappaGraph()
+        self.mainWindow.controller.calKappa()
         self.graphWidget.totalView.updateFigure(self.mainWindow.controller.kappaGraph)
-
         self.resize()
 
     def switchToPeak(self):
