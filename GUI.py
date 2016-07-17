@@ -139,11 +139,11 @@ class MainWindow(QMainWindow):
         self.centralWidget().graphWidget.individualViews.dpView.updateFigure(adjustedFigure)
         self.centralWidget().graphWidget.individualViews.dNlogView.updateFigure(diaFigure)
 
-    def updateGeneralInfo(self):
+    def updateData(self):
         """
         Update the information area
         """
-        self.centralWidget().infoWidget.infoArea.updateGeneralInfo()
+        self.centralWidget().infoWidget.infoArea.updateData()
 
     def updatePeakInfo(self):
         self.centralWidget().infoWidget.infoArea.updatePeakInfo()
@@ -156,6 +156,9 @@ class MainWindow(QMainWindow):
 
     def getMaxPeak(self):
         return self.controller.maxPeak
+
+    def getKappaDict(self):
+        return self.controller.kappaCalculatedDict
 
     def updateTotalViewFigure(self, aFigure):
         """
@@ -192,6 +195,7 @@ class ControlPanel(QWidget):
         self.mainWindow.controller.makeKappaGraph()
         self.mainWindow.controller.calKappa()
         self.graphWidget.totalView.updateFigure(self.mainWindow.controller.kappaGraph)
+        self.infoWidget.infoArea.updateData()
         self.resize()
 
     def switchToPeak(self):

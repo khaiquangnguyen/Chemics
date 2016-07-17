@@ -926,7 +926,7 @@ class Controller():
             self.currPeak = -1
             self.completedStep = 2
             self.makeProgress(complete=True)
-            self.view.updateGeneralInfo()
+            self.view.updateData()
             #
             self.peakAlignAndGraph()
             self.updatePeak(0)
@@ -1051,6 +1051,7 @@ class Controller():
         self.kappaCalculatedDict[0.6] = []
         self.kappaCalculatedDict[0.8] = []
         self.kappaCalculatedDict[0.1] = []
+
         for i in range(len(self.dp50List)):
             ss = self.dp50List[i][1]
             dp50 = self.dp50List[i][0]
@@ -1060,9 +1061,6 @@ class Controller():
             a = getCorrectNum(matchRow, ss)
             cIndex = a[1]
             a = a[0]
-            # b = getCorrectNum(matchRow, ss, bigger=False)
-            # dIndex = b[1]
-            # b = b[0]
             if cIndex != (len(matchRow) - 1):
                 b = matchRow[cIndex + 1]
                 c = valueRow[cIndex]
@@ -1080,48 +1078,48 @@ class Controller():
                 self.kappaCalculatedDict[ss] = ([dp50, self.appKappa, self.anaKappa, kDevi])
 
 
-        for aKey in self.kappaCalculatedDict.keys():
-            aSSList = self.kappaCalculatedDict[aKey]
-            dp50List = []
-            appKappaList = []
-            anaKappaList = []
-            meanDevList = []
-            if aSSList:
-                for aSS in aSSList:
-                    dp50List.append(aSS[0])
-                    appKappaList.append(aSS[1])
-                    anaKappaList.append(aSS[2])
-                    meanDevList.append(aSS[3])
-
-            if float(aKey) == 0.2:
-                dp50List.extend(list(apKappa.iloc[1:12][1]))
-                appKappaList.extend(list(apKappa.iloc[1:12][2]))
-                anaKappaList.extend(list(apKappa.iloc[1:12][3]))
-            elif float(aKey) == 0.4:
-                dp50List.extend(list(apKappa.iloc[12:32][1]))
-                appKappaList.extend(list(apKappa.iloc[12:32][2]))
-                anaKappaList.extend(list(apKappa.iloc[12:32][3]))
-            elif float(aKey) == 0.6:
-                dp50List.extend(list(apKappa.iloc[32:54][1]))
-                appKappaList.extend(list(apKappa.iloc[32:54][2]))
-                anaKappaList.extend(list(apKappa.iloc[32:54][3]))
-            elif float(aKey) == 0.8:
-                dp50List.extend(list(apKappa.iloc[54:78][1]))
-                appKappaList.extend(list(apKappa.iloc[54:78][2]))
-                anaKappaList.extend(list(apKappa.iloc[54:78][3]))
-            elif float(aKey) == 1:
-                dp50List.extend(list(apKappa.iloc[78:96][1]))
-                appKappaList.extend(list(apKappa.iloc[78:96][2]))
-                anaKappaList.extend(list(apKappa.iloc[78:96][3]))
-            meanDp = average(dp50List)
-            stdDp = numpy.std(dp50List)
-            meanApp = average(appKappaList)
-            stdApp = numpy.std(appKappaList)
-            meanAna = average(anaKappaList)
-            stdAna = numpy.std(anaKappaList)
-            meanDev = average(meanDevList)
-            devMean = (meanApp - meanAna) / meanApp * 100
-            self.alphaPineneDict[aKey] = (meanDp, stdDp, meanApp, stdApp, meanAna, stdAna, meanDev, devMean)
+        # for aKey in self.kappaCalculatedDict.keys():
+        #     aSSList = self.kappaCalculatedDict[aKey]
+        #     dp50List = []
+        #     appKappaList = []
+        #     anaKappaList = []
+        #     meanDevList = []
+        #     if aSSList:
+        #         for aSS in aSSList:
+        #             dp50List.append(aSS[0])
+        #             appKappaList.append(aSS[1])
+        #             anaKappaList.append(aSS[2])
+        #             meanDevList.append(aSS[3])
+        #
+        #     if float(aKey) == 0.2:
+        #         dp50List.extend(list(apKappa.iloc[1:12][1]))
+        #         appKappaList.extend(list(apKappa.iloc[1:12][2]))
+        #         anaKappaList.extend(list(apKappa.iloc[1:12][3]))
+        #     elif float(aKey) == 0.4:
+        #         dp50List.extend(list(apKappa.iloc[12:32][1]))
+        #         appKappaList.extend(list(apKappa.iloc[12:32][2]))
+        #         anaKappaList.extend(list(apKappa.iloc[12:32][3]))
+        #     elif float(aKey) == 0.6:
+        #         dp50List.extend(list(apKappa.iloc[32:54][1]))
+        #         appKappaList.extend(list(apKappa.iloc[32:54][2]))
+        #         anaKappaList.extend(list(apKappa.iloc[32:54][3]))
+        #     elif float(aKey) == 0.8:
+        #         dp50List.extend(list(apKappa.iloc[54:78][1]))
+        #         appKappaList.extend(list(apKappa.iloc[54:78][2]))
+        #         anaKappaList.extend(list(apKappa.iloc[54:78][3]))
+        #     elif float(aKey) == 1:
+        #         dp50List.extend(list(apKappa.iloc[78:96][1]))
+        #         appKappaList.extend(list(apKappa.iloc[78:96][2]))
+        #         anaKappaList.extend(list(apKappa.iloc[78:96][3]))
+        #     meanDp = average(dp50List)
+        #     stdDp = numpy.std(dp50List)
+        #     meanApp = average(appKappaList)
+        #     stdApp = numpy.std(appKappaList)
+        #     meanAna = average(anaKappaList)
+        #     stdAna = numpy.std(anaKappaList)
+        #     meanDev = average(meanDevList)
+        #     devMean = (meanApp - meanAna) / meanApp * 100
+        #     self.alphaPineneDict[aKey] = (meanDp, stdDp, meanApp, stdApp, meanAna, stdAna, meanDev, devMean)
 
     def run(self):
         """
@@ -1446,8 +1444,8 @@ def getCorrectNum(aList, number, bigger=True):
 
 def main():
     controller = Controller(False)
-    # controller.run()
-    controller.calKappa()
+    controller.run()
+    # controller.calKappa()
     # test()
 
 if __name__ == '__main__':

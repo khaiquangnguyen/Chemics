@@ -51,8 +51,8 @@ class messageArea(QTableWidget):
         palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
         self.setPalette(palette)
 
-    def updateGeneralInfo(self):
-        header = sectionHeader("Data Information")
+    def updateData(self):
+        header = TableHeader("Data Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         self.addMessage("Folder",self.mainWindow.controller.folder)
@@ -60,7 +60,7 @@ class messageArea(QTableWidget):
         self.addMessage("Time frame",self.mainWindow.controller.startTimeEntries[0] + " to " + self.mainWindow.controller.endTimeEntries[-1])
         self.addMessage("Time per run",self.mainWindow.controller.timeFrame)
         self.addMessage("Total run",self.mainWindow.controller.maxPeak - 1)
-        header = sectionHeader("Peak Information")
+        header = TableHeader("Peak Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
 
@@ -80,7 +80,7 @@ class messageArea(QTableWidget):
     def addMessage(self, field,message):
         ##### add code here to process the message before printing
         message = str(message)
-        item = outerTableItem(field,message)
+        item = TableItem(field, message)
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount()-1,0,item)
 

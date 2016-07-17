@@ -9,23 +9,24 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 import time
 
 
-class outerTableItem(QWidget):
+class TableItem(QWidget):
     def __init__(self,field,message):
         QWidget.__init__(self)
         self.layout = QVBoxLayout()
         margin = self.height() / 400
         self.layout.setContentsMargins(0, margin, 0, margin)
-        self.insideItem = tableItem(field,message)
+        self.insideItem = InnerTableItem(field, message)
         self.layout.addWidget(self.insideItem)
         self.setLayout(self.layout)
 
-class tableItem(QWidget):
+class InnerTableItem(QWidget):
     def __init__(self,field,message):
         QWidget.__init__(self)
         self.layout = QGridLayout()
         self.layout.setHorizontalSpacing(5)
-        self.fieldText = fieldTextCustom(field)
-        self.infoText = infoTextCustom(message)
+
+        self.fieldText = FieldText(field)
+        self.infoText = InfoText(message)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addWidget(self.fieldText,0,0,1,1)
         self.layout.addWidget(self.infoText,0,1,1,3)
@@ -36,7 +37,22 @@ class tableItem(QWidget):
         palette.setColor(QPalette.Base, settings.infoAreaItemBackgroundColor)
         self.setPalette(palette)
 
-class sectionHeader(QWidget):
+
+class SingleTableItem(QWidget):
+    def __init__(self, message):
+        QWidget.__init__(self)
+        self.layout = QHBoxLayout()
+        self.infoText = InfoText(message)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.addWidget(self.infoText)
+        self.setLayout(self.layout)
+        self.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.Base, settings.infoAreaItemBackgroundColor)
+        self.setPalette(palette)
+
+
+class TableHeader(QWidget):
     def __init__(self, header):
         QWidget.__init__(self)
         self.layout = QVBoxLayout()
@@ -66,7 +82,7 @@ class sectionHeader(QWidget):
         font.setPointSize(size)
         self.setFont(font)
 
-class fieldTextCustom(QLabel):
+class FieldText(QLabel):
     def __init__(self,message):
         QLabel.__init__(self,message)
         self.setAutoFillBackground(True)
@@ -86,7 +102,7 @@ class fieldTextCustom(QLabel):
         font.setPointSize(size)
         self.setFont(font)
 
-class infoTextCustom(QLabel):
+class InfoText(QLabel):
     def __init__(self, message):
         QLabel.__init__(self, message)
         self.setAutoFillBackground(True)
