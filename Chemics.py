@@ -108,6 +108,14 @@ class Controller():
         self.ssList = []
         # The SMPS and CCNC data
         self.data = None
+        # The number of process finished
+        self.completedStep = 0
+        # The current point on the minimum graph
+        self.currentPoint = None
+        # If the peak data has been optimized
+        self.optimized = False
+        # If the processing is cancelled
+        self.cancel = False
 
         # Necessary information
         self.ccnList = None
@@ -126,6 +134,7 @@ class Controller():
         self.ccncnSimFullList = []
         self.ccncSigFullList = []
 
+        # Variables for peak analysis
         self.b = 0
         self.d = 0
         self.c = 0
@@ -140,7 +149,6 @@ class Controller():
         self.dp50MoreCount = 0
         self.dp50Wet = 0
         self.dp50Plus20 = 0
-
         self.bList = []
         self.dList = []
         self.cList = []
@@ -151,20 +159,12 @@ class Controller():
         self.dryDiaGraph = None
         self.minCompareGraph = None
         self.kappaGraph = None
-
         self.adjustedGraphList = []
         self.dryDiaGraphList = []
-
         self.peakCountSMPSList = []
         self.peakCountCCNCList = []
 
-        self.optimized = False
-        self.cancel = False
-        self.completedStep = 0
-
-        self.currentPoint = None
-
-        #Changing var for calculating kappa
+        # Variables for calculating kappa
         self.sigma = 0.072
         self.temp = 298.15
         self.aParam = 0.00000869251 * self.sigma / self.temp
@@ -181,8 +181,6 @@ class Controller():
         self.trueSC = 0
         self.kappaExcel = None
 
-
-
     def setFolder(self, folder):
         """
         Set the folder where data is stored
@@ -191,7 +189,6 @@ class Controller():
         self.completedStep = 0
         self.folder = folder
         self.run()
-
 
     def getFileNames(self):
         """
@@ -1027,6 +1024,43 @@ class Controller():
         legend.get_frame().set_facecolor('#9E9E9E')
         self.kappaGraph = plt.gcf()
 
+    def calKappa(self):
+        self.kappaExcel = pandas.read_excel("kCal.xlsx", header=None, sheetname=["lookup", "sc calcs"])
+        lookup = self.kappaExcel["lookup"]
+        scCalcs = self.kappaExcel['sc calcs']
+
+        # Calculate constants (mostly)
+        sc = list(scCalcs[1:][4])
+        [int(x) for x in sc]
+        iKappa = 0.00567
+        self.sc = (max(sc) - 1) * 100
+        dd = 280
+        self.asc = (exp(sqrt(4 * self.aParam ** 3 / (27 * iKappa * (dd * 0.000000001) ** 3))) - 1) * 100
+        sc2 = list(scCalcs[2:][8])
+        [int(x) for x in sc2]
+        self.sc2 = (max(sc2) - 1) * 100
+        trueSC = list(scCalcs[2:][1])
+        [int(x) for x in sc2]
+        self.trueSC = (max(sc2) - 1) * 100
+
+        # Calculate each kappa
+        for i in range(len(self.dp50List)):
+            ss = self.ssList[i]
+            dp50 = self.dp50List[i]
+            rowIndex = int(math.floor(dp50 - 9))
+            matchRow = list(lookup.loc[rowIndex][2:])
+            valueRow = list(lookup.loc[0][2:])
+            a = getCorrectNum(matchRow, ss)
+            cIndex = a[1]
+            a = a[0]
+            b = getCorrectNum(matchRow, ss, bigger=False)
+            dIndex = b[1]
+            b = b[0]
+            c = valueRow[cIndex]
+            d = valueRow[dIndex]
+            self.appKappa = (ss - (a - (a - b) / (c - d) * c)) / ((a - b) / (c - d))
+            self.anaKappa = (4 * self.aParam ** 3) / (27 * (dp50 * 0.000000001) ** 3 * log(ss / 100 + 1) ** 2)
+
     def run(self):
         """
         The main running procedure of the program
@@ -1083,44 +1117,6 @@ class Controller():
 
     def cancelProgress(self):
         self.cancel = True
-
-    def calKappa(self):
-        self.kappaExcel = pandas.read_excel("kCal.xlsx", header=None, sheetname=["lookup", "sc calcs"])
-        lookup = self.kappaExcel["lookup"]
-        scCalcs = self.kappaExcel['sc calcs']
-
-        # Calculate constants (mostly)
-        sc = list(scCalcs[1:][4])
-        [int(x) for x in sc]
-        iKappa = 0.00567
-        self.sc = (max(sc) - 1) * 100
-        dd = 280
-        self.asc = (exp(sqrt(4 * self.aParam ** 3 / (27 * iKappa * (dd * 0.000000001) ** 3))) - 1) * 100
-        sc2 = list(scCalcs[2:][8])
-        [int(x) for x in sc2]
-        self.sc2 = (max(sc2) - 1) * 100
-        trueSC = list(scCalcs[2:][1])
-        [int(x) for x in sc2]
-        self.trueSC = (max(sc2) - 1) * 100
-
-        # Calculate each kappa
-        for i in range(len(self.dp50List)):
-            ss = self.ssList[i]
-            dp50 = self.dp50List[i]
-            rowIndex = int(math.floor(dp50 - 9))
-            matchRow = list(lookup.loc[rowIndex][2:])
-            valueRow = list(lookup.loc[0][2:])
-            a = getCorrectNum(matchRow, ss)
-            cIndex = a[1]
-            a = a[0]
-            b = getCorrectNum(matchRow, ss, bigger=False)
-            dIndex = b[1]
-            b = b[0]
-            c = valueRow[cIndex]
-            d = valueRow[dIndex]
-            self.appKappa = (ss - (a - (a - b) / (c - d) * c)) / ((a - b) / (c - d))
-            self.anaKappa = (4 * self.aParam ** 3) / (27 * (dp50 * 0.000000001) ** 3 * log(ss / 100 + 1) ** 2)
-
 
 def removeSmallCcn(ccnList, minValue):
     for i in range(len(ccnList)):
@@ -1391,8 +1387,6 @@ def getCorrectNum(aList, number, bigger=True):
 
 def main():
     controller = Controller(False)
-    controller.calKappa(0.4, 61.6)
-
 
 if __name__ == '__main__':
     main()
