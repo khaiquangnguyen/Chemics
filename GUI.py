@@ -9,6 +9,9 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 import time
 
+from PeakAlignUI import *
+from KappaUI import *
+
 matplotlib.use('Qt4Agg')
 matplotlib.rcParams['backend.qt4']='PySide'
 
@@ -26,7 +29,6 @@ class MainWindow(QMainWindow):
         self.progress = 0
         self.controller = controller
         self.progressDialog = None
-        os.chdir(self.controller.tempFolder)
         self.setWindowTitle('Chemics')
         self.setMinimumHeight(800)
         self.setMinimumWidth(800)
@@ -166,9 +168,9 @@ class ControlPanel(QWidget):
     def __init__(self, mainWindow = None):
         QWidget.__init__(self)
         # addSubWidget
-        self.infoWidget = InfoWidget(mainWindow)
-        self.graphWidget = graphWidget(mainWindow)
-
+        self.mainWindow = mainWindow
+        self.infoWidget = InfoWidget(self.mainWindow)
+        self.graphWidget = graphWidget(self.mainWindow)
         self.layout = QHBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -181,16 +183,25 @@ class ControlPanel(QWidget):
         self.graphWidget.resize(self.width(),self.height())
 
     def switchToKappa(self):
-        self.clearLayout(self.layout)
-        print "1"
-        self.layout.addWidget(self.graphWidget)
-        self.setLayout(self.layout)
-
-    def switchToPeak(self):
+        self.infoWidget = KappaInfoWidget(self.mainWindow)
+        self.graphWidget = KappaGraphWidget(self.mainWindow)
         self.clearLayout(self.layout)
         self.layout.addWidget(self.infoWidget)
         self.layout.addWidget(self.graphWidget)
         self.setLayout(self.layout)
+        self.mainWindow.controller.makeKappaGraph()
+        self.graphWidget.totalView.updateFigure(self.mainWindow.controller.kappaGraph)
+
+        self.resize()
+
+    def switchToPeak(self):
+        self.clearLayout(self.layout)
+        self.infoWidget = InfoWidget(self.mainWindow)
+        self.graphWidget = graphWidget(self.mainWindow)
+        self.layout.addWidget(self.infoWidget)
+        self.layout.addWidget(self.graphWidget)
+        self.setLayout(self.layout)
+        self.resize()
 
     def clearLayout(self, layout):
         if layout is not None:

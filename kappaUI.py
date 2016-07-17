@@ -1,3 +1,16 @@
+from InfoTableStyle import *
+from CustomButton import *
+import sys
+import os
+from PySide.QtGui import *
+from PySide.QtCore import *
+import settings
+import matplotlib
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+import time
+
+
 class KappaInfoWidget(QWidget):
     def __init__(self, mainWindow=None):
         super(self.__class__,self).__init__(mainWindow)
@@ -79,7 +92,6 @@ class KappaGraphWidget(QWidget):
         self.setFixedHeight(parentHeight)
         self.totalView.resize(self.width(),self.height())
         self.controlArea.resize(self.width(),self.height())
-        self.individualViews.resize(self.width(),self.height())
 
     def __init__(self, mainWindow=None):
         super(self.__class__, self).__init__(mainWindow)
@@ -87,10 +99,8 @@ class KappaGraphWidget(QWidget):
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.totalView = totalView()
-        self.individualViews = individualViews()
-        self.controlArea = controlArea(mainWindow)
-        self.layout.addWidget(self.individualViews)
+        self.totalView = KappaView()
+        self.controlArea = KappaControlArea(mainWindow)
         self.layout.addWidget(self.controlArea)
         self.layout.addWidget(self.totalView)
 
@@ -170,7 +180,7 @@ class KappaControlArea(QWidget):
 
 class KappaView(FigureCanvas):
     def resize(self, parentWidth, parentHeight):
-        self.setFixedHeight(parentHeight * 2 / 5)
+        self.setFixedHeight(parentHeight * 9 / 10)
         self.setFixedWidth(parentWidth)
 
     def __init__(self, mainWindow=None):

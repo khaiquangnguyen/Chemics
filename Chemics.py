@@ -94,7 +94,7 @@ class Controller():
         self.endTimeEntries = None
         # The date of the experiment
         self.date = None
-        # the time frame of a a measurement
+        # the time frame of aParam aParam measurement
         self.timeFrame = 0
         # The content of the csv file
         self.csvContent = None
@@ -164,7 +164,24 @@ class Controller():
 
         self.currentPoint = None
 
-        os.chdir(self.tempFolder)
+        #Changing var for calculating kappa
+        self.sigma = 0.072
+        self.temp = 298.15
+        self.aParam = 0.00000869251 * self.sigma / self.temp
+        self.dd = 280
+        self.iKappa = 0.00567
+        self.sc = 0
+        self.asc = 0
+        self.dd2 = 100
+        self.iKappa2 = 0.6
+        self.solubility = 0.03
+        self.sc2 = 0
+        self.appKappa = 0
+        self.anaKappa = 0
+        self.trueSC = 0
+        self.kappaExcel = None
+
+
 
     def setFolder(self, folder):
         """
@@ -250,13 +267,13 @@ class Controller():
 
     def getDNlog(self):
         """
-        Get the DNlog data from the txt file and saves it to a csv file for easier further processing
+        Get the DNlog data from the txt file and saves it to aParam csv file for easier further processing
         :param txtFile: the path to the txt file
         """
         try:
             # Start producing the data file
             for k in range(3, len(self.txtContent)):
-                if re.search('[a-zA-Z]', self.txtContent[k][0]):
+                if re.search('[aParam-zA-Z]', self.txtContent[k][0]):
                     dNlogPos = k
                     break
 
@@ -272,7 +289,7 @@ class Controller():
     def getSMPSAndCCNC(self):
         """
         get the SMPS data from SMPS file and CCN data from CCN file
-        and then combine them into a single csv file for easier further processing
+        and then combine them into aParam single csv file for easier further processing
         :param csvFile: the path to the csv file
         :param txtFile: the path to the txt file
         """
@@ -286,9 +303,9 @@ class Controller():
 
             # get the count position
             for k in range(3, len(self.txtContent)):
-                if re.search('[a-zA-Z]', self.txtContent[k][0]):
+                if re.search('[aParam-zA-Z]', self.txtContent[k][0]):
                     for j in range(k, len(self.txtContent)):
-                        if not re.search('[a-zA-Z]', self.txtContent[j][0]):
+                        if not re.search('[aParam-zA-Z]', self.txtContent[j][0]):
                             countPos = j
                             break
                     break
@@ -359,7 +376,7 @@ class Controller():
                 ssList.append(aSSList)
 
             # Combine the SMPS and CCNC data into the same file
-            # and in a continuous form for easier processing
+            # and in aParam continuous form for easier processing
             #
             maxNum = 0
             for i in range(len(ssList[0])):
@@ -494,7 +511,7 @@ class Controller():
 
     def onPick(self, event):
         """
-        When a dot on the graph is selected
+        When aParam dot on the graph is selected
         """
         peak = event.ind
         if peak != self.currentPeak:
@@ -512,7 +529,7 @@ class Controller():
         ccnList = list(self.data[startPoint:endPoint]['CCNC Count'])
         cnList = list(self.data[startPoint:endPoint]['SMPS Count'])
 
-        # modify this to get a decently good number
+        # modify this to get aParam decently good number
         cnList = [x * 0.2 for x in cnList]
         self.ccnList = ccnList
         self.cnList = cnList
@@ -626,7 +643,7 @@ class Controller():
         """
         # determine minDp and minDpAsym
 
-        # The number of the data point that must produce a continuous increment to determine a vertical
+        # The number of the data point that must produce aParam continuous increment to determine aParam vertical
         asymList = getAsym(self.diameterList, self.ccncSigList)
         increLength = int(len(asymList) / 10)
         exitLoop = False
@@ -989,22 +1006,24 @@ class Controller():
         figure = plt.figure(facecolor=settings.graphBackgroundColor)
         plt.axes(frameon=False)
         plt.grid(color='0.5')
-        plt.axhline(0, color='0.6', linewidth=4)
-        plt.axvline(0, color='0.6', linewidth=4)
+        plt.axhline(0.1, color='0.6', linewidth=4)
+        plt.axvline(10, color='0.6', linewidth=4)
         plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
         plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
         plt.gca().yaxis.label.set_color('0.6')
         plt.gca().xaxis.label.set_color('0.6')
-        for i in range(2, len(header)):
-            y = klines[header[i]]
-            plt.loglog(diaList, y, label = "k = " + str(header[i]))
-            plt.ylim([0.1, 1.5])
-            plt.xlim([10, 200])
-            plt.grid(True, which='both', color= "0.85")
+        plt.ylim([0.1, 1.5])
+        plt.xlim([10, 200])
+        plt.grid(True, which='both', color="0.85")
         plt.xlabel("Dry diameter(nm)")
         plt.ylabel("Super Saturation(%)")
+
+        for i in range(2, len(header)):
+            y = klines[header[i]]
+            plt.loglog(diaList, y, label=str(header[i]), linewidth = 4)
+
         handles, labels = plt.gca().get_legend_handles_labels()
-        legend = plt.legend(handles, labels, loc="upper right", bbox_to_anchor=(1, 0.7))
+        legend = plt.legend(handles, labels, loc="top left", bbox_to_anchor=(0.15, 1))
         legend.get_frame().set_facecolor('#9E9E9E')
         self.kappaGraph = plt.gcf()
 
@@ -1065,6 +1084,44 @@ class Controller():
     def cancelProgress(self):
         self.cancel = True
 
+    def calKappa(self):
+        self.kappaExcel = pandas.read_excel("kCal.xlsx", header=None, sheetname=["lookup", "sc calcs"])
+        lookup = self.kappaExcel["lookup"]
+        scCalcs = self.kappaExcel['sc calcs']
+
+        # Calculate constants (mostly)
+        sc = list(scCalcs[1:][4])
+        [int(x) for x in sc]
+        iKappa = 0.00567
+        self.sc = (max(sc) - 1) * 100
+        dd = 280
+        self.asc = (exp(sqrt(4 * self.aParam ** 3 / (27 * iKappa * (dd * 0.000000001) ** 3))) - 1) * 100
+        sc2 = list(scCalcs[2:][8])
+        [int(x) for x in sc2]
+        self.sc2 = (max(sc2) - 1) * 100
+        trueSC = list(scCalcs[2:][1])
+        [int(x) for x in sc2]
+        self.trueSC = (max(sc2) - 1) * 100
+
+        # Calculate each kappa
+        for i in range(len(self.dp50List)):
+            ss = self.ssList[i]
+            dp50 = self.dp50List[i]
+            rowIndex = int(math.floor(dp50 - 9))
+            matchRow = list(lookup.loc[rowIndex][2:])
+            valueRow = list(lookup.loc[0][2:])
+            a = getCorrectNum(matchRow, ss)
+            cIndex = a[1]
+            a = a[0]
+            b = getCorrectNum(matchRow, ss, bigger=False)
+            dIndex = b[1]
+            b = b[0]
+            c = valueRow[cIndex]
+            d = valueRow[dIndex]
+            self.appKappa = (ss - (a - (a - b) / (c - d) * c)) / ((a - b) / (c - d))
+            self.anaKappa = (4 * self.aParam ** 3) / (27 * (dp50 * 0.000000001) ** 3 * log(ss / 100 + 1) ** 2)
+
+
 def removeSmallCcn(ccnList, minValue):
     for i in range(len(ccnList)):
         if ccnList[i] < minValue:
@@ -1106,7 +1163,7 @@ def getAsym(xList, yList):
 
 def normalizeList(aList):
     """
-    Normalize a list by divide for the largest number
+    Normalize aParam list by divide for the largest number
     :param aList: the input list
     :return: the output list after normalized
     """
@@ -1121,7 +1178,7 @@ def csvProcessing(filePath):
     """
     read in the csv file with the name filePath
     :param filePath: the path to the csv file
-    :return: a list, which represents the csv
+    :return: aParam list, which represents the csv
     """
     with open(filePath, 'r') as csvFile:
         reader = csv.reader(csvFile, delimiter=' ')
@@ -1159,7 +1216,7 @@ def txtProcessing(filePath):
     """
     read in the txt file and process the txt with the path filePath
     :param filePath: the path to the file
-    :return: a list, which represents the txt
+    :return: aParam list, which represents the txt
     """
     with open(filePath, 'r') as csvfile:
         reader = csv.reader(csvfile, delimiter='\t')
@@ -1185,7 +1242,7 @@ def txtProcessing(filePath):
 
 def getMinIndex(data):
     """
-    get the position of the smallest value of a list
+    get the position of the smallest value of aParam list
     :param data: the data to process
     :return: the index of the smallest value
     """
@@ -1216,7 +1273,7 @@ def makeMinGraph(smpsList, ccncList):
 
 def printList(aList):
     """
-    print the list in a nice format
+    print the list in aParam nice format
     :param aList: the list to print out
     :return:
     """
@@ -1282,10 +1339,10 @@ def aveList(aList):
 
 def movingAve(aList, n):
     """
-    Calculate a new list based on the moving average of n elements
+    Calculate aParam new list based on the moving average of n elements
     :param aList: the list to calculate
-    :param n: the number of points to calculate for a average
-    :return: a new list, which is the result of the moving average
+    :param n: the number of points to calculate for aParam average
+    :return: aParam new list, which is the result of the moving average
     """
     newList = []
     for i in range(len(aList) - n + 1):
@@ -1295,9 +1352,9 @@ def movingAve(aList, n):
 
 def cleanseZero(aList):
     """
-    Change all 0 in the list to a very small number
+    Change all 0 in the list to aParam very small number
     :param aList: the input list with 0s
-    :return: a new list with all 0s replaced
+    :return: aParam new list with all 0s replaced
     """
     epsilon = 0.000001
     for i in range(len(aList)):
@@ -1307,27 +1364,9 @@ def cleanseZero(aList):
 
 
 
-def calKappa(ss, dp50):
-    lookup = pandas.read_excel("kCal.xlsx", header=None, sheetname="lookup")
-    rowIndex = int(math.floor(dp50 - 9))
-    matchRow = list(lookup.loc[rowIndex][2:])
-    valueRow = list(lookup.loc[0][2:])
-    a = getCorrectNum(matchRow, ss)
-    cIndex = a[1]
-    a = a[0]
-    b = getCorrectNum(matchRow, ss, bigger = False)
-    dIndex = b[1]
-    b = b[0]
-    c = valueRow[cIndex]
-    d = valueRow[dIndex]
-    apparentKappa =(ss - (a - (a - b) / (c - d) * c)) / ((a - b) / (c - d))
-    anaKappa = 1
-    trueSc = 1
-
-
 def getCorrectNum(aList, number, bigger=True):
     """
-    Get a number approximately around number
+    Get aParam number approximately around number
     Assuming the aList is sorted in descending order
     :param bigger: if bigger, return the minimum number bigger than number, otherwise
                     return the maximum number smaller than number
@@ -1346,11 +1385,13 @@ def getCorrectNum(aList, number, bigger=True):
             num = aList[i]
     return num
 
+
+
+
+
 def main():
     controller = Controller(False)
-    controller.run()
-    # makeKappaGraph()
-    # calKappaButton(0.4, 61.6)
+    controller.calKappa(0.4, 61.6)
 
 
 if __name__ == '__main__':
