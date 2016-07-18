@@ -10,14 +10,14 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 import time
 
-class InfoWidget(QWidget):
+class PeakAlignDataWidget(QWidget):
     def __init__(self, mainWindow=None):
         super(self.__class__,self).__init__(mainWindow)
         self.layout = QVBoxLayout()  #Vertical layout
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.infoArea = messageArea(mainWindow)
+        self.infoArea = PeakAlignDataTable(mainWindow)
         self.layout.addWidget(self.infoArea)
 
     def resize(self, parentWidth, parentHeight):
@@ -25,7 +25,7 @@ class InfoWidget(QWidget):
         self.setFixedHeight(parentHeight)
         self.infoArea.resize(self.width(),self.height())
 
-class messageArea(QTableWidget):
+class PeakAlignDataTable(QTableWidget):
     def resize(self, parentWidth, parentHeight):
         self.setFixedHeight(parentHeight)
         self.setFixedWidth(parentWidth)
@@ -178,10 +178,9 @@ class controlArea(QWidget):
     def calKappaButtonClicked(self):
         self.mainWindow.centralWidget().switchToKappa()
 
-
 class totalView(FigureCanvas):
     def resize(self, parentWidth, parentHeight):
-        self.setFixedHeight(parentHeight * 2 / 5)
+        self.setFixedHeight(parentHeight * 2 / 5 + 5)
         self.setFixedWidth(parentWidth)
 
     def __init__(self, mainWindow=None):

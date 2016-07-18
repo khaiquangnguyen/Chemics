@@ -15,8 +15,8 @@ class TableItem(QWidget):
         self.layout = QVBoxLayout()
         margin = self.height() / 400
         self.layout.setContentsMargins(0, margin, 0, margin)
-        self.insideItem = InnerTableItem(field, message)
-        self.layout.addWidget(self.insideItem)
+        self.content = InnerTableItem(field, message)
+        self.layout.addWidget(self.content)
         self.setLayout(self.layout)
 
 class InnerTableItem(QWidget):
@@ -24,7 +24,6 @@ class InnerTableItem(QWidget):
         QWidget.__init__(self)
         self.layout = QGridLayout()
         self.layout.setHorizontalSpacing(5)
-
         self.fieldText = FieldText(field)
         self.infoText = InfoText(message)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -45,6 +44,19 @@ class SingleTableItem(QWidget):
         self.infoText = InfoText(message)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addWidget(self.infoText)
+        self.setLayout(self.layout)
+        self.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.Base, settings.infoAreaItemBackgroundColor)
+        self.setPalette(palette)
+
+class SingleTableHeaderItem(QWidget):
+    def __init__(self, message):
+        QWidget.__init__(self)
+        self.layout = QHBoxLayout()
+        self.fieldText = FieldText(message)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.addWidget(self.fieldText)
         self.setLayout(self.layout)
         self.setAutoFillBackground(True)
         palette = QPalette()

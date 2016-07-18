@@ -9,7 +9,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 import time
 
-from PeakAlignUI import *
+from AlignmentUI import *
 from KappaUI import *
 
 matplotlib.use('Qt4Agg')
@@ -159,6 +159,9 @@ class MainWindow(QMainWindow):
     def getKappaDict(self):
         return self.controller.kappaCalculatedDict
 
+    def getAlphaPineneDict(self):
+        return self.controller.alphaPineneDict
+
     def updateTotalViewFigure(self, aFigure):
         """
         Update the figure in the total view. Either the graph of the whole experiment or of the minimum
@@ -171,7 +174,7 @@ class ControlPanel(QWidget):
         QWidget.__init__(self)
         # addSubWidget
         self.mainWindow = mainWindow
-        self.infoWidget = InfoWidget(self.mainWindow)
+        self.infoWidget = PeakAlignDataWidget(self.mainWindow)
         self.graphWidget = graphWidget(self.mainWindow)
         self.layout = QHBoxLayout()
         self.layout.setSpacing(0)
@@ -185,21 +188,21 @@ class ControlPanel(QWidget):
         self.graphWidget.resize(self.width(),self.height())
 
     def switchToKappa(self):
-        self.infoWidget = KappaInfoWidget(self.mainWindow)
-        self.graphWidget = KappaGraphWidget(self.mainWindow)
+        self.infoWidget = KappaTextDataWidget(self.mainWindow)
+        self.graphWidget = KappaGraphDataWidget(self.mainWindow)
         self.clearLayout(self.layout)
         self.layout.addWidget(self.infoWidget)
         self.layout.addWidget(self.graphWidget)
         self.setLayout(self.layout)
         self.mainWindow.controller.makeKappaGraph()
         self.mainWindow.controller.calKappa()
+        self.infoWidget.updateData()
         self.graphWidget.totalView.updateFigure(self.mainWindow.controller.kappaGraph)
-        self.infoWidget.infoArea.updateData()
         self.resize()
 
     def switchToPeak(self):
         self.clearLayout(self.layout)
-        self.infoWidget = InfoWidget(self.mainWindow)
+        self.infoWidget = PeakAlignDataWidget(self.mainWindow)
         self.graphWidget = graphWidget(self.mainWindow)
         self.layout.addWidget(self.infoWidget)
         self.layout.addWidget(self.graphWidget)
