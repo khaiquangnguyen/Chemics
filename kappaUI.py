@@ -34,7 +34,7 @@ class KappaMessageArea(QTableWidget):
 
     def __init__(self, mainWindow = None):
         QTableWidget.__init__(self)
-        self.setColumnCount(1)
+        self.setColumnCount(5)
         self.setRowCount(0)
         self.setShowGrid(False)
         self.verticalHeader().setVisible(False)
@@ -51,39 +51,53 @@ class KappaMessageArea(QTableWidget):
         palette = QPalette()
         palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
         self.setPalette(palette)
+        self.updateData()
 
-    def updateGeneralInfo(self):
-        header = sectionHeader("Data Information")
+    def updateData(self):
         self.insertRow(self.rowCount())
-        self.setCellWidget(self.rowCount() - 1, 0, header)
-        self.addMessage("Folder",self.mainWindow.controller.folder)
-        self.addMessage("Date",self.mainWindow.controller.date)
-        self.addMessage("Time frame",self.mainWindow.controller.startTimeEntries[0] + " to " + self.mainWindow.controller.endTimeEntries[-1])
-        self.addMessage("Time per run",self.mainWindow.controller.timeFrame)
-        self.addMessage("Total run",self.mainWindow.controller.maxPeak - 1)
-        header = sectionHeader("Peak Information")
-        self.insertRow(self.rowCount())
-        self.setCellWidget(self.rowCount() - 1, 0, header)
+        ss = TableHeader('ss')
+        self.setCellWidget(self.rowCount() - 1, 0, ss)
+        dp = TableHeader('dp')
+        self.setCellWidget(self.rowCount() - 1, 1, dp)
+        app = TableHeader('app')
+        self.setCellWidget(self.rowCount() - 1, 2, app)
+        ana = TableHeader('ana')
+        self.setCellWidget(self.rowCount() - 1, 3, ana)
+        devi = TableHeader('devi')
+        self.setCellWidget(self.rowCount() - 1, 4, devi)
 
-    def updatePeakInfo(self):
-        if self.rowCount() > 7:
-            for i in range(7):
-                self.removeRow(self.rowCount()-1)
-        self.addMessage("Current run",self.mainWindow.getPeak())
-        self.addMessage("Saturation",self.mainWindow.controller.superSaturation)
-        self.addMessage("dp50", self.mainWindow.controller.dp50)
-        self.addMessage("<dp50 counts",self.mainWindow.controller.dp50LessCount)
-        self.addMessage(">dp50 counts",self.mainWindow.controller.dp50MoreCount)
-        self.addMessage("dp50(West)",self.mainWindow.controller.dp50Wet)
-        self.addMessage("dp50+20",self.mainWindow.controller.dp50Plus20)
+        kappaDict = self.mainWindow.getKappaDict()
 
+        print kappaDict
 
-    def addMessage(self, field,message):
+        for aKey in kappaDict.keys():
+            if kappaDict[aKey]:
+                for aSS in kappaDict[aKey]:
+                    ss = aKey
+                    dp = aSS[0]
+                    app = aSS[1]
+                    ana = aSS[2]
+                    devi = aSS[3]
+                    self.addMessage(ss,dp,app,ana,devi)
+
+    def addMessage(self, ss,dp,app,ana,devi):
         ##### add code here to process the message before printing
-        message = str(message)
-        item = outerTableItem(field,message)
+        ss = ('% .2f' % ss)
+        dp = ('% .4f' % dp)
+        app =('% .4f' % app)
+        ana = ('% .4f' % ana)
+        devi = ('% .4f' % devi)
         self.insertRow(self.rowCount())
-        self.setCellWidget(self.rowCount()-1,0,item)
+        ss = SingleTableItem(ss)
+        self.setCellWidget(self.rowCount() - 1, 0, ss)
+        dp = SingleTableItem(dp)
+        self.setCellWidget(self.rowCount() - 1, 1, dp)
+        app = SingleTableItem(app)
+        self.setCellWidget(self.rowCount() - 1, 2, app)
+        ana = SingleTableItem(ana)
+        self.setCellWidget(self.rowCount() - 1, 3, ana)
+        devi = SingleTableItem(devi)
+        self.setCellWidget(self.rowCount() - 1, 4, devi)
 
 
 class KappaGraphWidget(QWidget):
@@ -101,8 +115,9 @@ class KappaGraphWidget(QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.totalView = KappaView()
         self.controlArea = KappaControlArea(mainWindow)
-        self.layout.addWidget(self.controlArea)
         self.layout.addWidget(self.totalView)
+        self.layout.addWidget(self.controlArea)
+
 
 class KappaControlArea(QWidget):
     def resize(self, parentWidth, parentHeight):

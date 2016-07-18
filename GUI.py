@@ -21,7 +21,6 @@ qt_app = QApplication(sys.argv)
 width = 0
 height = 0
 
-
 class MainWindow(QMainWindow):
 
     def __init__(self,controller):
