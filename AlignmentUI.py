@@ -55,20 +55,19 @@ class PeakAlignDataTable(QTableWidget):
         header = TableHeader("Data Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
-        self.addMessage("Folder",self.mainWindow.controller.folder)
         self.addMessage("Date",self.mainWindow.controller.date)
         self.addMessage("Time frame",self.mainWindow.controller.startTimeEntries[0] + " to " + self.mainWindow.controller.endTimeEntries[-1])
         self.addMessage("Time per run",self.mainWindow.controller.timeFrame)
-        self.addMessage("Total run",self.mainWindow.controller.maxPeak - 1)
+        self.addMessage("Total run",self.mainWindow.controller.maxPeak)
         header = TableHeader("Peak Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
 
     def updatePeakInfo(self):
-        if self.rowCount() > 7:
+        if self.rowCount() > 6:
             for i in range(7):
                 self.removeRow(self.rowCount()-1)
-        self.addMessage("Current run",self.mainWindow.getPeak())
+        self.addMessage("Current run",self.mainWindow.getPeak() + 1)
         self.addMessage("Saturation",self.mainWindow.controller.superSaturation)
         self.addMessage("dp50", self.mainWindow.controller.dp50)
         self.addMessage("<dp50 counts",self.mainWindow.controller.dp50LessCount)
@@ -167,7 +166,7 @@ class controlArea(QWidget):
         self.setPalette(palette)
 
     def nextButtonClicked(self):
-        self.mainWindow.updatePeak(min(self.mainWindow.getPeak() + 1, self.mainWindow.getMaxPeak() - 2))
+        self.mainWindow.updatePeak(min(self.mainWindow.getPeak() + 1, self.mainWindow.getMaxPeak() - 1))
 
     def previousButtonClicked(self):
         self.mainWindow.updatePeak(max(0, self.mainWindow.getPeak() - 1))

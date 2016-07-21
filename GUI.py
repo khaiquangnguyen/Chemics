@@ -39,10 +39,10 @@ class MainWindow(QMainWindow):
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
 
-        # Add select folder button
-        folderSelection = QAction('&Select Folder', self)
+        # Add select files button
+        folderSelection = QAction('&Select Files', self)
         folderSelection.setShortcut('Ctrl+O')
-        folderSelection.setStatusTip('Select the folder which contains the data files')
+        folderSelection.setStatusTip('Select the files which contains the data files')
         folderSelection.triggered.connect(self.folderSelection)
         fileMenu.addAction(folderSelection)
 
@@ -59,13 +59,12 @@ class MainWindow(QMainWindow):
 
     def folderSelection(self):
         """
-        Select the folder which store the file
+        Select the files which store the file
         """
         dialog = QFileDialog()
-        dialog.setFileMode(QFileDialog.Directory)
-        folder = dialog.getExistingDirectory(options = QFileDialog.Directory)
-        if folder:
-            self.controller.setFolder(folder)
+        files = dialog.getOpenFileNames()[0]
+        if files:
+            self.controller.selectFiles(files)
 
     def makeProgress(self, message = None, maxValue = None, complete = False, value = 1):
         """

@@ -11,22 +11,45 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 import time
 
 
-class KappaInfoWidget(QWidget):
+class KappaTextDataWidget(QWidget):
     def __init__(self, mainWindow=None):
         super(self.__class__,self).__init__(mainWindow)
         self.layout = QVBoxLayout()  #Vertical layout
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.infoArea = KappaMessageArea(mainWindow)
-        self.layout.addWidget(self.infoArea)
+        self.rawDataTable = KappaRawDataTable(mainWindow)
+        self.graphDataTable = KappaGraphDataTable(mainWindow)
+        self.layout.addWidget(self.graphDataTable)
+        self.showingGraphData = True
+        # self.layout.addWidget(self.rawDataTable)
+
 
     def resize(self, parentWidth, parentHeight):
         self.setFixedWidth(parentWidth / 4)
         self.setFixedHeight(parentHeight)
-        self.infoArea.resize(self.width(),self.height())
+        if self.showingGraphData:
+            self.graphDataTable.resize(self.width(), self.height())
+        else:
+            self.rawDataTable.resize(self.width(), self.height())
 
-class KappaMessageArea(QTableWidget):
+    def updateData(self):
+        if self.showingGraphData:
+            self.graphDataTable.updateData()
+        else:
+            self.rawDataTable.updateData()
+
+    def changeToGraphDataTable(self):
+        self.layout.removeWidget(self.rawDataTable)
+        self.layout.addWidget(self.graphDataTable)
+        self.showingGraphData = True
+
+    def changeToRawDataTable(self):
+        self.layout.removeWidget(self.graphDataTable)
+        self.layout.addWidget(self.rawDataTable)
+        self.showingGraphData = False
+
+class KappaRawDataTable(QTableWidget):
     def resize(self, parentWidth, parentHeight):
         self.setFixedHeight(parentHeight)
         self.setFixedWidth(parentWidth)
@@ -42,16 +65,13 @@ class KappaMessageArea(QTableWidget):
         self.horizontalHeader().setStretchLastSection(True)
         self.verticalHeader().setDefaultSectionSize(self.height() / 25)
         self.setWordWrap(True)
-        self.resizeRowsToContents()
         self.setFrameStyle(QFrame.NoFrame)
         self.mainWindow = mainWindow
-
         #set background color
         self.setAutoFillBackground(True)
         palette = QPalette()
         palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
         self.setPalette(palette)
-        self.updateData()
 
     def updateData(self):
         self.insertRow(self.rowCount())
@@ -59,17 +79,14 @@ class KappaMessageArea(QTableWidget):
         self.setCellWidget(self.rowCount() - 1, 0, ss)
         dp = TableHeader('dp')
         self.setCellWidget(self.rowCount() - 1, 1, dp)
-        app = TableHeader('app')
+        app = TableHeader('K/app')
         self.setCellWidget(self.rowCount() - 1, 2, app)
-        ana = TableHeader('ana')
+        ana = TableHeader('K/ana')
         self.setCellWidget(self.rowCount() - 1, 3, ana)
-        devi = TableHeader('devi')
+        devi = TableHeader('% devi')
         self.setCellWidget(self.rowCount() - 1, 4, devi)
 
         kappaDict = self.mainWindow.getKappaDict()
-
-        print kappaDict
-
         for aKey in kappaDict.keys():
             if kappaDict[aKey]:
                 for aSS in kappaDict[aKey]:
@@ -81,7 +98,6 @@ class KappaMessageArea(QTableWidget):
                     self.addMessage(ss,dp,app,ana,devi)
 
     def addMessage(self, ss,dp,app,ana,devi):
-        ##### add code here to process the message before printing
         ss = ('% .2f' % ss)
         dp = ('% .4f' % dp)
         app =('% .4f' % app)
@@ -99,8 +115,78 @@ class KappaMessageArea(QTableWidget):
         devi = SingleTableItem(devi)
         self.setCellWidget(self.rowCount() - 1, 4, devi)
 
+class KappaGraphDataTable(QTableWidget):
+    def resize(self, parentWidth, parentHeight):
+        self.setFixedHeight(parentHeight)
+        self.setFixedWidth(parentWidth)
+        self.verticalHeader().setDefaultSectionSize(self.height() / 25)
 
-class KappaGraphWidget(QWidget):
+    def __init__(self, mainWindow=None):
+        QTableWidget.__init__(self)
+        self.setRowCount(0)
+        self.setShowGrid(False)
+        self.verticalHeader().setVisible(False)
+        self.horizontalHeader().setVisible(False)
+        self.horizontalHeader().setStretchLastSection(True)
+        self.verticalHeader().setDefaultSectionSize(self.height() / 25)
+        self.setWordWrap(True)
+        self.setFrameStyle(QFrame.NoFrame)
+
+        self.mainWindow = mainWindow
+
+        # set background color
+        self.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
+        self.setPalette(palette)
+
+    def updateData(self):
+        dataDict = self.mainWindow.getAlphaPineneDict()
+        self.setColumnCount(len(dataDict.keys()) + 1)
+        self.headerList = []
+        ssHeader = SingleTableHeaderItem("SS(%)")
+        meanDPHeader = SingleTableHeaderItem("MeanDP")
+        stdDPheader = SingleTableHeaderItem("StdDP")
+        meanAppHeader = SingleTableHeaderItem("Mean K, app")
+        stdAppHeader = SingleTableHeaderItem("Std K, app")
+        meanAnaHeader = SingleTableHeaderItem("Mean K, ana")
+        stdAnaHeader = SingleTableHeaderItem("Std K, ana")
+        meanDeviHeader = SingleTableHeaderItem("Mean %Deviation")
+        deviMeanHeader = SingleTableHeaderItem("%Deviation of Mean")
+        self.headerList.append(ssHeader)
+        self.headerList.append(meanDPHeader)
+        self.headerList.append(stdDPheader)
+        self.headerList.append(meanAppHeader)
+        self.headerList.append(stdAppHeader)
+        self.headerList.append(meanAnaHeader)
+        self.headerList.append(stdAnaHeader)
+        self.headerList.append(meanDeviHeader)
+        self.headerList.append(deviMeanHeader)
+
+        # Insert Header
+        for i in range(0,len(self.headerList)):
+            self.insertRow(self.rowCount())
+            self.setCellWidget(self.rowCount() - 1, 0, self.headerList[i])
+
+        # Insert data
+        count = 1
+        for aKey in dataDict.keys():
+            aList = [aKey]
+            aList.extend(dataDict[aKey])
+            self.addMessage(aList,count)
+            count += 1
+
+
+    def addMessage(self, dataList, columnPos):
+        for i in range(len(dataList)):
+            aCell =  ('% .2f' % dataList[i])
+            aCell = SingleTableItem(aCell)
+            self.setCellWidget(i, columnPos, aCell)
+
+
+
+
+class KappaGraphDataWidget(QWidget):
     def resize(self, parentWidth, parentHeight):
         self.setFixedWidth(parentWidth * 3 / 4)
         self.setFixedHeight(parentHeight)
@@ -113,13 +199,13 @@ class KappaGraphWidget(QWidget):
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.totalView = KappaView()
-        self.controlArea = KappaControlArea(mainWindow)
+        self.totalView = KappaFigureCanvas()
+        self.controlArea = KappaControlTabWidget(mainWindow)
         self.layout.addWidget(self.totalView)
         self.layout.addWidget(self.controlArea)
 
 
-class KappaControlArea(QWidget):
+class KappaControlTabWidget(QWidget):
     def resize(self, parentWidth, parentHeight):
         self.setFixedHeight(parentHeight * 1 / 10)
         self.setFixedWidth(parentWidth)
@@ -193,9 +279,9 @@ class KappaControlArea(QWidget):
         self.mainWindow.centralWidget().switchToKappa()
 
 
-class KappaView(FigureCanvas):
+class KappaFigureCanvas(FigureCanvas):
     def resize(self, parentWidth, parentHeight):
-        self.setFixedHeight(parentHeight * 9 / 10)
+        self.setFixedHeight(parentHeight * 9 / 10 + 5)
         self.setFixedWidth(parentWidth)
 
     def __init__(self, mainWindow=None):

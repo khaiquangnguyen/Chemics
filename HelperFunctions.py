@@ -67,6 +67,8 @@ def normalizeList(aList):
     """
     aList = [float(x) for x in aList]
     maxValue = max(aList[10:])
+    if maxValue == 0:
+        return aList
     for x in range(len(aList)):
         aList[x] /= maxValue
     return aList
@@ -74,10 +76,32 @@ def normalizeList(aList):
 
 def csvProcessing(filePath):
     """
-    read in the csv file with the name filePath
+    process all csv files input
     :param filePath: the path to the csv file
     :return: aParam list, which represents the csv
     """
+    if len(filePath) < 1:
+        raise FileNotFoundError()
+    elif len(filePath) == 1:
+        return singleCSVFileProcessing(filePath[0])
+    else:
+        date = None
+        csvContent = None
+        for i in filePath:
+            aCSV = singleCSVFileProcessing(i)
+            date = aCSV[0]
+            if csvContent:
+                csvContent.extend(aCSV[1])
+            else:
+                csvContent = aCSV[1]
+    return date, csvContent
+
+def singleCSVFileProcessing(filePath):
+    """
+       read in a single csv file with path filePath
+       :param filePath: the path to the csv file
+       :return: aParam list, which represents the csv
+       """
     with open(filePath, 'r') as csvFile:
         reader = csv.reader(csvFile, delimiter=' ')
         line = 0
@@ -98,7 +122,7 @@ def csvProcessing(filePath):
         csvContent = filter(None, csvContent)
 
         # remove the unnecessary data
-        csvContent = csvContent[3:]
+        csvContent = csvContent[4:]
 
         # process the csv
         for i in range(0, len(csvContent)):
@@ -108,7 +132,6 @@ def csvProcessing(filePath):
             for j in range(0, len(csvContent[i])):
                 csvContent[i][j] = csvContent[i][j].replace(",", "")
         return date, csvContent
-
 
 def txtProcessing(filePath):
     """
@@ -124,14 +147,13 @@ def txtProcessing(filePath):
         for row in reader:
             txtContent.append(row)
 
-        # remove the unnecessary head
-        txtContent = txtContent[13:]
-
-        # remove the unnecessary title
-        for i in range(0, 3):
-            txtContent[i] = txtContent[i][1:]
-        txtContent = txtContent[0:3] + txtContent[4:]
-
+        # remove the unnecessary header
+        for i in range(len(txtContent)):
+            if ''.join(txtContent[i][0].split()).lower() == "starttime":
+                txtContent = txtContent[i:]
+                break
+        txtContent[0] = txtContent[0][1:]
+        txtContent = txtContent[0:1] + txtContent[2:]
         # clean the txt file
         for i in range(0, len(txtContent)):
             txtContent[i] = filter(None, txtContent[i])
@@ -281,4 +303,12 @@ def getCorrectNum(aList, number, bigger=True):
                 return (aList[i], i)
         else:
             num = aList[i]
-    return (aList[-1], len(aList) -1 )
+    return (aList[-1], len(aList) -1)
+
+def isGoodPeak(peakArray):
+    """
+    Identify if a peak is a usable peak or not
+    :param peakArray: the array which contains the peak data
+    :return: True if good peak, False otherwise
+    """
+
