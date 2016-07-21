@@ -159,19 +159,57 @@ def txtProcessing(filePath):
             txtContent[i] = filter(None, txtContent[i])
         return txtContent
 
-
-def getMinIndex(data):
+def getMinIndex(aList, threshold = 5):
     """
     get the position of the smallest value of aParam list
     :param data: the data to process
-    :return: the index of the smallest value
+    :return: the index of the smallest value. -1 if the peak is not usable
     """
-    minValue = data[0]
-    minPos = 0
-    for i in range(len(data)):
-        if data[i] < minValue:
+    max = 0
+    maxPos = 0
+    maxPos = peakutils.indexes(aList,thres = 0.5, min_dist=len(aList) / 10)
+    if len(maxPos) == 0:
+        return -1
+    else:
+        maxPos = maxPos[0]
+    max = aList[maxPos]
+
+    # Get the second maximum
+    secondMax = 0
+    secondMaxDis = 0
+    secondMaxPos = 0
+    for i in range(maxPos + 2, len(aList)):
+            maxDis = 0
+            if aList[i] < max * 0.1:
+                continue
+            for j in range(1,i - maxPos):
+                if aList[i] <= aList[i-j]:
+                    break
+                else:
+                    maxDis += 1
+            if maxDis >= secondMaxDis:
+                secondMax = aList[i]
+                secondMaxPos = i
+                secondMaxDis = maxDis
+
+    # Check if the two peaks are actually usable
+    # Get the minimum between two peaks
+    min = max
+    minPos = maxPos
+    for i in range(maxPos, secondMaxPos):
+        if aList[i] <= min:
+            min = aList[i]
             minPos = i
-            minValue = data[i]
+
+    # If the second peak is too small,then not valid
+    if secondMax < max * 0.1:
+        return -1
+    # if the minimum is too big, the not valid as well
+    if min >= max * 0.9:
+        return -1
+    # If either peak is 0
+    if secondMax == 0 or max == 0:
+        return -1
     return minPos
 
 
@@ -181,7 +219,6 @@ def dateConvert(df):
     df.reset_index(drop=True)
     return df
 
-
 def makeMinGraph(smpsList, ccncList):
     """
  m
@@ -189,7 +226,6 @@ def makeMinGraph(smpsList, ccncList):
     :param ccncList:
     :return:
     """
-
 
 def printList(aList):
     """
@@ -200,7 +236,6 @@ def printList(aList):
     for row in aList:
         print(row)
     print()
-
 
 def fractionCalculation(aList, chargeNumber, coeffList=None):
     """
@@ -237,10 +272,8 @@ def fractionCalculation(aList, chargeNumber, coeffList=None):
 
     return newList
 
-
 def calCC(dp, lambdaAir):
     return 1 + 2 * lambdaAir / dp * (1.257 + 0.4 * exp(-1.1 * dp / 2 / lambdaAir))
-
 
 def findDp(dp, lambdaAir, n):
     dpOld = dp * 1 * n
@@ -252,7 +285,6 @@ def findDp(dp, lambdaAir, n):
         else:
             dpOld = dpNew
     return dpNew
-
 
 def aveList(aList):
     return sum(aList) / len(aList)
@@ -282,8 +314,6 @@ def cleanseZero(aList):
             aList[i] = epsilon
     return aList
 
-
-
 def getCorrectNum(aList, number, bigger=True):
     """
     Get aParam number approximately around number
@@ -305,10 +335,13 @@ def getCorrectNum(aList, number, bigger=True):
             num = aList[i]
     return (aList[-1], len(aList) -1)
 
-def isGoodPeak(peakArray):
-    """
-    Identify if a peak is a usable peak or not
-    :param peakArray: the array which contains the peak data
-    :return: True if good peak, False otherwise
-    """
+
+
+
+
+
+
+
+
+
 

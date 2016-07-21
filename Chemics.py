@@ -216,7 +216,6 @@ class Controller():
         self.maxPeak = len(self.startTimeEntries)
 
 
-
     def getDNlog(self):
         """
         Get the DNlog data from the txt file and saves it to aParam csv file for easier further processing
@@ -411,31 +410,25 @@ class Controller():
         while True:
             #Add all peaks to data, whether a peak is a good one or not.
             # count currPeak smps
-            aPeakDataForCountPeak = numpy.asarray(self.data[startTime:endTime]["SMPS Count"])
-            indexes = peakutils.indexes(aPeakDataForCountPeak, thres=0.6, min_dist=minDist)
+            aPeak = numpy.asarray(self.data[startTime:endTime]["SMPS Count"])
+            minPosSMPS = getMinIndex(aPeak)
             # assuming that count currPeak of smps is always correct, the first currPeak is in the right position
-            minPosSMPS = 0
-            minPosCCNC = 0
-            if len(indexes) <= 1:
+            if minPosSMPS == -1:
                 self.peakCountSMPSList.append(None)
                 self.peakCountCCNCList.append(None)
                 minPosSMPS = 0
                 minPosCCNC = 0
             else:
-                minPosSMPS = indexes[0] + getMinIndex(aPeakDataForCountPeak[indexes[0]:indexes[-1]])
-                indexes = [x + startTime for x in indexes]
                 self.peakCountSMPSList.append(minPosSMPS + startTime)
-                aPeakDataForCountPeak = numpy.asarray(self.data[startTime + shiftFactor:endTime + additionalDataCount]["CCNC Count"])
-                indexes = peakutils.indexes(aPeakDataForCountPeak, thres=0.6, min_dist=minDist)
-                if len(indexes) <= 1:
+                aPeak = numpy.asarray(self.data[startTime + shiftFactor:endTime + additionalDataCount]["CCNC Count"])
+                minPosCCNC = getMinIndex(aPeak)
+                if minPosCCNC == -1:
                     self.peakCountSMPSList[-1] = None
                     self.peakCountCCNCList.append(None)
                     minPosSMPS = 0
                     minPosCCNC = 0
                 else:
-                    minPosCCNC = indexes[0] + getMinIndex(aPeakDataForCountPeak[indexes[0]:indexes[-1]])
-                    indexes = [x + startTime for x in indexes]
-                    self.peakCountCCNCList.append(minPosCCNC + startTime)
+                    self.peakCountCCNCList.append(minPosSMPS + startTime)
 
             shiftFactor = shiftFactor + minPosCCNC - minPosSMPS
 
@@ -449,8 +442,10 @@ class Controller():
                 newData.append([scanTime, realTime, dp, smpsCount, ccncCount, aveSize])
 
             currPeak += 1
+
             if endTime + shiftFactor >= len(self.data) or currPeak >= len(self.peakPositionInData):
                 break
+
             startTime = self.peakPositionInData[currPeak]
             endTime = startTime + self.timeFrame
 
@@ -1146,7 +1141,6 @@ class Controller():
 
     def cancelProgress(self):
         self.cancel = True
-
 
 
 def main():
