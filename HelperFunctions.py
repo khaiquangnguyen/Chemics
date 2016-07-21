@@ -165,14 +165,14 @@ def getMinIndex(aList, threshold = 5):
     :param data: the data to process
     :return: the index of the smallest value. -1 if the peak is not usable
     """
-    max = 0
+    firstMax = 0
     maxPos = 0
     maxPos = peakutils.indexes(aList,thres = 0.5, min_dist=len(aList) / 10)
     if len(maxPos) == 0:
         return -1
     else:
         maxPos = maxPos[0]
-    max = aList[maxPos]
+    firstMax = aList[maxPos]
 
     # Get the second maximum
     secondMax = 0
@@ -180,7 +180,7 @@ def getMinIndex(aList, threshold = 5):
     secondMaxPos = 0
     for i in range(maxPos + 2, len(aList)):
             maxDis = 0
-            if aList[i] < max * 0.1:
+            if aList[i] < firstMax * 0.1:
                 continue
             for j in range(1,i - maxPos):
                 if aList[i] <= aList[i-j]:
@@ -194,21 +194,25 @@ def getMinIndex(aList, threshold = 5):
 
     # Check if the two peaks are actually usable
     # Get the minimum between two peaks
-    min = max
+    min = firstMax
     minPos = maxPos
     for i in range(maxPos, secondMaxPos):
         if aList[i] <= min:
             min = aList[i]
             minPos = i
+        if aList[i]  - min < 10:
+            min = aList[i]
+            minPos = i
+
 
     # If the second peak is too small,then not valid
-    if secondMax < max * 0.1:
+    if secondMax < firstMax * 0.1:
         return -1
     # if the minimum is too big, the not valid as well
-    if min >= max * 0.9:
+    if min >= firstMax * 0.9:
         return -1
     # If either peak is 0
-    if secondMax == 0 or max == 0:
+    if secondMax == 0 or firstMax == 0:
         return -1
     return minPos
 

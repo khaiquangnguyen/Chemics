@@ -72,6 +72,8 @@ class Controller():
         self.ssList = []
         # The SMPS and CCNC data
         self.data = None
+        # The raw SMPS and CCNC data
+        self.rawData = None
         # The number of process finished
         self.completedStep = 0
         # The current point on the minimum graph
@@ -144,6 +146,7 @@ class Controller():
         self.anaKappa = 0
         self.trueSC = 0
         self.kappaExcel = None
+        self.shiftList = []
 
         self.kappaCalculatedDict = {}
         self.alphaPineneDict = {}
@@ -391,7 +394,7 @@ class Controller():
                 break
 
         title = ["scan time"] + ["real time"] + ["dp"] + ["SMPS Count"] + ["CCNC Count"] + ["Ave Size"]
-        self.data = pandas.DataFrame(smpsCcnList, columns=title)
+        self.rawData = pandas.DataFrame(smpsCcnList, columns=title)
 
     def matchSMPSCCNCData(self):
         """
@@ -403,14 +406,15 @@ class Controller():
         startTime = 0
         endTime = self.timeFrame
         currPeak = 0
-        newData = [self.data.columns.values.tolist()]
+        newData = [self.rawData.columns.values.tolist()]
         minDist = self.timeFrame / 10
         shiftFactor = 0
+        self.shiftList = []
 
         while True:
             #Add all peaks to data, whether a peak is a good one or not.
             # count currPeak smps
-            aPeak = numpy.asarray(self.data[startTime:endTime]["SMPS Count"])
+            aPeak = numpy.asarray(self.rawData[startTime:endTime]["SMPS Count"])
             minPosSMPS = getMinIndex(aPeak)
             # assuming that count currPeak of smps is always correct, the first currPeak is in the right position
             if minPosSMPS == -1:
@@ -420,7 +424,7 @@ class Controller():
                 minPosCCNC = 0
             else:
                 self.peakCountSMPSList.append(minPosSMPS + startTime)
-                aPeak = numpy.asarray(self.data[startTime + shiftFactor:endTime + additionalDataCount]["CCNC Count"])
+                aPeak = numpy.asarray(self.rawData[startTime + shiftFactor:endTime + additionalDataCount]["CCNC Count"])
                 minPosCCNC = getMinIndex(aPeak)
                 if minPosCCNC == -1:
                     self.peakCountSMPSList[-1] = None
@@ -428,22 +432,24 @@ class Controller():
                     minPosSMPS = 0
                     minPosCCNC = 0
                 else:
-                    self.peakCountCCNCList.append(minPosSMPS + startTime)
-
-            shiftFactor = shiftFactor + minPosCCNC - minPosSMPS
-
+                    shiftFactor = shiftFactor + minPosCCNC - minPosSMPS
+                    if currPeak == 0:
+                        self.peakCountCCNCList.append(minPosSMPS)
+                    else:
+                        self.peakCountCCNCList.append(minPosCCNC + minPosCCNC - minPosSMPS + startTime)
+            self.shiftList.append(shiftFactor)
             for i in range(self.timeFrame):
                 scanTime = i + 1
-                realTime = self.data.iat[startTime + i, 1]
-                dp = self.data.iat[startTime + i, 2]
-                smpsCount = self.data.iat[startTime + i, 3]
-                ccncCount = self.data.iat[startTime + i + shiftFactor, 4]
-                aveSize = self.data.iat[startTime + i + shiftFactor, 5]
+                realTime = self.rawData.iat[startTime + i, 1]
+                dp = self.rawData.iat[startTime + i, 2]
+                smpsCount = self.rawData.iat[startTime + i, 3]
+                ccncCount = self.rawData.iat[startTime + i + shiftFactor, 4]
+                aveSize = self.rawData.iat[startTime + i + shiftFactor, 5]
                 newData.append([scanTime, realTime, dp, smpsCount, ccncCount, aveSize])
 
             currPeak += 1
 
-            if endTime + shiftFactor >= len(self.data) or currPeak >= len(self.peakPositionInData):
+            if endTime + shiftFactor >= len(self.rawData) or currPeak >= len(self.peakPositionInData):
                 break
 
             startTime = self.peakPositionInData[currPeak]
@@ -453,52 +459,97 @@ class Controller():
         self.data = pandas.DataFrame(newData, columns=headers)
         self.data = dateConvert(self.data)
 
+    def shiftDataCCNC(self, forward = True):
+        # Get the shift factor
+        shiftFactor = self.shiftList[self.currPeak]
+        # Change the shift factor
+        if forward == True:
+            shiftFactor -= 1
+        else:
+            shiftFactor += 1
+        self.shiftList[self.currPeak] = shiftFactor
+        # Get the new data list from raw data
+        startTime = self.peakPositionInData[self.currPeak] + shiftFactor
+        endTime = startTime + self.timeFrame
+        newCCN = list(self.rawData.iloc[startTime:endTime,4])
+        newAveSize = list(self.rawData.iloc[startTime:endTime,5])
+
+        # Get the location of the replacement in the data
+        dataStartTime = self.timeFrame * self.currPeak
+        dataEndTime = dataStartTime + self.timeFrame
+
+        # Replace the data in the data
+        for i in range(self.timeFrame):
+            self.data.iat[dataStartTime+i,4] = newCCN[i]
+            self.data.iat[dataStartTime + i,5] = newAveSize[i]
+
+        # Update the data
+        self.finalizeData()
+
+        # Fix the graph
+        figure = self.adjustedGraph
+        self.makeAdjustedGraph(newFigure = figure)
+        figure = self.dryDiaGraph
+        # self.makeCCNGraph(figure)
+
+        # Update the graph in view
+        self.view.updateFigures(self.adjustedGraph, self.dryDiaGraph)
 
     def peakAlignAndGraph(self):
         """
         A graph of peak alignment, and also allow interaction to select peak to process
         """
-        pass
-        # figure = plt.figure(facecolor=settings.graphBackgroundColor)
-        # plt.axes(frameon=False)
-        # plt.grid(color='0.5')
-        # plt.axhline(0, color='0.6', linewidth=4)
-        # plt.axvline(0, color='0.6', linewidth=4)
-        # plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
-        # plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
-        # plt.gca().yaxis.label.set_color('0.6')
-        # plt.gca().xaxis.label.set_color('0.6')
-        # figure.canvas.mpl_connect('pick_event', self.onPick)
-        #
+        figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        plt.axes(frameon=False)
+        plt.grid(color='0.5')
+        plt.axhline(0, color='0.6', linewidth=4)
+        plt.axvline(0, color='0.6', linewidth=4)
+        plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+        plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+        plt.gca().yaxis.label.set_color('0.6')
+        plt.gca().xaxis.label.set_color('0.6')
+        figure.canvas.mpl_connect('pick_event', self.onPick)
+
+        # Temporary modify the x and y to make up for the None-type ones
         # x = numpy.asarray(self.peakCountSMPSList)
         # y = numpy.asarray(self.peakCountCCNCList)
-        # result = scipy.stats.linregress(x, y)
-        # slope = result[0]
-        # yIntercept = result[1]
-        #
-        # # Recalculate the position of the smps
-        # correctedIndexList = []
-        # for i in range(len(self.data)):
-        #     correctedIndexList.append(round((i * slope + yIntercept) * 10))
-        # plt.plot(x, x * slope + yIntercept, linewidth = 4, color = '#43A047', label = "Regression line")
-        # plt.plot(x, y, "o", ms = 10, color = "#43A047",picker=15, mew = 0, label = "Minimum")
-        # textToShow = str(slope) + "* x" + " + " + str(yIntercept)
-        # self.currentPoint, = plt.plot(x[0],y[0],'o', color = "#81C784", ms = 12, mew = 0)
-        # plt.text(x[4], y[3], textToShow, color = "#81C784" )
-        # plt.xlabel("SMPS minumum point")
-        # plt.ylabel("CCNC minimum point")
-        #
-        # handles, labels = plt.gca().get_legend_handles_labels()
-        # legend = plt.legend(handles, labels,loc="upper right", bbox_to_anchor=(1,0.7))
-        # legend.get_frame().set_facecolor('#9E9E9E')
-        #
-        #
-        # if not self.minCompareGraph:
-        #     self.minCompareGraph = plt.gcf()
-        # else:
-        #     self.minCompareGraph.clf()
-        #     plt.close(self.minCompareGraph)
-        #     self.minCompareGraph = plt.gcf()
+        tempSMPSPeak = []
+        tempCCNCList = []
+        for i in range(len(self.peakCountCCNCList)):
+            if self.peakCountCCNCList[i] and self.peakCountSMPSList[i]:
+                tempSMPSPeak.append(self.peakCountSMPSList[i])
+                tempCCNCList.append(self.peakCountCCNCList[i])
+
+        x = numpy.asarray(tempSMPSPeak)
+        y = numpy.asarray(tempCCNCList)
+
+        result = scipy.stats.linregress(x, y)
+        slope = result[0]
+        yIntercept = result[1]
+
+        # Recalculate the position of the smps
+        correctedIndexList = []
+        for i in range(len(self.data)):
+            correctedIndexList.append(round((i * slope + yIntercept) * 10))
+        plt.plot(x, x * slope + yIntercept, linewidth = 4, color = '#43A047', label = "Regression line")
+        plt.plot(x, y, "o", ms = 10, color = "#43A047",picker=15, mew = 0, label = "Minimum")
+        textToShow = str(slope) + "* x" + " + " + str(yIntercept)
+        self.currentPoint, = plt.plot(x[0],y[0],'o', color = "#81C784", ms = 12, mew = 0)
+        plt.text(x[4], y[3], textToShow, color = "#81C784" )
+        plt.xlabel("SMPS minumum point")
+        plt.ylabel("CCNC minimum point")
+
+        handles, labels = plt.gca().get_legend_handles_labels()
+        legend = plt.legend(handles, labels,loc="upper right", bbox_to_anchor=(1,0.7))
+        legend.get_frame().set_facecolor('#9E9E9E')
+
+
+        if not self.minCompareGraph:
+            self.minCompareGraph = plt.gcf()
+        else:
+            self.minCompareGraph.clf()
+            plt.close(self.minCompareGraph)
+            self.minCompareGraph = plt.gcf()
 
     def onPick(self, event):
         """
@@ -721,13 +772,18 @@ class Controller():
         except:
             raise OptimizationError()
 
-    def makeAdjustedGraph(self):
+    def makeAdjustedGraph(self, newFigure = None):
         """
         Make the comparable CCN and CN graph after adjustment of minimum peak
         """
         if len(self.cnList) != len(self.ccnList) or len(self.cnList) == 0 or len(self.ccnList) == 0:
             return
-        figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        if newFigure is None:
+            figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        else:
+            figure = newFigure
+            figure.clf()
+            plt.figure(figure.number)
         plt.axes(frameon=False)
         plt.grid(color='0.5')
         plt.axhline(0, color='0.6', linewidth=4)
@@ -745,14 +801,18 @@ class Controller():
 
         plt.xlabel("Scan time(s)")
         plt.ylabel("Concentration(cm3)")
-
         self.adjustedGraphList.append(plt.gcf())
 
-    def makeCCNGraph(self):
+    def makeCCNGraph(self, newFigure = None):
         """
         Make graph for the CCN data. Used to cross check for peak alignment.
         """
-        figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        if newFigure is None:
+            figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        else:
+            figure = newFigure
+            figure.clf()
+            plt.figure(figure.number)
         plt.axes(frameon=False)
         plt.grid(color='0.5')
         plt.axhline(0, color='0.6', linewidth=2)
@@ -818,7 +878,6 @@ class Controller():
 
     def singlePeakProcessingProcedure(self):
         try:
-            self.ccncSigList = []
             self.finalizeData()
             self.makeProgress()
             self.makeInitialGraphs()

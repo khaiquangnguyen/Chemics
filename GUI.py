@@ -168,6 +168,12 @@ class MainWindow(QMainWindow):
         """
         self.centralWidget().graphWidget.totalView.updateFigure(aFigure)
 
+    def addSecond(self):
+        self.controller.shiftDataCCNC()
+
+    def subSecond(self):
+        self.controller.shiftDataCCNC(forward=False)
+
 class ControlPanel(QWidget):
     def __init__(self, mainWindow = None):
         QWidget.__init__(self)

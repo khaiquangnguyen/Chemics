@@ -58,7 +58,7 @@ class PeakAlignDataTable(QTableWidget):
         self.addMessage("Date",self.mainWindow.controller.date)
         self.addMessage("Time frame",self.mainWindow.controller.startTimeEntries[0] + " to " + self.mainWindow.controller.endTimeEntries[-1])
         self.addMessage("Time per run",self.mainWindow.controller.timeFrame)
-        self.addMessage("Total run",self.mainWindow.controller.maxPeak)
+        self.addMessage("Total run",self.mainWindow.getMaxPeak())
         header = TableHeader("Peak Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
@@ -137,6 +137,8 @@ class controlArea(QWidget):
         self.nextButton.clicked.connect(self.nextButtonClicked)
         self.optimizeButton.clicked.connect(self.optimizeButtonClicked)
         self.calKappaButton.clicked.connect(self.calKappaButtonClicked)
+        self.addSecond.clicked.connect(self.addSecondClicked)
+        self.subSecond.clicked.connect(self.subSecondClicked)
 
         self.layout.setColumnStretch(0,0)
 
@@ -164,6 +166,12 @@ class controlArea(QWidget):
         palette = QPalette()
         palette.setColor(QPalette.Background, settings.controlAreaBackgroundColor)
         self.setPalette(palette)
+
+    def addSecondClicked(self):
+        self.mainWindow.addSecond()
+
+    def subSecondClicked(self):
+        self.mainWindow.subSecond()
 
     def nextButtonClicked(self):
         self.mainWindow.updatePeak(min(self.mainWindow.getPeak() + 1, self.mainWindow.getMaxPeak() - 1))
