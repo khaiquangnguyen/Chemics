@@ -174,16 +174,19 @@ class MainWindow(QMainWindow):
     def subSecond(self):
         self.controller.shiftDataCCNC(forward=False)
 
+    def reset(self):
+        self.centralWidget().switchToPeak()
+
 class ControlPanel(QWidget):
     def __init__(self, mainWindow = None):
         QWidget.__init__(self)
         # addSubWidget
         self.mainWindow = mainWindow
-        self.infoWidget = PeakAlignDataWidget(self.mainWindow)
-        self.graphWidget = graphWidget(self.mainWindow)
         self.layout = QHBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
+        self.infoWidget = PeakAlignDataWidget(self.mainWindow)
+        self.graphWidget = graphWidget(self.mainWindow)
         self.layout.addWidget(self.infoWidget)
         self.layout.addWidget(self.graphWidget)
         self.setLayout(self.layout)
@@ -193,6 +196,7 @@ class ControlPanel(QWidget):
         self.graphWidget.resize(self.width(),self.height())
 
     def switchToKappa(self):
+        self.clearLayout(self.layout)
         self.infoWidget = KappaTextDataWidget(self.mainWindow)
         self.graphWidget = KappaGraphDataWidget(self.mainWindow)
         self.clearLayout(self.layout)
@@ -207,6 +211,7 @@ class ControlPanel(QWidget):
 
     def switchToPeak(self):
         self.clearLayout(self.layout)
+        print "cleare"
         self.infoWidget = PeakAlignDataWidget(self.mainWindow)
         self.graphWidget = graphWidget(self.mainWindow)
         self.layout.addWidget(self.infoWidget)

@@ -519,6 +519,9 @@ class Controller():
             if self.peakCountCCNCList[i] and self.peakCountSMPSList[i]:
                 tempSMPSPeak.append(self.peakCountSMPSList[i])
                 tempCCNCList.append(self.peakCountCCNCList[i])
+            else:
+                tempSMPSPeak.append(self.timeFrame * i)
+                tempCCNCList.append(self.timeFrame * i)
 
         x = numpy.asarray(tempSMPSPeak)
         y = numpy.asarray(tempCCNCList)
@@ -563,185 +566,206 @@ class Controller():
         """
         Convert data to separate lists for easier access. Also normalize and calculate necessary lists
         """
-        ccnCNList = []
-        dNdLogDpList = []
-        startPoint = self.currPeak * self.timeFrame
-        endPoint = (self.currPeak + 1) * self.timeFrame
-        self.diameterList = list(self.data[startPoint:endPoint]['dp'])
-        ccnList = list(self.data[startPoint:endPoint]['CCNC Count'])
-        cnList = list(self.data[startPoint:endPoint]['SMPS Count'])
+        try:
+            ccnCNList = []
+            dNdLogDpList = []
+            startPoint = self.currPeak * self.timeFrame
+            endPoint = (self.currPeak + 1) * self.timeFrame
+            self.diameterList = list(self.data[startPoint:endPoint]['dp'])
+            ccnList = list(self.data[startPoint:endPoint]['CCNC Count'])
+            cnList = list(self.data[startPoint:endPoint]['SMPS Count'])
 
-        # modify this to get aParam decently good number
-        cnList = [x * 0.2 for x in cnList]
-        self.ccnList = ccnList
-        self.cnList = cnList
-        self.diameterMidpointList = []
-        self.ccncnList = ccnCNList
-        for i in range(len(ccnList)):
-            self.ccncnList.append(ccnList[i] / cnList[i])
-        self.dropSizeList = list(self.data[startPoint:endPoint]['Ave Size'])
-
-        for i in range(2, len(self.dNlog)):
-            self.diameterMidpointList.append(self.dNlog[i][0])
-            dNdLogDpList.append(self.dNlog[i][self.currPeak + 1])
-        self.ccnNormalizedList = normalizeList(dNdLogDpList)
+            # modify this to get aParam decently good number
+            cnList = [x * 0.2 for x in cnList]
+            self.ccnList = ccnList
+            self.cnList = cnList
+            self.diameterMidpointList = []
+            self.ccncnList = ccnCNList
+            for i in range(len(ccnList)):
+                self.ccncnList.append(ccnList[i] / cnList[i])
+            self.dropSizeList = list(self.data[startPoint:endPoint]['Ave Size'])
+            for i in range(2, len(self.dNlog)):
+                self.diameterMidpointList.append(self.dNlog[i][0])
+                dNdLogDpList.append(self.dNlog[i][self.currPeak + 1])
+            self.ccnNormalizedList = normalizeList(dNdLogDpList)
+        except:
+            # Make the peak invalid
+            self.peakCountCCNCList[self.currPeak] = None
+            self.peakCountSMPSList[self.currPeak] = None
 
     def initCorrectCharges(self):
         """
         Initiate the correct charge procedure
         """
-        self.cnFixedList = self.cnList[:]
-        self.ccnFixedList = self.ccnList[:]
-        self.gCcnList = self.ccnFixedList[:]
-        self.gCnList = self.cnFixedList[:]
+        if self.peakCountCCNCList[self.currPeak] and self.peakCountSMPSList[self.currPeak]:
+            self.cnFixedList = self.cnList[:]
+            self.ccnFixedList = self.ccnList[:]
+            self.gCcnList = self.ccnFixedList[:]
+            self.gCnList = self.cnFixedList[:]
 
     def correctCharges(self):
         """
         Perform charge correction
         """
-        asymp = 99999
-        newList = []
-        epsilon = 0.0000000001
-        e = scipy.constants.e
-        e0 = scipy.constants.epsilon_0
-        k = scipy.constants.k
-        t = scipy.constants.zero_Celsius + 25
-        z = 0.875
-        p = 1013
-        nair = 0.000001458 * t ** 1.5 / (t + 110.4)
-        lambdaAir = 2 * nair / 100 / p / (8 * 28.84 / pi / 8.314 / t) ** 0.5 * 1000 ** 0.5
-        coeficientList = [[-0.0003, -0.1014, 0.3073, -0.3372, 0.1023, -0.0105],
-                          [-2.3484, 0.6044, 0.48, 0.0013, -0.1553, 0.032],
-                          [-44.4756, 79.3772, -62.89, 26.4492, -5.748, 0.5049]]
-        # frac0List = fractionCalculation(self.diameterList,0,coeficientList[0])
-        frac1List = fractionCalculation(self.diameterList, 1, coeficientList[1])
-        frac2List = fractionCalculation(self.diameterList, 2, coeficientList[2])
-        frac3List = fractionCalculation(self.diameterList, 3)
-        chargeList = []
+        if self.peakCountCCNCList[self.currPeak] and self.peakCountSMPSList[self.currPeak]:
+            try:
+                asymp = 99999
+                newList = []
+                epsilon = 0.0000000001
+                e = scipy.constants.e
+                e0 = scipy.constants.epsilon_0
+                k = scipy.constants.k
+                t = scipy.constants.zero_Celsius + 25
+                z = 0.875
+                p = 1013
+                nair = 0.000001458 * t ** 1.5 / (t + 110.4)
+                lambdaAir = 2 * nair / 100 / p / (8 * 28.84 / pi / 8.314 / t) ** 0.5 * 1000 ** 0.5
+                coeficientList = [[-0.0003, -0.1014, 0.3073, -0.3372, 0.1023, -0.0105],
+                                  [-2.3484, 0.6044, 0.48, 0.0013, -0.1553, 0.032],
+                                  [-44.4756, 79.3772, -62.89, 26.4492, -5.748, 0.5049]]
+                # frac0List = fractionCalculation(self.diameterList,0,coeficientList[0])
+                frac1List = fractionCalculation(self.diameterList, 1, coeficientList[1])
+                frac2List = fractionCalculation(self.diameterList, 2, coeficientList[2])
+                frac3List = fractionCalculation(self.diameterList, 3)
+                chargeList = []
 
-        for i in self.diameterList:
-            QtGui.qApp.processEvents()
-            aDList = [0]
-            for k in range(1, 4):
-                c = calCC(i * 10 ** -9, lambdaAir)
-                dp = 10 ** 9 * findDp(i * 10 ** -9 / c, lambdaAir, k)
-                aDList.append(dp)
-            chargeList.append(aDList)
+                for i in self.diameterList:
+                    QtGui.qApp.processEvents()
+                    aDList = [0]
+                    for k in range(1, 4):
+                        c = calCC(i * 10 ** -9, lambdaAir)
+                        dp = 10 ** 9 * findDp(i * 10 ** -9 / c, lambdaAir, k)
+                        aDList.append(dp)
+                    chargeList.append(aDList)
 
-        # second part of correct charges
-        self.cnFixedList = self.cnList[:]
-        self.ccnFixedList = self.ccnList[:]
-        maxUpperBinBound = (self.diameterList[-1] + self.diameterList[-2]) / 2
-        lenDpList = len(self.diameterList)
+                # second part of correct charges
+                self.cnFixedList = self.cnList[:]
+                self.ccnFixedList = self.ccnList[:]
+                maxUpperBinBound = (self.diameterList[-1] + self.diameterList[-2]) / 2
+                lenDpList = len(self.diameterList)
 
-        for i in range(lenDpList):
-            QtGui.qApp.processEvents()
-            n = lenDpList - i - 1
-            moveDoubletCounts = frac2List[n] / (frac1List[n] + frac2List[n] + frac3List[n]) * self.cnList[n]
-            moveTripletCounts = frac3List[n] / (frac1List[n] + frac2List[n] + frac3List[n]) * self.cnList[n]
-            self.cnFixedList[n] = self.cnFixedList[n] - moveDoubletCounts - moveTripletCounts
-            self.ccnFixedList[n] = self.ccnFixedList[n] - moveDoubletCounts - moveTripletCounts
-            if chargeList[n][2] <= maxUpperBinBound:
-                j = lenDpList - 2
-                while (True):
-                    upperBinBound = (self.diameterList[j] + self.diameterList[j + 1]) / 2
-                    lowerBinBound = (self.diameterList[j] + self.diameterList[j - 1]) / 2
-                    if upperBinBound > chargeList[n][2] >= lowerBinBound:
-                        self.cnFixedList[j] = self.cnFixedList[j] + moveDoubletCounts
-                        if chargeList[n][2] < asymp:
-                            if self.gCcnList[j] > epsilon:
-                                self.ccnFixedList[j] = self.ccnFixedList[j] + moveDoubletCounts * self.gCcnList[j] / \
-                                                                              self.gCnList[j]
-                        else:
-                            self.ccnFixedList[j] = self.ccnFixedList[j] + moveDoubletCounts
-                        break
-                    j -= 1
+                for i in range(lenDpList):
+                    QtGui.qApp.processEvents()
+                    n = lenDpList - i - 1
+                    moveDoubletCounts = frac2List[n] / (frac1List[n] + frac2List[n] + frac3List[n]) * self.cnList[n]
+                    moveTripletCounts = frac3List[n] / (frac1List[n] + frac2List[n] + frac3List[n]) * self.cnList[n]
+                    self.cnFixedList[n] = self.cnFixedList[n] - moveDoubletCounts - moveTripletCounts
+                    self.ccnFixedList[n] = self.ccnFixedList[n] - moveDoubletCounts - moveTripletCounts
+                    if chargeList[n][2] <= maxUpperBinBound:
+                        j = lenDpList - 2
+                        while (True):
+                            upperBinBound = (self.diameterList[j] + self.diameterList[j + 1]) / 2
+                            lowerBinBound = (self.diameterList[j] + self.diameterList[j - 1]) / 2
+                            if upperBinBound > chargeList[n][2] >= lowerBinBound:
+                                self.cnFixedList[j] = self.cnFixedList[j] + moveDoubletCounts
+                                if chargeList[n][2] < asymp:
+                                    if self.gCcnList[j] > epsilon:
+                                        self.ccnFixedList[j] = self.ccnFixedList[j] + moveDoubletCounts * self.gCcnList[j] / \
+                                                                                      self.gCnList[j]
+                                else:
+                                    self.ccnFixedList[j] = self.ccnFixedList[j] + moveDoubletCounts
+                                break
+                            j -= 1
 
-            if chargeList[n][3] < maxUpperBinBound:
-                j = lenDpList - 2
-                while (True):
-                    upperBinBound = (self.diameterList[j] + self.diameterList[j + 1]) / 2
-                    lowerBinBound = (self.diameterList[j] + self.diameterList[j - 1]) / 2
-                    if upperBinBound > chargeList[n][3] >= lowerBinBound:
-                        self.cnFixedList[j] = self.cnFixedList[j] + moveTripletCounts
-                        if chargeList[n][3] < asymp:
-                            self.ccnFixedList[j] = self.ccnFixedList[j] + moveTripletCounts * self.ccnList[j] / \
-                                                                          self.cnList[j]
-                        else:
-                            self.ccnFixedList[j] = self.ccnFixedList[j] + moveTripletCounts
-                        break
-                    j -= 1
+                    if chargeList[n][3] < maxUpperBinBound:
+                        j = lenDpList - 2
+                        while (True):
+                            upperBinBound = (self.diameterList[j] + self.diameterList[j + 1]) / 2
+                            lowerBinBound = (self.diameterList[j] + self.diameterList[j - 1]) / 2
+                            if upperBinBound > chargeList[n][3] >= lowerBinBound:
+                                self.cnFixedList[j] = self.cnFixedList[j] + moveTripletCounts
+                                if chargeList[n][3] < asymp:
+                                    self.ccnFixedList[j] = self.ccnFixedList[j] + moveTripletCounts * self.ccnList[j] / \
+                                                                                  self.cnList[j]
+                                else:
+                                    self.ccnFixedList[j] = self.ccnFixedList[j] + moveTripletCounts
+                                break
+                            j -= 1
 
-        for i in range(len(self.ccnFixedList)):
-            QtGui.qApp.processEvents()
-            if self.ccnFixedList[i] / self.cnFixedList[i] < -0.01:
-                self.ccnFixedList[i] = 0
+                for i in range(len(self.ccnFixedList)):
+                    QtGui.qApp.processEvents()
+                    if self.ccnFixedList[i] / self.cnFixedList[i] < -0.01:
+                        self.ccnFixedList[i] = 0
 
-        self.gCcnList = self.ccnFixedList[:]
-        self.gCnList = self.cnFixedList[:]
+                self.gCcnList = self.ccnFixedList[:]
+                self.gCnList = self.cnFixedList[:]
+            except:
+                self.peakCountCCNCList[self.currPeak] = None
+                self.peakCountSMPSList[self.currPeak] = None
 
     def getConstants(self):
         """
         Acquire the necessary constants from the data to perform sigmodal fit
         """
-        # determine minDp and minDpAsym
+        if not self.peakCountCCNCList[self.currPeak] or not self.peakCountSMPSList[self.currPeak]:
+            return
+        try:
+            asymList = getAsym(self.diameterList, self.ccncSigList)
+            increLength = int(len(asymList) / 10)
+            exitLoop = False
+            for i in range(len(asymList)):
+                if asymList[i] > 1:
+                    increCount = 0
+                    self.minDp = self.diameterList[i]
+                    for j in range(i + 1, i + increLength):
+                        if j < len(asymList) and asymList[j] > 1:
+                            increCount += 1
+                    if increCount > increLength / 2:
+                        exitLoop = True
+                if exitLoop is True:
+                    break
 
-        # The number of the data point that must produce aParam continuous increment to determine aParam vertical
-        asymList = getAsym(self.diameterList, self.ccncSigList)
-        increLength = int(len(asymList) / 10)
-        exitLoop = False
-        for i in range(len(asymList)):
-            if asymList[i] > 1:
-                increCount = 0
-                self.minDp = self.diameterList[i]
-                for j in range(i + 1, i + increLength):
-                    if j < len(asymList) and asymList[j] > 1:
-                        increCount += 1
-                if increCount > increLength / 2:
-                    exitLoop = True
-            if exitLoop is True:
-                break
+            exitLoop = False
+            for j in range(i + 1, len(asymList) - increLength):
+                if asymList[j] < 1:
+                    increCount = 0
+                    self.minDpAsym = self.diameterList[j]
+                    for k in range(j + 1, j + increLength):
+                        if asymList[k] < 1:
+                            increCount += 1
+                    if increCount > increLength / 2:
+                        exitLoop = True
+                if exitLoop is True:
+                    break
 
-        exitLoop = False
-        for j in range(i + 1, len(asymList) - increLength):
-            if asymList[j] < 1:
-                increCount = 0
-                self.minDpAsym = self.diameterList[j]
-                for k in range(j + 1, j + increLength):
-                    if asymList[k] < 1:
-                        increCount += 1
-                if increCount > increLength / 2:
-                    exitLoop = True
-            if exitLoop is True:
-                break
+            # determine maxDp
+            for i in range(j, len(self.ccnFixedList)):
+                if abs(self.ccncSigList[i] - self.ccncSigList[i - 1]) > 0.1:
+                    self.maxDpAsym = self.diameterList[i]
+                    break
+            self.maxDp = self.maxDpAsym
 
-        # determine maxDp
-        for i in range(j, len(self.ccnFixedList)):
-            if abs(self.ccncSigList[i] - self.ccncSigList[i - 1]) > 0.1:
-                self.maxDpAsym = self.diameterList[i]
-                break
-        self.maxDp = self.maxDpAsym
-
-        asymsList = []
-        for i in range(len(self.diameterList)):
-            if self.minDpAsym < self.diameterList[i] < self.maxDpAsym:
-                asymsList.append(self.ccncSigList[i])
-            else:
-                asymsList.append(0)
-        self.b = getAveNoneZero(asymsList)
-        self.ccncnSimList.append(0)
-        for i in range(1, len(self.diameterList)):
-            if self.minDp < self.diameterList[i] < self.maxDp:
-                n = self.b / (1 + (self.diameterList[i] / self.d) ** self.c)
-                self.ccncnSimList.append(n)
-            else:
-                self.ccncnSimList.append(self.ccncnSimList[i - 1])
+            asymsList = []
+            for i in range(len(self.diameterList)):
+                if self.minDpAsym < self.diameterList[i] < self.maxDpAsym:
+                    asymsList.append(self.ccncSigList[i])
+                else:
+                    asymsList.append(0)
+            self.b = getAveNoneZero(asymsList)
+            self.ccncnSimList.append(0)
+            for i in range(1, len(self.diameterList)):
+                if self.minDp < self.diameterList[i] < self.maxDp:
+                    n = self.b / (1 + (self.diameterList[i] / self.d) ** self.c)
+                    self.ccncnSimList.append(n)
+                else:
+                    self.ccncnSimList.append(self.ccncnSimList[i - 1])
+        except:
+            self.peakCountSMPSList[self.currPeak] = None
+            self.peakCountCCNCList[self.currPeak] = None
 
     def optimize(self):
         """
         Perform optimization, which is basically sigmodal fit
         """
         try:
+            # If invalid
+            if not self.peakCountCCNCList[self.currPeak] or not self.peakCountSMPSList[self.currPeak]:
+                self.bList.append(0)
+                self.dList.append(0)
+                self.cList.append(0)
+                self.dp50List.append((0, 0))
+                return
+
             xList = []
             yList = []
             for i in range(len(self.diameterList)):
@@ -767,10 +791,9 @@ class Controller():
                     self.ccncnSimList.append(n)
                 else:
                     self.ccncnSimList.append(self.ccncnSimList[i - 1])
-
-
         except:
-            raise OptimizationError()
+            self.peakCountSMPSList[self.currPeak] = None
+            self.peakCountCCNCList[self.currPeak] = None
 
     def makeAdjustedGraph(self, newFigure = None):
         """
@@ -834,6 +857,9 @@ class Controller():
         """
         Make complete graph of the dry diameter after optimization and sigmodal fit
         """
+        if not self.peakCountCCNCList[self.currPeak] or not self.peakCountSMPSList[self.currPeak]:
+            self.makeCCNGraph()
+            return
         figure = plt.figure(facecolor=settings.graphBackgroundColor)
         plt.axes(frameon=False)
         plt.grid(color='0.5')
@@ -849,11 +875,8 @@ class Controller():
         plt.plot(self.diameterList, self.ccncnSimList, linewidth=5, color='#EF5350', label="Sigmodal Fit")
         plt.plot(self.diameterList, self.ccncnList, 'o', color="#2196F3", mew=0.5,mec = "#1976D2",  ms = 9, label = "CCN/CN")
         plt.plot(self.diameterList, self.ccncSigList, 'o', color="#1565C0", mew=0.5,mec = "#0D47A1",  ms = 9, label = "CCN/CN (Corrected)")
-
-
         plt.xlabel("Dry diameter(nm)")
         plt.ylabel("CCN/CN ratio and Normalized dN/dLogDP")
-
         handles, labels = plt.gca().get_legend_handles_labels()
         legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.7, 1.1))
         legend.get_frame().set_facecolor('#9E9E9E')
@@ -873,7 +896,7 @@ class Controller():
         Make complete graphs after optimization
         """
         plt.ioff()
-        self.makeAdjustedGraph()
+        # self.makeAdjustedGraph()
         self.makeFullDryDiameterGraph()
 
     def singlePeakProcessingProcedure(self):
@@ -896,8 +919,9 @@ class Controller():
             for i in range(5):
                 self.correctCharges()
                 self.makeProgress()
-            for i in range(len(self.ccnFixedList)):
-                self.ccncSigList.append(self.ccnFixedList[i] / self.cnFixedList[i])
+            if self.peakCountCCNCList[self.currPeak] and self.peakCountSMPSList[self.currPeak]:
+                for i in range(len(self.ccnFixedList)):
+                    self.ccncSigList.append(self.ccnFixedList[i] / self.cnFixedList[i])
             self.makeProgress()
             self.getConstants()
             self.makeProgress()
@@ -918,6 +942,17 @@ class Controller():
         The process necessary to read in and pre-process the data
         """
         try:
+            # reset the GUI
+            self.view.reset()
+            # clear all figures
+            for aFigure in self.adjustedGraphList:
+                aFigure.clf()
+                plt.close(aFigure)
+            self.adjustedGraphList = []
+            for aFigure in self.dryDiaGraphList:
+                aFigure.clf()
+                plt.close(aFigure)
+            self.dryDiaGraphList = []
             self.makeProgress(maxValue=7)
             self.makeProgress("Searching files for CCNC and SMPS files...")
             self.getFileNames()
@@ -959,17 +994,7 @@ class Controller():
             if self.completedStep < 1:
                 self.view.showError("Data preparation process is not completed.")
                 raise InterruptError
-            # clear all figures
-            for aFigure in self.adjustedGraphList:
-                aFigure.clf()
-                plt.close(aFigure)
-            for aFigure in self.dryDiaGraphList:
-                aFigure.clf()
-                plt.close(aFigure)
             self.makeProgress("Preparing data for peak processing...", maxValue=self.maxPeak * 3)
-
-            self.dryDiaGraphList = []
-            self.adjustedGraphList = []
             for i in range(0, self.maxPeak):
                 self.currPeak = i
                 self.makeProgress("Processing peak " + str(i + 1), value=0)
@@ -979,7 +1004,6 @@ class Controller():
             self.completedStep = 2
             self.makeProgress(complete=True)
             self.view.updateData()
-            #
             self.peakAlignAndGraph()
             self.updatePeak(0)
             self.view.updateTotalViewFigure(self.minCompareGraph)
@@ -995,17 +1019,15 @@ class Controller():
             if self.completedStep < 2:
                 self.view.showError("Data initialization process is not completed.")
                 return
-            # clear all figures
-            for aFigure in self.adjustedGraphList:
-                aFigure.clf()
-                plt.close(aFigure)
+            # clear dry diameter graphs
             for aFigure in self.dryDiaGraphList:
                 aFigure.clf()
                 plt.close(aFigure)
+            self.dryDiaGraphList = []
             self.makeProgress("Preparing data for peak processing...", maxValue=self.maxPeak * 12)
             self.optimized = True
-            self.dryDiaGraphList = []
-            self.adjustedGraphList = []
+
+
             for i in range(0, self.maxPeak):
                 self.currPeak = i
                 self.makeProgress("Processing peak " + str(i + 1), value=0)
