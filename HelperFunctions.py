@@ -48,15 +48,33 @@ def f(x, d, c):
     return 0.903 / (1 + (x / d) ** c)
 
 def getAsym(xList, yList):
+    riseList = []
     asymList = []
+    oriXList = xList[:]
+    oriYList = yList[:]
+    # Normalize xList
+    xList = normalizeList(xList)
+    # Normalize yList
+    yList = normalizeList(yList)
+    # Get the asymtope
     for i in range(0, len(xList) - 1):
         if (xList[i + 1] - xList[i]) != 0:
-            asymList.append((yList[i + 1] - yList[i]) / (xList[i + 1] - xList[i]) * 100)
+            asymList.append((yList[i + 1] - yList[i]) / (xList[i + 1] - xList[i]))
         else:
             asymList.append(9999)
         if 0 > asymList[i] > -0.001:
             asymList[i] = 0
-    return asymList
+
+    for i in range(len(oriYList)-1):
+        # If too small, make rising = 0
+        if oriYList[i+1] < 0.1:
+            riseList.append(0)
+        # If slope too small, also makes rising equal 0
+        elif asymList[i] < 0.5:
+            riseList.append(0)
+        else:
+            riseList.append(1)
+    return asymList, riseList
 
 
 def normalizeList(aList):
@@ -65,12 +83,18 @@ def normalizeList(aList):
     :param aList: the input list
     :return: the output list after normalized
     """
+    # convert to float
     aList = [float(x) for x in aList]
+    # remove invalids
+    for i in range(len(aList)):
+        if pandas.isnull(aList[i]):
+            aList[i] = 0
     maxValue = max(aList[10:])
     if maxValue == 0:
         return aList
     for x in range(len(aList)):
-        aList[x] /= maxValue
+        if aList[x]:
+            aList[x] /= maxValue
     return aList
 
 
