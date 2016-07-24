@@ -218,7 +218,6 @@ class Controller():
         self.endTimeEntries = [datetime.strftime(x,"%I:%M:%S") for x in self.endTimeEntries]
         self.maxPeak = len(self.startTimeEntries)
 
-
     def getDNlog(self):
         """
         Get the DNlog data from the txt file and saves it to aParam csv file for easier further processing
@@ -699,128 +698,86 @@ class Controller():
         """
         if self.peakCountCCNCList[self.currPeak] is None or self.peakCountSMPSList[self.currPeak] is None:
             return
-        try:
-            stableThreshold = 0.3
-            asymList = getAsym(self.diameterList, self.ccncSigList)
-            riseList = asymList[1]
-            asymList = asymList[0]
+        # try:
+        asymList = getAsym(self.diameterList, self.ccncSigList)
+        mpIndex = 0
+
+        # Find the index of midPoint
+        checkLength = self.timeFrame / 20
+        for i in range(checkLength,len(self.ccncSigList)-checkLength):
+            isMid = False
+            if self.ccncSigList[i] > 0.5:
+                isMid = True
+                # check if the previous 5 numbers are smaller and the next 5 numbers are bigger
+                for j in range(1,checkLength):
+                    if self.ccncSigList[i+j] < self.ccncSigList[i]:
+                        isMid = False
+                        break
+            if isMid:
+                mpIndex = i
+                break
 
 
-            mpIndex = 0
-            # Find the index of midPoint
-            for i in range(len(self.ccncSigList)):
-                if self.ccncSigList[i] > 0.5:
-                    mpIndex = i
-                    break
+        minDpAsymPos = 0
+        currMax = 0
+        # Get minDP
+        for i in range(mpIndex,1, -1):
+            if self.ccncSigList[i] < 0.1:
+                self.minDp = self.diameterList[i]
+                break
 
-            increLength = int(len(riseList) / 10)
-            exitLoop = False
-
-            # Find minDP
-            for i in range(1, mpIndex):
-                isMin = False
-                if riseList[i] == 1 and riseList[i-1] == 0 and self.ccncSigList[i] < 0.1:
-                    # check if all subsequent numbers are bigger than that rise
-                    isMin = True
-                    for j in range(i + 1, i + increLength):
-                        # If any subsequent number is smaller
-                        if j < len(riseList) and self.ccncSigList[j] < self.ccncSigList[i]:
-                            isMin = False
-                        # If not much rise after 5 points, also disregard it
-                        if i + 5 < len(self.ccncSigList) and self.ccncSigList[i+5] - self.ccncSigList[i] < 0.5:
-                            isMin = False
-                if isMin:
-                    self.minDp = self.diameterList[i]
-                    break
-
-            # Find minDP Asym
-            maxCCN = max(self.ccncSigList)
-            if max <= 1.2:
-                stableThreshold = 0.15
-            else:
-                stableThreshold = 0.3
-
-            for i in range(mpIndex, len(riseList)):
-                isMin = False
-                increCount = increLength
-                if riseList[i - 1] == 1 and riseList[i] == 0:
-                    isMin = True
-                    # Next four number mustn't have any significant increment with steep asym
-                    for j in range(i+1, i+5):
-                        if j < len(self.ccncSigList)-1 and self.ccncSigList[j] - self.ccncSigList[i] > stableThreshold and asymList[j-1] > 3:
-                            isMin = False
-                    if isMin:
-                        isMin = False
-                        increCount = 0
-                        for j in range(i + 1, i + increLength):
-                            # Count all rising points, which somewhat significant rising value
-                            if j < len(riseList) and riseList[j] == 1 and asymList[j] > 1:
-                                increCount += 1
-
-                # If there are not many rising points, then accept the value
-                if increCount < increLength / 2:
-                    isMin = True
-                if isMin:
+        # Get minDpAsym
+        for i in range(mpIndex, mpIndex + self.timeFrame / 10):
+            if i < len(self.diameterList):
+                if self.ccncSigList[i] > currMax:
+                    minDpAsymPos = i
+                    currMax = self.ccncSigList[i]
                     self.minDpAsym = self.diameterList[i]
-                    break
 
-            # for i in range(len(asymList)):
-            #     if asymList[i] > 1:
-            #         increCount = 0
-            #         self.minDp = self.diameterList[i]
-            #         for j in range(i + 1, i + increLength):
-            #             if j < len(asymList) and asymList[j] > 1:
-            #                 increCount += 1
-            #         if increCount > increLength / 2:
-            #             exitLoop = True
-            #     if exitLoop is True:
-            #         break
-            #
-            # exitLoop = False
-            # for j in range(i + 1, len(asymList) - increLength):
-            #     if asymList[j] < 1:
-            #         increCount = 0
-            #         self.minDpAsym = self.diameterList[j]
-            #         for k in range(j + 1, j + increLength):
-            #             if asymList[k] < 1:
-            #                 increCount += 1
-            #         if increCount > increLength / 2:
-            #             exitLoop = True
-            #     if exitLoop is True:
-            #         break
+        maxCCN = max(self.ccncSigList)
+        if maxCCN <= 1.2:
+            stableThreshold = 0.075
+        else:
+            stableThreshold = 0.25
 
-            # determine maxDp
-            for i in range(j, len(self.ccnFixedList)):
-                if abs(self.ccncSigList[i] - self.ccncSigList[i - 1]) > stableThreshold:
-                    self.maxDpAsym = self.diameterList[i]
-                    break
-            self.maxDp = self.maxDpAsym
-            # Get the data
-            asymsList = []
-            for i in range(len(self.diameterList)):
-                if self.minDpAsym < self.diameterList[i] < self.maxDpAsym:
-                    asymsList.append(self.ccncSigList[i])
-                else:
-                    asymsList.append(0)
+        # determine maxDplen(self.ccncSigList)
+        for i in range(minDpAsymPos + 5, len(self.ccncSigList)):
+            if self.ccncSigList[i] > 1.3:
+                self.maxDpAsym = self.diameterList[i]
+                break
+            elif abs(self.ccncSigList[i] - self.ccncSigList[i-1]) > 2 * stableThreshold:
+                self.maxDpAsym = self.diameterList[i-1]
+                break
 
-            self.b = getAveNoneZero(asymsList)
-            self.ccncnSimList.append(0)
-            for i in range(1, len(self.diameterList)):
-                if self.minDp < self.diameterList[i] < self.maxDp:
-                    n = self.b / (1 + (self.diameterList[i] / self.d) ** self.c)
-                    self.ccncnSimList.append(n)
-                else:
-                    self.ccncnSimList.append(self.ccncnSimList[i - 1])
-        except:
-            self.peakCountSMPSList[self.currPeak] = None
-            self.peakCountCCNCList[self.currPeak] = None
+        self.maxDp = self.maxDpAsym
+        print self.currPeak,mpIndex,self.diameterList[mpIndex], self.minDp, self.minDpAsym, self.maxDpAsym
+        # Get the data
+        asymsList = []
+        for i in range(len(self.diameterList)):
+            if self.minDpAsym < self.diameterList[i] < self.maxDpAsym:
+                asymsList.append(self.ccncSigList[i])
+            else:
+                asymsList.append(0)
+
+        self.b = getAveNoneZero(asymsList)
+        self.ccncnSimList.append(0)
+        for i in range(1, len(self.diameterList)):
+            if self.minDp < self.diameterList[i] < self.maxDp:
+                n = self.b / (1 + (self.diameterList[i] / self.d) ** self.c)
+                self.ccncnSimList.append(n)
+            else:
+                self.ccncnSimList.append(self.ccncnSimList[i - 1])
+        # except:
+        #     print self.currPeak
+        #     self.peakCountSMPSList[self.currPeak] = None
+        #     self.peakCountCCNCList[self.currPeak] = None
 
     def optimize(self):
         """
         Perform optimization, which is basically sigmodal fit
         """
-        try:
             # If invalid
+        try:
             if not self.peakCountCCNCList[self.currPeak] or not self.peakCountSMPSList[self.currPeak]:
                 self.bList.append(0)
                 self.dList.append(0)
@@ -854,8 +811,10 @@ class Controller():
                 else:
                     self.ccncnSimList.append(self.ccncnSimList[i - 1])
         except:
-            self.peakCountSMPSList[self.currPeak] = None
             self.peakCountCCNCList[self.currPeak] = None
+            self.peakCountSMPSList[self.currPeak] = None
+
+
 
     def makeAdjustedGraph(self, newFigure = None):
         """

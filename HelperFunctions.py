@@ -48,10 +48,7 @@ def f(x, d, c):
     return 0.903 / (1 + (x / d) ** c)
 
 def getAsym(xList, yList):
-    riseList = []
     asymList = []
-    oriXList = xList[:]
-    oriYList = yList[:]
     # Normalize xList
     xList = normalizeList(xList)
     # Normalize yList
@@ -65,16 +62,7 @@ def getAsym(xList, yList):
         if 0 > asymList[i] > -0.001:
             asymList[i] = 0
 
-    for i in range(len(oriYList)-1):
-        # If too small, make rising = 0
-        if oriYList[i+1] < 0.1:
-            riseList.append(0)
-        # If slope too small, also makes rising equal 0
-        elif asymList[i] < 0.5:
-            riseList.append(0)
-        else:
-            riseList.append(1)
-    return asymList, riseList
+    return asymList
 
 
 def normalizeList(aList):
