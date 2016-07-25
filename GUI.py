@@ -138,10 +138,10 @@ class MainWindow(QMainWindow):
         self.centralWidget().graphWidget.individualViews.dNlogView.updateFigure(diaFigure)
 
     def calKappa(self):
-        if self.controller.completedStep >=2:
-            self.controller.calKappa()
-            self.controller.makeKappaGraph()
-            self.centralWidget().switchToKappa()
+        # if self.controller.completedStep >=2:
+        self.controller.calKappa()
+        self.controller.makeKappaGraph()
+        self.centralWidget().switchToKappa()
 
     def updateData(self):
         """

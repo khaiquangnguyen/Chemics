@@ -1206,7 +1206,10 @@ class Controller():
             self.solubility = solu
 
     def calKappa(self):
-        # self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
+        self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
+        for i in range(len(self.dp50List)):
+            self.usablePeakList.append(True)
+
         self.kappaExcel = pandas.read_excel("kCal.xlsx", header=None, sheetname=["lookup"])
         lookup = self.kappaExcel["lookup"]
         self.aParam = 0.00000869251 * self.sigma / self.temp
@@ -1390,11 +1393,7 @@ class Controller():
 
     def reOptimization(self,minDp,minDpAsym,maxDpAsym):
         """
-        Re-optimize the data after changing constants
-        :param minDp:
-        :param minDpAsym:
-        :param maxDpAsym:
-        :return:
+        Re-optimize the data after changing constants minDp, minDpAsym, maxDpAsym
         """
         if not self.optimized:
             return
@@ -1461,8 +1460,6 @@ class Controller():
 def main():
     controller = Controller(False)
     controller.run()
-    # controller.calKappa()
-    # test()
 
 if __name__ == '__main__':
     main()
