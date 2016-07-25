@@ -1074,7 +1074,8 @@ class Controller():
             self.maxDpAsym = self.maxDpAsymList[self.currPeak]
             self.superSaturation = self.dp50List[self.currPeak][1]
             self.dp50 = self.dp50List[self.currPeak][0]
-
+        else:
+            self.superSaturation = self.ssList[self.currPeak]
         self.adjustedGraph = self.adjustedGraphList[self.currPeak]
         self.dryDiaGraph = self.dryDiaGraphList[self.currPeak]
         self.dp50LessCount = 0
@@ -1098,11 +1099,15 @@ class Controller():
         self.currentPoint.set_xdata(numpy.asarray(self.minPosSMPSList)[self.currPeak])
         self.currentPoint.set_ydata(numpy.asarray(self.minPosCCNCList)[self.currPeak])
         if self.optimized:
-            self.view.updateBasicPeakInfo()
-        else:
             self.view.updateSigFitPeakInfo()
+        else:
+            self.view.updateBasicPeakInfo()
+
 
     def shiftDataCCNC(self, forward=True):
+
+        if self.completedStep <=1:
+            return
         # If the peak is invalid, do nothing
         if not self.usablePeakList[self.currPeak] or self.minPosSMPSList[self.currPeak] is None or \
                         self.minPosCCNCList[self.currPeak] is None:
@@ -1307,6 +1312,8 @@ class Controller():
         :param maxDpAsym:
         :return:
         """
+        if not self.optimized:
+            return
         self.makeProgress("Re-Optimizaing peak" + str(self.currPeak + 1), maxValue=6)
         self.enablePeak()
         self.ccncSigList = []
@@ -1357,6 +1364,8 @@ class Controller():
 
 
     def removePeak(self):
+        if self.completedStep == 0:
+            return
         if not self.optimized:
             self.minPosSMPSList[self.currPeak] = None
             self.minPosCCNCList[self.currPeak] = None

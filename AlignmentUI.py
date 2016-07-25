@@ -18,13 +18,13 @@ class PeakAlignDataWidget(QWidget):
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.infoArea = PeakAlignDataTable(mainWindow)
-        self.layout.addWidget(self.infoArea)
+        self.infoTable = PeakAlignDataTable(mainWindow)
+        self.layout.addWidget(self.infoTable)
 
     def resize(self, parentWidth, parentHeight):
         self.setFixedWidth(parentWidth / 4)
         self.setFixedHeight(parentHeight)
-        self.infoArea.resize(self.width(),self.height())
+        self.infoTable.resize(self.width(), self.height())
 
 class PeakAlignDataTable(QTableWidget):
     def resize(self, parentWidth, parentHeight):
@@ -63,34 +63,48 @@ class PeakAlignDataTable(QTableWidget):
 
     def updateBasicPeakInfo(self):
         if self.rowCount() > 5:
-            for i in range(4):
+            for i in range(self.rowCount() - 5):
                 self.removeRow(self.rowCount()-1)
         header = TableHeader("Basic Peak Information")
+        self.insertRow(self.rowCount())
+        self.setCellWidget(self.rowCount() - 1, 0, header)
         currPeak = self.mainWindow.getPeak()
         if self.mainWindow.controller.minPosCCNCList[currPeak] and self.mainWindow.controller.minPosCCNCList[currPeak]:
             self.addMessage("Status", "Valid for curve fit")
         else:
             self.addMessage("Status", "Invalid for curve fit")
-        self.insertRow(self.rowCount())
-        self.setCellWidget(self.rowCount() - 1, 0, header)
         self.addMessage("Current run",self.mainWindow.getPeak() + 1)
         self.addMessage("Saturation",self.mainWindow.controller.superSaturation)
 
     def updateSigFitPeakInfo(self):
-        if self.rowCount() > 8:
-            for i in range(10):
+        if self.rowCount() > 5:
+            for i in range(self.rowCount() - 5):
                 self.removeRow(self.rowCount() - 1)
+
+        # Add basic information data
+        header = TableHeader("Basic Peak Information")
+        self.insertRow(self.rowCount())
+        self.setCellWidget(self.rowCount() - 1, 0, header)
+        currPeak = self.mainWindow.getPeak()
+        if self.mainWindow.controller.minPosCCNCList[currPeak] and self.mainWindow.controller.minPosCCNCList[currPeak]:
+            self.addMessage("Status", "Valid for curve fit")
+        else:
+            self.addMessage("Status", "Invalid for curve fit")
+        self.addMessage("Current run", self.mainWindow.getPeak() + 1)
+        self.addMessage("Saturation", self.mainWindow.controller.superSaturation)
+
+        # Add advance information data
         header = TableHeader("Advance Peak Information")
+        self.insertRow(self.rowCount())
+        self.setCellWidget(self.rowCount() - 1, 0, header)
         currPeak = self.mainWindow.getPeak()
         if self.mainWindow.controller.usablePeakList[currPeak]:
             self.addMessage("Status", "Valid for Kappa Cal")
         else:
             self.addMessage("Status", "Invalid for Kappa Cal")
-        self.insertRow(self.rowCount())
-        self.setCellWidget(self.rowCount() - 1, 0, header)
         self.addMessage('minDp',self.mainWindow.controller.minDp)
         self.addMessage('minDpAsym', self.mainWindow.controller.minDpAsym)
-        self.addMessage('maxDp/maxDpAsym', self.mainWindow.controller.maxDpAsym)
+        self.addMessage('maxDp/DpAsym', self.mainWindow.controller.maxDpAsym)
         self.addMessage("dp50", self.mainWindow.controller.dp50)
         self.addMessage("<dp50 counts",self.mainWindow.controller.dp50LessCount)
         self.addMessage(">dp50 counts",self.mainWindow.controller.dp50MoreCount)
@@ -193,10 +207,11 @@ class controlArea(QWidget):
         self.mainWindow.controller.removePeak()
 
     def updateSigVarsClicked(self):
-        updateDialog = InputForm()
+        updateDialog = InputForm(self.mainWindow)
         if updateDialog.exec_() == QDialog.Accepted:
-            x = updateDialog.getData()
-            print x
+            (a,b,c) = updateDialog.getData()
+            self.mainWindow.controller.reOptimization(a,b,c)
+
 
     def addSecondClicked(self):
         self.mainWindow.addSecond()
@@ -214,7 +229,7 @@ class controlArea(QWidget):
         self.mainWindow.controller.optimizationProcedure()
 
     def calKappaButtonClicked(self):
-        self.mainWindow.centralWidget().switchToKappa()
+        self.mainWindow.calKappa()
 
 class totalView(FigureCanvas):
     def resize(self, parentWidth, parentHeight):

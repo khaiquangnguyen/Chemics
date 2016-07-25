@@ -12,25 +12,35 @@ import time
 
 
 class InputForm(QDialog):
-    def __init__(self):
+    def __init__(self,mainWindow = None):
         super(self.__class__, self).__init__()
+        self.mainWindow = mainWindow
         self.formLayout = QFormLayout()
-        self.minDp = QLineEdit()
-        self.minDpAsym = QLineEdit()
-        self.maxDpAsym = QLineEdit()
+        self.minDpLine = QLineEdit()
+        self.minDpAsymLine = QLineEdit()
+        self.maxDpAsymLine = QLineEdit()
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
 
-        self.formLayout.addRow(self.tr("&MinDp"),self.minDp)
-        self.formLayout.addRow(self.tr("&MinDpAsym"), self.minDpAsym)
-        self.formLayout.addRow(self.tr("&MaxDpAsym"), self.maxDpAsym)
+        self.formLayout.addRow(self.tr("&MinDp"),self.minDpLine)
+        self.formLayout.addRow(self.tr("&MinDpAsym"), self.minDpAsymLine)
+        self.formLayout.addRow(self.tr("&MaxDpAsym"), self.maxDpAsymLine)
 
-        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.accepted.connect(self.acceptInput)
         self.buttonBox.rejected.connect(self.reject)
 
         self.formLayout.addWidget(self.buttonBox)
         self.setLayout(self.formLayout)
 
+    def acceptInput(self):
+        try:
+            self.minDp = float(self.minDpLine.text())
+            self.minDpAsym = float(self.minDpAsymLine.text())
+            self.maxDpAsym = float(self.maxDpAsymLine.text())
+            self.accept()
+        except:
+            self.mainWindow.showError("Input data not valid.Please input again!")
+
     def getData(self):
-        return self.minDp.text(),self.minDpAsym.text(), self.maxDpAsym.text()
+        return self.minDp,self.minDpAsym, self.maxDpAsym
 
 
