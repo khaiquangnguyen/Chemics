@@ -718,15 +718,16 @@ class Controller():
                     stableThreshold = 0.075
                 else:
                     stableThreshold = 0.25
+                # determine maxDplen(self.ccncSigList)
+                for i in range(minDpAsymPos + 5, len(self.ccncSigList)):
+                    if self.ccncSigList[i] > 1.3:
+                        self.maxDpAsym = self.diameterList[i]
+                        break
+                    elif abs(self.ccncSigList[i] - self.ccncSigList[i - 1]) > 2 * stableThreshold:
+                        self.maxDpAsym = self.diameterList[i - 1]
+                        break
 
-            # determine maxDplen(self.ccncSigList)
-            for i in range(minDpAsymPos + 5, len(self.ccncSigList)):
-                if self.ccncSigList[i] > 1.3:
-                    self.maxDpAsym = self.diameterList[i]
-                    break
-                elif abs(self.ccncSigList[i] - self.ccncSigList[i-1]) > 2 * stableThreshold:
-                    self.maxDpAsym = self.diameterList[i-1]
-                    break
+
 
             self.maxDp = self.maxDpAsym
             # Get the data
@@ -1372,6 +1373,7 @@ class Controller():
             self.usablePeakList[self.currPeak] = False
         else:
             self.usablePeakList[self.currPeak] = False
+        self.updatePeakData()
 
 def main():
     controller = Controller(False)
