@@ -9,6 +9,7 @@ import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 import time
+from InputDialog import *
 
 class PeakAlignDataWidget(QWidget):
     def __init__(self, mainWindow=None):
@@ -131,9 +132,9 @@ class controlArea(QWidget):
         self.setFixedWidth(parentWidth)
         self.nextButton.resize(self.width(),self.height())
         self.previousButton.resize(self.width(),self.height())
-        self.showMinGraphButton.resize(self.width(), self.height())
+        self.removePeak.resize(self.width(), self.height())
         self.optimizeButton.resize(self.width(), self.height())
-        self.showTotalGraphButton.resize(self.width(), self.height())
+        self.updateSigData.resize(self.width(), self.height())
         self.calKappaButton.resize(self.width(), self.height())
         self.addSecond.resize(self.width(), self.height())
         self.subSecond.resize(self.width(), self.height())
@@ -148,12 +149,15 @@ class controlArea(QWidget):
 
         self.previousButton = CustomButton("Previous Run", mainWindow)
         self.nextButton = CustomButton("Next Run", mainWindow)
-        self.showMinGraphButton = CustomButton("Ignore Peak", mainWindow,1)
-        self.showTotalGraphButton = CustomButton("Update Sig", mainWindow,1)
+        self.removePeak = CustomButton("Ignore Peak", mainWindow, 1)
+        self.updateSigData = CustomButton("Update Sig Vars", mainWindow, 1)
         self.optimizeButton = CustomButton("Fit Sigmoid", mainWindow,1)
         self.calKappaButton = CustomButton("Calculate Kappa", mainWindow, 1)
         self.addSecond = CustomButton("-1 second", mainWindow)
         self.subSecond = CustomButton("+1 second", mainWindow)
+
+        self.removePeak.clicked.connect(self.IgnorePeakClicked)
+        self.updateSigData.clicked.connect(self.updateSigVarsClicked)
         self.previousButton.clicked.connect(self.previousButtonClicked)
         self.nextButton.clicked.connect(self.nextButtonClicked)
         self.optimizeButton.clicked.connect(self.optimizeButtonClicked)
@@ -162,15 +166,12 @@ class controlArea(QWidget):
         self.subSecond.clicked.connect(self.subSecondClicked)
 
         self.layout.setColumnStretch(0,0)
-
-        self.layout.addWidget(self.showMinGraphButton, 2, 1, 3, 1,alignment = 2)
-        self.layout.addWidget(self.showTotalGraphButton, 2, 2, 3, 1, alignment = 1)
-
+        self.layout.addWidget(self.removePeak, 2, 1, 3, 1, alignment = 2)
+        self.layout.addWidget(self.updateSigData, 2, 2, 3, 1, alignment = 1)
         self.layout.addWidget(self.previousButton,4,3,4,1)
         self.layout.addWidget(self.nextButton,4,4,4,1)
         self.layout.addWidget(self.subSecond, 0, 3, 3, 1)
         self.layout.addWidget(self.addSecond, 0, 4, 3, 1)
-
         self.layout.addWidget(self.optimizeButton,2,5,3,1, alignment = 2)
         self.layout.addWidget(self.calKappaButton, 2, 6, 3, 1, alignment = 0)
         self.layout.addWidget(QWidget(),2,7,3,1)
@@ -187,6 +188,15 @@ class controlArea(QWidget):
         palette = QPalette()
         palette.setColor(QPalette.Background, settings.controlAreaBackgroundColor)
         self.setPalette(palette)
+
+    def IgnorePeakClicked(self):
+        self.mainWindow.controller.removePeak()
+
+    def updateSigVarsClicked(self):
+        updateDialog = InputForm()
+        if updateDialog.exec_() == QDialog.Accepted:
+            x = updateDialog.getData()
+            print x
 
     def addSecondClicked(self):
         self.mainWindow.addSecond()
