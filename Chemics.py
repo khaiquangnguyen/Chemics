@@ -509,7 +509,7 @@ class Controller():
         for i in range(len(self.data)):
             correctedIndexList.append(round((i * slope + yIntercept) * 10))
         plt.plot(x, x * slope + yIntercept, linewidth = 4, color = '#43A047', label = "Regression line")
-        plt.plot(x, y, "o", ms = 10, color = "#43A047",picker=15, mew = 0, label = "Minimum")
+        plt.plot(x, y, "o", ms = 10, color = "#43A047",picker=0, mew = 0, label = "Minimum")
         textToShow = str(slope) + "* x" + " + " + str(yIntercept)
         self.currentPoint, = plt.plot(x[0],y[0],'o', color = "#81C784", ms = 12, mew = 0)
         plt.text(x[4], y[3], textToShow, color = "#81C784" )
@@ -531,7 +531,7 @@ class Controller():
         """
         When aParam dot on the graph is selected
         """
-        peak = event.ind
+        peak = event.ind[0]
         if peak != self.currPeak:
             self.updatePeak(peak)
 
@@ -1104,7 +1104,6 @@ class Controller():
         else:
             self.view.updateBasicPeakInfo()
 
-
     def shiftDataCCNC(self, forward=True):
 
         if self.completedStep <=1:
@@ -1165,36 +1164,62 @@ class Controller():
         plt.xlabel("Dry diameter(nm)")
         plt.ylabel("Super Saturation(%)")
 
+        # Draw the kappa lines
         for i in range(2, len(header)):
             y = klines[header[i]]
             plt.loglog(diaList, y, label=str(header[i]), linewidth = 4)
+
+        # Draw the points
+        xList = []
+        yList = []
+        for aKey in self.alphaPineneDict.keys():
+            xList.append(self.alphaPineneDict[aKey][0])
+            yList.append(aKey)
+
+
+        plt.plot(xList, yList, 'o', color="#1565C0", mew=0.5, mec="#0D47A1", ms=9,
+                 label=" Kappa Points")
+
 
         handles, labels = plt.gca().get_legend_handles_labels()
         legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.15, 1))
         legend.get_frame().set_facecolor('#9E9E9E')
         self.kappaGraph = plt.gcf()
 
+    def setConstantForCalKappa(self,sigma = None,temp = None, dd1 = None,iKappa = None, dd2 = None,iKappa2 = None, solu = None):
+        """
+        Update the necessary constants to calculate Kappa
+        """
+        if sigma:
+            self.sigma = sigma
+        if temp:
+            self.temp = temp
+        if dd:
+            self.dd = dd
+        if iKappa:
+            self.iKappa = iKappa
+        if dd2:
+            self.dd2 = dd2
+        if iKapp2:
+            self.iKappa2 = iKappa2
+        if solu:
+            self.solubility = solu
+
+
     def calKappa(self):
-        self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
-        self.kappaExcel = pandas.read_excel("kCal.xlsx", header=None, sheetname=["lookup","apKappa"])
+        # self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
+        self.dp50List = [(61.6,0.4),(66.873131326442845, 0.2)]
+        # print self.dp50List
+        self.kappaExcel = pandas.read_excel("kCal.xlsx", header=None, sheetname=["lookup"])
         lookup = self.kappaExcel["lookup"]
-        apKappa = self.kappaExcel['apKappa']
-        # Calculate constants (mostly)
-        # scCalcsC1 = []
-        # sc = list(scCalcs.iloc[1:][4])
-        # iKappa = 0.00567
-        # self.sc = (max(sc) - 1) * 100
-        # dd = 280
-        # self.asc = (exp(sqrt(4 * self.aParam ** 3 / (27 * iKappa * (dd * 0.000000001) ** 3))) - 1) * 100
-        # sc2 = list(scCalcs.iloc[2:][8])
-        # self.sc2 = (max(sc2) - 1) * 100
-        # trueSC = list(scCalcs.iloc[2:][1])
-        # self.trueSC = (max(sc2) - 1) * 100
+        self.aParam = 0.00000869251 * self.sigma / self.temp
+        self.asc = (exp(sqrt(4 * self.aParam ** 3 / (27 * self.iKappa * (self.dd * 0.000000001) ** 3))) - 1) * 100
 
         # Calculate each kappa
+        firstAKappa = 0
         for i in range(len(self.dp50List)):
-            ss = self.dp50List[i][1]
-            dp50 = self.dp50List[i][0]
+            ss = float(self.dp50List[i][1])
+            dp50 = float(self.dp50List[i][0])
             rowIndex = int(math.floor(dp50 - 9))
             matchRow = list(lookup.iloc[rowIndex][1:])
             valueRow = list(lookup.iloc[0][1:])
@@ -1210,12 +1235,67 @@ class Controller():
                 b = 0
                 d = 0
             self.appKappa = (ss - (a - (a - b) / (c - d) * c)) / ((a - b) / (c - d))
+            if i == 0:
+                # Calculate the sc Calculation
+                firstAKappa = self.appKappa
+                # Calcualte the first row of scCalcs
+                if len(self.dp50List) > 0:
+                    dList1 = [float(self.dp50List[0][0]) * 0.000000001]
+                for i in range(1000):
+                    dList1.append(dList1[-1] * 1.005)
+
+                # Calcualte the second row of scCalcs
+                sList1 = []
+                firstNum = dList1[0]
+                for i in range(len(dList1)):
+                    aNum = dList1[i]
+                    sList1.append(
+                        (aNum ** 3 - firstNum ** 3) / (aNum ** 3 - firstNum ** 3 * (1 - firstAKappa)) * math.exp(
+                            self.aParam / aNum))
+
+                # Calculate the third colum
+                dList2 = [self.dd * 0.000000001]
+                for i in range(1000):
+                    dList2.append(dList2[-1] * 1.005)
+
+                # Calculate the fourth column
+                sList2 = []
+                firstNum = dList2[0]
+                for i in range(len(dList1)):
+                    aNum = dList2[i]
+                    sList2.append(
+                        (aNum ** 3 - firstNum ** 3) / (aNum ** 3 - firstNum ** 3 * (1 - self.iKappa)) * math.exp(
+                            self.aParam / aNum))
+
+                dList3 = [self.dd2 * 0.000000001]
+                for i in range(1000):
+                    dList3.append(dList3[-1] * 1.005)
+
+                kappaList = []
+                firstNum = dList3[0]
+                for i in range(len(dList3)):
+                    aNum = dList3[i]
+                    kappaList.append(min((aNum ** 3 / firstNum ** 3 - 1) * self.solubility, 1) * self.iKappa2)
+
+                sList3 = []
+                firstNum = dList3[0]
+                for i in range(len(dList1)):
+                    aNum = dList3[i]
+                    if kappaList[i] == 0:
+                        sList3.append(0)
+                    else:
+                        sList3.append(
+                            (aNum ** 3 - firstNum ** 3) / (aNum ** 3 - firstNum ** 3 * (1 - kappaList[i])) * math.exp(
+                                self.aParam / aNum))
+                self.sc = (max(sList2) - 1) * 100
+                self.sc2 = (max(sList3) - 1) * 100
+            self.trueSC = (max(sList1[i:]) - 1) * 100
             self.anaKappa = (4 * self.aParam ** 3) / (27 * (dp50 * 0.000000001) ** 3 * log(ss / 100 + 1) ** 2)
             kDevi = (self.appKappa-self.anaKappa)/self.appKappa * 100
             if ss in self.kappaCalculatedDict.keys():
-                self.kappaCalculatedDict[ss].append([dp50, self.appKappa, self.anaKappa,kDevi])
+                self.kappaCalculatedDict[ss].append([dp50, self.appKappa, self.anaKappa,kDevi,self.trueSC])
             else:
-                self.kappaCalculatedDict[ss] = ([[dp50, self.appKappa, self.anaKappa, kDevi]])
+                self.kappaCalculatedDict[ss] = ([[dp50, self.appKappa, self.anaKappa, kDevi,self.trueSC]])
 
         for aKey in self.kappaCalculatedDict.keys():
             aSSList = self.kappaCalculatedDict[aKey]

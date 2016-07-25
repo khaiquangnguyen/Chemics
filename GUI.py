@@ -138,10 +138,10 @@ class MainWindow(QMainWindow):
         self.centralWidget().graphWidget.individualViews.dNlogView.updateFigure(diaFigure)
 
     def calKappa(self):
-        if self.controller.completedStep >=2:
-            self.mainWindow.controller.makeKappaGraph()
-            self.mainWindow.controller.calKappa()
-            self.centralWidget().switchToKappa()
+        # if self.controller.completedStep >=2:
+        self.controller.calKappa()
+        self.controller.makeKappaGraph()
+        self.centralWidget().switchToKappa()
 
     def updateData(self):
         """
@@ -218,7 +218,6 @@ class ControlPanel(QWidget):
 
     def switchToPeak(self):
         self.clearLayout(self.layout)
-        print "cleare"
         self.infoWidget = PeakAlignDataWidget(self.mainWindow)
         self.graphWidget = graphWidget(self.mainWindow)
         self.layout.addWidget(self.infoWidget)
