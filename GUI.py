@@ -138,10 +138,10 @@ class MainWindow(QMainWindow):
         self.centralWidget().graphWidget.individualViews.dNlogView.updateFigure(diaFigure)
 
     def calKappa(self):
-        # if self.controller.completedStep >=2:
-        self.controller.calKappa()
-        self.controller.makeKappaGraph()
-        self.centralWidget().switchToKappa()
+        if self.controller.completedStep >=2:
+            self.controller.calKappa()
+            self.controller.makeKappaGraph()
+            self.centralWidget().switchToKappa()
 
     def updateData(self):
         """
@@ -185,6 +185,18 @@ class MainWindow(QMainWindow):
 
     def reset(self):
         self.centralWidget().switchToPeak()
+
+    def getKappaVars(self):
+        return (self.controller.sigma, self.controller.temp, self.controller.dd, self.controller.iKappa, self.controller.dd2, self.controller.iKappa2, self.controller.solubility)
+
+    def updateKappaVars(self,sigma,temp,dd1,i1,dd2,i2,solu):
+        self.controller.sigma = sigma
+        self.controller.temp = temp
+        self.controller.dd = dd1
+        self.controller.iKappa = i1
+        self.controller.dd2 = dd2
+        self.controller.iKappa2 = i2
+        self.controller.solubility = solu
 
 class ControlPanel(QWidget):
     def __init__(self, mainWindow = None):

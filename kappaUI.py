@@ -14,16 +14,17 @@ import time
 class KappaTextDataWidget(QWidget):
     def __init__(self, mainWindow=None):
         super(self.__class__,self).__init__(mainWindow)
+        self.mainWindow = mainWindow
         self.layout = QVBoxLayout()  #Vertical layout
-        self.setLayout(self.layout)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.rawDataTable = KappaRawDataTable(mainWindow)
         self.graphDataTable = KappaGraphDataTable(mainWindow)
-        self.layout.addWidget(self.graphDataTable)
-        self.showingGraphData = True
+        # self.showingGraphData = False
         # self.layout.addWidget(self.rawDataTable)
-
+        self.showingGraphData = True
+        self.layout.addWidget(self.graphDataTable)
+        self.setLayout(self.layout)
 
     def resize(self, parentWidth, parentHeight):
         self.setFixedWidth(parentWidth / 4)
@@ -36,18 +37,36 @@ class KappaTextDataWidget(QWidget):
     def updateData(self):
         if self.showingGraphData:
             self.graphDataTable.updateData()
+            self.graphDataTable.resize(self.width(), self.height())
         else:
             self.rawDataTable.updateData()
+            self.rawDataTable.resize(self.width(), self.height())
 
     def changeToGraphDataTable(self):
-        self.layout.removeWidget(self.rawDataTable)
-        self.layout.addWidget(self.graphDataTable)
-        self.showingGraphData = True
+        if not self.showingGraphData:
+            self.clearLayout(self.layout)
+            self.graphDataTable = KappaGraphDataTable(self.mainWindow)
+            self.layout.addWidget(self.graphDataTable)
+            self.showingGraphData = True
+            self.updateData()
 
     def changeToRawDataTable(self):
-        self.layout.removeWidget(self.graphDataTable)
-        self.layout.addWidget(self.rawDataTable)
-        self.showingGraphData = False
+        if self.showingGraphData:
+            self.clearLayout(self.layout)
+            self.rawDataTable = KappaRawDataTable(self.mainWindow)
+            self.layout.addWidget(self.rawDataTable)
+            self.showingGraphData = False
+            self.updateData()
+
+    def clearLayout(self, layout):
+        if layout is not None:
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.deleteLater()
+                else:
+                    self.clearLayout(item.layout())
 
 class KappaRawDataTable(QTableWidget):
     def resize(self, parentWidth, parentHeight):
@@ -74,6 +93,9 @@ class KappaRawDataTable(QTableWidget):
         self.setPalette(palette)
 
     def updateData(self):
+        for i in range(self.rowCount()):
+            self.removeRow(self.rowCount()-1)
+
         self.insertRow(self.rowCount())
         ss = TableHeader('ss')
         self.setCellWidget(self.rowCount() - 1, 0, ss)
@@ -141,6 +163,9 @@ class KappaGraphDataTable(QTableWidget):
         self.setPalette(palette)
 
     def updateData(self):
+        for i in range(self.rowCount()):
+            self.removeRow(self.rowCount() - 1)
+
         dataDict = self.mainWindow.getAlphaPineneDict()
         self.setColumnCount(len(dataDict.keys()) + 1)
         self.headerList = []
@@ -167,7 +192,6 @@ class KappaGraphDataTable(QTableWidget):
         for i in range(0,len(self.headerList)):
             self.insertRow(self.rowCount())
             self.setCellWidget(self.rowCount() - 1, 0, self.headerList[i])
-
         # Insert data
         count = 1
         for aKey in dataDict.keys():
@@ -182,9 +206,6 @@ class KappaGraphDataTable(QTableWidget):
             aCell =  ('% .2f' % dataList[i])
             aCell = SingleTableItem(aCell)
             self.setCellWidget(i, columnPos, aCell)
-
-
-
 
 class KappaGraphDataWidget(QWidget):
     def resize(self, parentWidth, parentHeight):
@@ -204,61 +225,25 @@ class KappaGraphDataWidget(QWidget):
         self.layout.addWidget(self.totalView)
         self.layout.addWidget(self.controlArea)
 
-
 class KappaControlTabWidget(QWidget):
     def resize(self, parentWidth, parentHeight):
         self.setFixedHeight(parentHeight * 1 / 10)
         self.setFixedWidth(parentWidth)
-        self.nextButton.resize(self.width(),self.height())
-        self.previousButton.resize(self.width(),self.height())
-        self.showMinGraphButton.resize(self.width(), self.height())
-        self.optimizeButton.resize(self.width(), self.height())
-        self.showTotalGraphButton.resize(self.width(), self.height())
-        self.calKappaButton.resize(self.width(), self.height())
-        self.addSecond.resize(self.width(), self.height())
-        self.subSecond.resize(self.width(), self.height())
+        self.graphDataButton.resize(self.width(),self.height())
+        self.rawDataButton.resize(self.width(), self.height())
 
     def __init__(self, mainWindow = None):
         self.mainWindow = mainWindow
         QWidget.__init__(self)
-        self.layout = QGridLayout()
-        self.layout.setVerticalSpacing(10)
-        self.layout.setHorizontalSpacing(5)
+        self.layout = QHBoxLayout()
         self.layout.setContentsMargins(0, 10, 60, 10)
 
-        self.previousButton = CustomButton("Previous Run", mainWindow)
-        self.nextButton = CustomButton("Next Run", mainWindow)
-        self.showMinGraphButton = CustomButton("Minimum Graph ", mainWindow,1)
-        self.showTotalGraphButton = CustomButton("Complete Graph", mainWindow,1)
-        self.optimizeButton = CustomButton("Fit Sigmoid", mainWindow,1)
-        self.calKappaButton = CustomButton("Calculate Kappa", mainWindow, 1)
-        self.addSecond = CustomButton("+1 second", mainWindow)
-        self.subSecond = CustomButton("-1 second", mainWindow)
-        self.previousButton.clicked.connect(self.previousButtonClicked)
-        self.nextButton.clicked.connect(self.nextButtonClicked)
-        self.optimizeButton.clicked.connect(self.optimizeButtonClicked)
-        self.calKappaButton.clicked.connect(self.calKappaButtonClicked)
-
-        self.layout.setColumnStretch(0,0)
-
-        self.layout.addWidget(self.showMinGraphButton, 2, 1, 3, 1,alignment = 2)
-        self.layout.addWidget(self.showTotalGraphButton, 2, 2, 3, 1, alignment = 1)
-
-        self.layout.addWidget(self.previousButton,4,3,4,1)
-        self.layout.addWidget(self.nextButton,4,4,4,1)
-        self.layout.addWidget(self.subSecond, 0, 3, 3, 1)
-        self.layout.addWidget(self.addSecond, 0, 4, 3, 1)
-
-        self.layout.addWidget(self.optimizeButton,2,5,3,1, alignment = 2)
-        self.layout.addWidget(self.calKappaButton, 2, 6, 3, 1, alignment = 0)
-        self.layout.addWidget(QWidget(),2,7,3,1)
-
-        for i in range(self.layout.columnCount()):
-            self.layout.setColumnStretch(i,1)
-            self.layout.setColumnMinimumWidth(i,self.width() / 8)
-        for i in range(self.layout.rowCount()):
-            self.layout.setRowStretch(i, 1)
-            self.layout.setRowMinimumHeight(i,self.height()/7)
+        self.rawDataButton = CustomButton("Raw Data", mainWindow)
+        self.graphDataButton = CustomButton("Graph Data", mainWindow)
+        self.rawDataButton.clicked.connect(self.rawDataButtonClicked)
+        self.graphDataButton.clicked.connect(self.graphButtonClicked)
+        self.layout.addWidget(self.rawDataButton)
+        self.layout.addWidget(self.graphDataButton)
         self.setLayout(self.layout)
 
         self.setAutoFillBackground(True)
@@ -266,17 +251,12 @@ class KappaControlTabWidget(QWidget):
         palette.setColor(QPalette.Background, settings.controlAreaBackgroundColor)
         self.setPalette(palette)
 
-    def nextButtonClicked(self):
-        self.mainWindow.updatePeak(min(self.mainWindow.getPeak() + 1, self.mainWindow.getMaxPeak() - 2))
+    def graphButtonClicked(self):
+        self.mainWindow.centralWidget().infoWidget.changeToGraphDataTable()
 
-    def previousButtonClicked(self):
-        self.mainWindow.updatePeak(max(0, self.mainWindow.getPeak() - 1))
 
-    def optimizeButtonClicked(self):
-        self.mainWindow.controller.optimizationProcedure()
-
-    def calKappaButtonClicked(self):
-        self.mainWindow.centralWidget().switchToKappa()
+    def rawDataButtonClicked(self):
+        self.mainWindow.centralWidget().infoWidget.changeToRawDataTable()
 
 
 class KappaFigureCanvas(FigureCanvas):

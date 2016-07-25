@@ -10,6 +10,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 import time
 from InputDialog import *
+from KappaVarConfirmDialog import *
 
 class PeakAlignDataWidget(QWidget):
     def __init__(self, mainWindow=None):
@@ -229,7 +230,19 @@ class controlArea(QWidget):
         self.mainWindow.controller.optimizationProcedure()
 
     def calKappaButtonClicked(self):
-        self.mainWindow.calKappa()
+        kappaVars = self.mainWindow.getKappaVars()
+        sig = kappaVars[0]
+        temp = kappaVars[1]
+        dd1 = kappaVars[2]
+        iKappa1 = kappaVars[3]
+        dd2 = kappaVars[4]
+        iKappa2 = kappaVars[5]
+        solu = kappaVars[6]
+        confirmVarDialog = KappaVarConfirmDialog(sig,temp,dd1,iKappa1,dd2,iKappa2,solu,self.mainWindow)
+        if confirmVarDialog.exec_() == QDialog.Accepted:
+            (sig,temp,dd1,iKappa1,dd2,iKappa2,solu) = confirmVarDialog.getData()
+            self.mainWindow.updateKappaVars(sig,temp,dd1,iKappa1,dd2,iKappa2,solu)
+            self.mainWindow.calKappa()
 
 class totalView(FigureCanvas):
     def resize(self, parentWidth, parentHeight):
