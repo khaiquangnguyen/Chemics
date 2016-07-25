@@ -1206,15 +1206,17 @@ class Controller():
             self.solubility = solu
 
     def calKappa(self):
-        self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
-        for i in range(len(self.dp50List)):
-            self.usablePeakList.append(True)
+        # self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
+        # for i in range(len(self.dp50List)):
+        #     self.usablePeakList.append(True)
 
+        self.makeProgress("Calculating Kappa...", maxValue=len(self.dp50List) + 3)
+        self.makeProgress("Reading in lookup table")
         self.kappaExcel = pandas.read_excel("kCal.xlsx", header=None, sheetname=["lookup"])
         lookup = self.kappaExcel["lookup"]
+        self.makeProgress("Calculating basic consts...")
         self.aParam = 0.00000869251 * self.sigma / self.temp
         self.asc = (exp(sqrt(4 * self.aParam ** 3 / (27 * self.iKappa * (self.dd * 0.000000001) ** 3))) - 1) * 100
-
         # Calculate each kappa
         firstAKappa = 0
         scCalcs = False
@@ -1239,6 +1241,7 @@ class Controller():
                 d = 0
             self.appKappa = (ss - (a - (a - b) / (c - d) * c)) / ((a - b) / (c - d))
             if not scCalcs:
+                self.makeProgress("Calculating sc...")
                 # Calculate the sc Calculation
                 firstAKappa = self.appKappa
                 # Calcualte the first row of scCalcs
@@ -1295,6 +1298,8 @@ class Controller():
                 self.sc = (max(sList2) - 1) * 100
                 self.sc2 = (max(sList3) - 1) * 100
                 scCalcs = True
+
+            self.makeProgress("Processing peak" + str(i + 1))
             self.trueSC = (max(sList1[i:]) - 1) * 100
             self.anaKappa = (4 * self.aParam ** 3) / (27 * (dp50 * 0.000000001) ** 3 * log(ss / 100 + 1) ** 2)
             kDevi = (self.appKappa-self.anaKappa)/self.appKappa * 100
@@ -1323,6 +1328,7 @@ class Controller():
             meanDev = average(meanDevList)
             devMean = (meanApp - meanAna) / meanApp * 100
             self.alphaPineneDict[aKey] = (meanDp, stdDp, meanApp, stdApp, meanAna, stdAna, meanDev, devMean)
+        self.makeProgress(complete=True)
 
     def run(self):
         """
