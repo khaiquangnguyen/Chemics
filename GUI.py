@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
         self.centralWidget().infoWidget.infoArea.updateData()
 
     def updatePeakInfo(self):
-        self.centralWidget().infoWidget.infoArea.updatePeakInfo()
+        self.centralWidget().infoWidget.infoArea.updateBasicPeakInfo()
 
     def updatePeak(self,peak):
         self.controller.updatePeak(peak)

@@ -566,19 +566,17 @@ class Controller():
             self.ccnNormalizedList = normalizeList(dNdLogDpList)
             self.usablePeakList[self.currPeak] = True
         except:
-            # Make the peak invalid
-            self.usablePeakList[self.currPeak] = False
+            raise OptimizationError()
 
     def initCorrectCharges(self):
         """
         Initiate the correct charge procedure
         """
         # If the peak doesn't have good alignment, do nothing
-        if self.minPosCCNCList[self.currPeak] and self.minPosSMPSList[self.currPeak]:
-            self.cnFixedList = self.cnList[:]
-            self.ccnFixedList = self.ccnList[:]
-            self.gCcnList = self.ccnFixedList[:]
-            self.gCnList = self.cnFixedList[:]
+        self.cnFixedList = self.cnList[:]
+        self.ccnFixedList = self.ccnList[:]
+        self.gCcnList = self.ccnFixedList[:]
+        self.gCnList = self.cnFixedList[:]
 
     def correctCharges(self):
         """
@@ -586,8 +584,6 @@ class Controller():
         """
         try:
             # If the peak doesn't have good alignment, do nothing
-            if self.minPosSMPSList[self.currPeak] is None or self.minPosCCNCList[self.currPeak] is None:
-                return
             asymp = 99999
             newList = []
             epsilon = 0.0000000001
@@ -670,17 +666,13 @@ class Controller():
             self.gCnList = self.cnFixedList[:]
             self.usablePeakList[self.currPeak] = True
         except:
-            self.usablePeakList[self.currPeak] = False
+            raise OptimizationError()
 
     def getConstants(self, minDp = None, minDPAsym = None, maxDpAsym = None):
         """
         Acquire the necessary constants from the data to perform sigmodal fit
         """
         try:
-            # If nothing to get constants from
-            if self.minPosCCNCList[self.currPeak] is None or self.minPosSMPSList[self.currPeak] is None:
-                return
-
             if minDp and minDPAsym and maxDpAsym:
                 self.minDp = minDp
                 self.minDpAsym = minDPAsym
@@ -727,14 +719,14 @@ class Controller():
                 else:
                     stableThreshold = 0.25
 
-                # determine maxDplen(self.ccncSigList)
-                for i in range(minDpAsymPos + 5, len(self.ccncSigList)):
-                    if self.ccncSigList[i] > 1.3:
-                        self.maxDpAsym = self.diameterList[i]
-                        break
-                    elif abs(self.ccncSigList[i] - self.ccncSigList[i-1]) > 2 * stableThreshold:
-                        self.maxDpAsym = self.diameterList[i-1]
-                        break
+            # determine maxDplen(self.ccncSigList)
+            for i in range(minDpAsymPos + 5, len(self.ccncSigList)):
+                if self.ccncSigList[i] > 1.3:
+                    self.maxDpAsym = self.diameterList[i]
+                    break
+                elif abs(self.ccncSigList[i] - self.ccncSigList[i-1]) > 2 * stableThreshold:
+                    self.maxDpAsym = self.diameterList[i-1]
+                    break
 
             self.maxDp = self.maxDpAsym
             # Get the data
@@ -753,32 +745,15 @@ class Controller():
                     self.ccncnSimList.append(n)
                 else:
                     self.ccncnSimList.append(self.ccncnSimList[i - 1])
-
             self.usablePeakList[self.currPeak] = True
         except:
-            self.usablePeakList[self.currPeak] = False
+            raise OptimizationError()
 
     def optimizePeak(self):
         """
         Perform optimization, which is basically sigmodal fit
         """
         try:
-            if not self.minPosCCNCList[self.currPeak] or not self.minPosSMPSList[self.currPeak]:
-                self.b = 0
-                self.d = 0
-                self.c = 0
-                if len(self.bList) >= self.currPeak:
-                    self.bList.append(0)
-                    self.dList.append(0)
-                    self.cList.append(0)
-                    self.dp50List.append((0, 0))
-                else:
-                    self.bList[self.currPeak] = 0
-                    self.dList[self.currPeak] = 0
-                    self.cList[self.currPeak] = 0
-                    self.dp50List[self.currPeak]= (0,0)
-                return
-
             xList = []
             yList = []
             for i in range(len(self.diameterList)):
@@ -800,7 +775,7 @@ class Controller():
                     self.ccncnSimList.append(self.ccncnSimList[i - 1])
             self.usablePeakList[self.currPeak] = True
         except:
-            self.usablePeakList[self.currPeak] = False
+            raise OptimizationError()
 
     # -------------Produce graphs ------------------
 
@@ -862,14 +837,20 @@ class Controller():
         plt.ylabel("CCN/CN")
         self.dryDiaGraphList.append(plt.gcf())
 
-    def makeFullDryDiameterGraph(self):
+    def makeFullDryDiameterGraph(self, newFigure = None):
         """
         Make complete graph of the dry diameter after optimization and sigmodal fit
         """
         if not self.minPosCCNCList[self.currPeak] or not self.minPosSMPSList[self.currPeak]:
-            self.makeCCNGraph()
+            self.makeCCNGraph(newFigure)
             return
-        figure = plt.figure(facecolor=settings.graphBackgroundColor)
+
+        if newFigure is None:
+            figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        else:
+            figure = newFigure
+            figure.clf()
+            plt.figure(figure.number)
         plt.axes(frameon=False)
         plt.grid(color='0.5')
         plt.axhline(0, color='0.6', linewidth=4)
@@ -921,7 +902,10 @@ class Controller():
             self.makeInitialGraphs()
             self.makeProgress()
         except OptimizationError:
-            print "There is an error on peak"
+            # Make the peak invalid
+            self.minPosCCNCList[self.currPeak] = None
+            self.minPosSMPSList[self.currPeak] = None
+            self.usablePeakList[self.currPeak] = False
 
     def singlePeakOptimizationProcedure(self):
         """
@@ -929,60 +913,48 @@ class Controller():
         :return:
         """
         try:
-            self.ccncSigList = []
-            self.preparePeakData()
-            self.makeProgress()
-            removeSmallCcn(self.ccnList, self.minCcn)
-            self.makeProgress()
-            self.initCorrectCharges()
-            for i in range(5):
-                self.correctCharges()
+            # If a peak is invalid, then do nothing
+            if not self.minPosCCNCList[self.currPeak] or not self.minPosSMPSList[self.currPeak]:
+                raise OptimizationError()
+            else:
+                self.ccncSigList = []
+                self.preparePeakData()
                 self.makeProgress()
-            for i in range(len(self.ccnFixedList)):
-                self.ccncSigList.append(self.ccnFixedList[i] / self.cnFixedList[i])
-            self.makeProgress()
-            self.getConstants()
-            if len(self.minDpList) >= self.currPeak:
-                self.minDpList.append(self.minDp)
-                self.minDpAsymList.append(self.minDpAsym)
-                self.maxDpAsymList.append(self.maxDpAsym)
-            else:
-                self.minDpList[self.currPeak] = self.minDp
-                self.minDpAsymList[self.currPeak] = self.minDpAsym
-                self.maxDpAsymList[self.currPeak] = self.maxDpAsym
-
-            self.makeProgress()
-            self.optimizePeak()
-            if len(self.bList) >= self.currPeak:
-                self.bList.append(self.b)
-                self.dList.append(self.d)
-                self.cList.append(self.c)
-                self.dp50List.append((self.d, self.ssList[self.currPeak]))
-            else:
-                self.bList=self.b
-                self.dList=self.d
-                self.cList=self.c
-                self.dp50List=(self.d, self.ssList[self.currPeak])
-
-            if len(self.ccnNormalizedFullList) <= (self.currPeak+1) * self.timeFrame:
-                self.ccnNormalizedFullList.append(self.ccnNormalizedList)
-                self.ccncnFullList.append(self.ccncnList)
-                self.ccncSigFullList.append(self.ccncSigList)
-                self.ccncnSimFullList.append(self.ccncnSimList)
-            else:
-                startTime = self.currPeak * self.timeFrame
-                endTime = self.currPeak * self.timeFrame
-                self.ccnNormalizedFullList[startTime:endTime] = self.ccnNormalizedList
-                self.ccncnFullList[startTime:endTime] = self.ccncnList
-                self.ccncSigFullList[startTime:endTime] = self.ccncSigList
-                self.ccncnSimFullList[startTime:endTime] = self.ccncnSimList
-
-            self.makeProgress()
-            self.makeOptimizedGraphs()
-            self.makeProgress()
+                removeSmallCcn(self.ccnList, self.minCcn)
+                self.makeProgress()
+                self.initCorrectCharges()
+                for i in range(5):
+                    self.correctCharges()
+                    self.makeProgress()
+                for i in range(len(self.ccnFixedList)):
+                    self.ccncSigList.append(self.ccnFixedList[i] / self.cnFixedList[i])
+                self.makeProgress()
+                self.getConstants()
+                self.makeProgress()
+                self.optimizePeak()
+                self.makeProgress()
+                self.makeOptimizedGraphs()
+                self.makeProgress()
         except OptimizationError:
-            # self.view.showError("The data is not optimizable. No optimal soluation found!")
-            print "There is an error on peak"
+            # Disable the peak
+            self.usablePeakList[self.currPeak] = False
+            # Add empty data to the list
+            self.bList.append(0)
+            self.dList.append(0)
+            self.cList.append(0)
+            self.dp50List.append((0, 0))
+            self.minDpList.append(0)
+            self.minDpAsymList.append(0)
+            self.maxDpAsymList.append(0)
+        else:
+            # Store data
+            self.minDpList.append(self.minDp)
+            self.minDpAsymList.append(self.minDpAsym)
+            self.maxDpAsymList.append(self.maxDpAsym)
+            self.bList.append(self.b)
+            self.dList.append(self.d)
+            self.cList.append(self.c)
+            self.dp50List.append((self.d, self.ssList[self.currPeak]))
 
     # --------------General processing procedure-------------
 
@@ -1076,7 +1048,6 @@ class Controller():
             self.optimized = True
 
             for i in range(0, self.maxPeak):
-
                 self.currPeak = i
                 self.makeProgress("Processing peak " + str(i + 1), value=0)
                 self.singlePeakOptimizationProcedure()
@@ -1098,10 +1069,14 @@ class Controller():
             self.b = self.bList[self.currPeak]
             self.d = self.dList[self.currPeak]
             self.c = self.cList[self.currPeak]
+            self.minDpAsym = self.minDpAsymList[self.currPeak]
+            self.minDp = self.minDpList[self.currPeak]
+            self.maxDpAsym = self.maxDpAsymList[self.currPeak]
+            self.superSaturation = self.dp50List[self.currPeak][1]
+            self.dp50 = self.dp50List[self.currPeak][0]
+
         self.adjustedGraph = self.adjustedGraphList[self.currPeak]
         self.dryDiaGraph = self.dryDiaGraphList[self.currPeak]
-        self.superSaturation = self.ssList[self.currPeak]
-        self.dp50 = self.d
         self.dp50LessCount = 0
         self.dp50MoreCount = 0
         for i in self.diameterList:
@@ -1122,7 +1097,10 @@ class Controller():
         self.view.updateTotalViewFigure(self.minCompareGraph)
         self.currentPoint.set_xdata(numpy.asarray(self.minPosSMPSList)[self.currPeak])
         self.currentPoint.set_ydata(numpy.asarray(self.minPosCCNCList)[self.currPeak])
-        self.view.updatePeakInfo()
+        if self.optimized:
+            self.view.updateBasicPeakInfo()
+        else:
+            self.view.updateSigFitPeakInfo()
 
     def shiftDataCCNC(self, forward=True):
         # If the peak is invalid, do nothing
@@ -1322,66 +1300,69 @@ class Controller():
         self.usablePeakList[self.currPeak] = True
 
     def reOptimization(self,minDp,minDpAsym,maxDpAsym):
-        # Enable the peak
+        """
+        Re-optimize the data after changing constants
+        :param minDp:
+        :param minDpAsym:
+        :param maxDpAsym:
+        :return:
+        """
         self.makeProgress("Re-Optimizaing peak" + str(self.currPeak + 1), maxValue=6)
         self.enablePeak()
         self.ccncSigList = []
-        # Get other data
-        self.preparePeakData()
-        # Get Sig list data
-        startTime = self.currPeak * self.timeFrame
-        endTime = startTime + self.timeFrame
-        removeSmallCcn(self.ccnList, self.minCcn)
-        self.makeProgress()
-        self.ccncSigList = self.ccncSigFullList[startTime:endTime]
-        self.makeProgress()
-        self.getConstants(minDp,minDpAsym,maxDpAsym)
+        # Get data
+        try:
+            self.preparePeakData()
+            self.makeProgress()
+            removeSmallCcn(self.ccnList, self.minCcn)
+            self.makeProgress()
+            self.initCorrectCharges()
+            for i in range(5):
+                self.correctCharges()
+                self.makeProgress()
+            for i in range(len(self.ccnFixedList)):
+                self.ccncSigList.append(self.ccnFixedList[i] / self.cnFixedList[i])
+            self.makeProgress()
+            # Update the new constants and reoptimize
+            self.getConstants(minDp, minDpAsym, maxDpAsym)
+            self.makeProgress()
+            self.optimizePeak()
+            self.makeProgress()
+            # Remake the graph
+            figure = self.dryDiaGraph
+            self.makeFullDryDiameterGraph(figure)
 
-        # Replace the old data
-        if len(self.minDpList) >= self.currPeak:
-            self.minDpList.append(self.minDp)
-            self.minDpAsymList.append(self.minDpAsym)
-            self.maxDpAsymList.append(self.maxDpAsym)
-        else:
+            # Update the old data
             self.minDpList[self.currPeak] = self.minDp
             self.minDpAsymList[self.currPeak] = self.minDpAsym
             self.maxDpAsymList[self.currPeak] = self.maxDpAsym
+            self.bList[self.currPeak] = self.b
+            self.dList[self.currPeak] = self.d
+            self.cList[self.currPeak] = self.c
+            self.dp50List[self.currPeak] = (self.d, self.ssList[self.currPeak])
+            self.updatePeakData()
+            self.makeProgress(complete=True)
+        except:
+            # Disable the peak
+            self.usablePeakList[self.currPeak] = False
+            self.minDpList[self.currPeak] = 0
+            self.minDpAsymList[self.currPeak] = 0
+            self.maxDpAsymList[self.currPeak] = 0
+            self.bList[self.currPeak] = 0
+            self.dList[self.currPeak] = 0
+            self.cList[self.currPeak] = 0
+            self.dp50List[self.currPeak] = (0, 0)
+            self.updatePeakData()
+            self.makeProgress(complete=True)
 
-        self.makeProgress()
-        self.optimizePeak()
-        if len(self.bList) >= self.currPeak:
-            self.bList.append(self.b)
-            self.dList.append(self.d)
-            self.cList.append(self.c)
-            self.dp50List.append((self.d, self.ssList[self.currPeak]))
+
+    def removePeak(self):
+        if not self.optimized:
+            self.minPosSMPSList[self.currPeak] = None
+            self.minPosCCNCList[self.currPeak] = None
+            self.usablePeakList[self.currPeak] = False
         else:
-            self.bList = self.b
-            self.dList = self.d
-            self.cList = self.c
-            self.dp50List = (self.d, self.ssList[self.currPeak])
-
-        if len(self.ccnNormalizedFullList) <= (self.currPeak + 1) * self.timeFrame:
-            self.ccnNormalizedFullList.append(self.ccnNormalizedList)
-            self.ccncnFullList.append(self.ccncnList)
-            self.ccncSigFullList.append(self.ccncSigList)
-            self.ccncnSimFullList.append(self.ccncnSimList)
-        else:
-            startTime = self.currPeak * self.timeFrame
-            endTime = self.currPeak * self.timeFrame
-            self.ccnNormalizedFullList[startTime:endTime] = self.ccnNormalizedList
-            self.ccncnFullList[startTime:endTime] = self.ccncnList
-            self.ccncSigFullList[startTime:endTime] = self.ccncSigList
-            self.ccncnSimFullList[startTime:endTime] = self.ccncnSimList
-        self.makeProgress()
-
-        # Remake the graph
-        figure = self.dryDiaGraph
-        self.makeCCNGraph(figure)
-        # Update the graph in view
-        self.updatePeakData()
-
-
-        #
+            self.usablePeakList[self.currPeak] = False
 
 def main():
     controller = Controller(False)
