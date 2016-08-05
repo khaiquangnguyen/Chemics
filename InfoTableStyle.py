@@ -10,22 +10,22 @@ import time
 
 
 class TableItem(QWidget):
-    def __init__(self,field,message):
+    def __init__(self,field,message, color = None):
         QWidget.__init__(self)
         self.layout = QVBoxLayout()
         margin = self.height() / 400
         self.layout.setContentsMargins(0, margin, 0, margin)
-        self.content = InnerTableItem(field, message)
+        self.content = InnerTableItem(field, message, color)
         self.layout.addWidget(self.content)
         self.setLayout(self.layout)
 
 class InnerTableItem(QWidget):
-    def __init__(self,field,message):
+    def __init__(self,field,message, color):
         QWidget.__init__(self)
         self.layout = QGridLayout()
         self.layout.setHorizontalSpacing(5)
         self.fieldText = FieldText(field)
-        self.infoText = InfoText(message)
+        self.infoText = InfoText(message, color)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addWidget(self.fieldText,0,0,1,1)
         self.layout.addWidget(self.infoText,0,1,1,3)
@@ -115,11 +115,14 @@ class FieldText(QLabel):
         self.setFont(font)
 
 class InfoText(QLabel):
-    def __init__(self, message):
+    def __init__(self, message, color = None):
         QLabel.__init__(self, message)
         self.setAutoFillBackground(True)
         palette = QPalette()
-        palette.setColor(QPalette.Base, settings.infoAreaItemColor)
+        if not color:
+            palette.setColor(QPalette.Base, settings.infoAreaItemColor)
+        else:
+            palette.setColor(QPalette.Base, color)
         palette.setColor(QPalette.Text, settings.infoAreaFontColor)
         self.setPalette(palette)
         self.setContentsMargins(10, 0, 0, 0)

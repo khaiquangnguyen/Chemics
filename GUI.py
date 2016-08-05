@@ -155,8 +155,8 @@ class MainWindow(QMainWindow):
     def updateSigFitPeakInfo(self):
         self.centralWidget().infoWidget.infoTable.updateSigFitPeakInfo()
 
-    def updatePeak(self,peak):
-        self.controller.updatePeak(peak)
+    def switchToPeak(self, peak):
+        self.controller.switchToPeak(peak)
 
     def getPeak(self):
         return self.controller.currPeak
@@ -178,10 +178,10 @@ class MainWindow(QMainWindow):
         self.centralWidget().graphWidget.totalView.updateFigure(aFigure)
 
     def addSecond(self):
-        self.controller.shiftDataCCNC()
+        self.controller.shiftOneSecond()
 
     def subSecond(self):
-        self.controller.shiftDataCCNC(forward=False)
+        self.controller.shiftOneSecond(forward=False)
 
     def reset(self):
         self.centralWidget().switchToPeak()
@@ -197,6 +197,18 @@ class MainWindow(QMainWindow):
         self.controller.dd2 = dd2
         self.controller.iKappa2 = i2
         self.controller.solubility = solu
+
+    def InputFlowRate(self):
+        returnValue = self.controller.flowRate
+        while True:
+            input = QInputDialog.getDouble(self, self.tr("Get Flow Rate"),self.tr("Q(flow rate)"),0.3)
+            if input[1] == True:
+                returnValue = float(input[0])
+                break
+        return returnValue
+
+    def getFlowRate(self):
+        return self.controller.flowRate
 
 class ControlPanel(QWidget):
     def __init__(self, mainWindow = None):

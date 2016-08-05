@@ -61,10 +61,11 @@ class PeakAlignDataTable(QTableWidget):
         self.addMessage("Time frame",self.mainWindow.controller.startTimeEntries[0] + " to " + self.mainWindow.controller.endTimeEntries[-1])
         self.addMessage("Time per run",self.mainWindow.controller.timeFrame)
         self.addMessage("Total run",self.mainWindow.getMaxPeak())
+        self.addMessage("CPC", self.mainWindow.getFlowRate())
 
     def updateBasicPeakInfo(self):
-        if self.rowCount() > 5:
-            for i in range(self.rowCount() - 5):
+        if self.rowCount() > 6:
+            for i in range(self.rowCount() - 6):
                 self.removeRow(self.rowCount()-1)
         header = TableHeader("Basic Peak Information")
         self.insertRow(self.rowCount())
@@ -73,13 +74,13 @@ class PeakAlignDataTable(QTableWidget):
         if self.mainWindow.controller.minPosCCNCList[currPeak] and self.mainWindow.controller.minPosCCNCList[currPeak]:
             self.addMessage("Status", "Valid for curve fit")
         else:
-            self.addMessage("Status", "Invalid for curve fit")
+            self.addMessage("Status", "Invalid for curve fit", color='#EF5350')
         self.addMessage("Current run",self.mainWindow.getPeak() + 1)
         self.addMessage("Saturation",self.mainWindow.controller.superSaturation)
 
     def updateSigFitPeakInfo(self):
-        if self.rowCount() > 5:
-            for i in range(self.rowCount() - 5):
+        if self.rowCount() > 6:
+            for i in range(self.rowCount() - 6):
                 self.removeRow(self.rowCount() - 1)
 
         # Add basic information data
@@ -90,7 +91,7 @@ class PeakAlignDataTable(QTableWidget):
         if self.mainWindow.controller.minPosCCNCList[currPeak] and self.mainWindow.controller.minPosCCNCList[currPeak]:
             self.addMessage("Status", "Valid for curve fit")
         else:
-            self.addMessage("Status", "Invalid for curve fit")
+            self.addMessage("Status", "Invalid for curve fit",  color='#EF5350')
         self.addMessage("Current run", self.mainWindow.getPeak() + 1)
         self.addMessage("Saturation", self.mainWindow.controller.superSaturation)
 
@@ -99,13 +100,13 @@ class PeakAlignDataTable(QTableWidget):
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         currPeak = self.mainWindow.getPeak()
-        if self.mainWindow.controller.usablePeakList[currPeak]:
+        if self.mainWindow.controller.usableForKappaCalList[currPeak]:
             self.addMessage("Status", "Valid for Kappa Cal")
         else:
-            self.addMessage("Status", "Invalid for Kappa Cal")
+            self.addMessage("Status", "Invalid for Kappa Cal",  color='#EF5350')
         self.addMessage('minDp',self.mainWindow.controller.minDp)
         self.addMessage('minDpAsym', self.mainWindow.controller.minDpAsym)
-        self.addMessage('maxDp/DpAsym', self.mainWindow.controller.maxDpAsym)
+        self.addMessage('maxDpAsym', self.mainWindow.controller.maxDpAsym)
         self.addMessage("dp50", self.mainWindow.controller.dp50)
         self.addMessage("<dp50 counts",self.mainWindow.controller.dp50LessCount)
         self.addMessage(">dp50 counts",self.mainWindow.controller.dp50MoreCount)
@@ -113,10 +114,10 @@ class PeakAlignDataTable(QTableWidget):
         self.addMessage("dp50+20",self.mainWindow.controller.dp50Plus20)
 
 
-    def addMessage(self, field,message):
+    def addMessage(self, field,message, color = None):
         ##### add code here to process the message before printing
         message = str(message)
-        item = TableItem(field, message)
+        item = TableItem(field, message, color)
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount()-1,0,item)
 
@@ -164,7 +165,7 @@ class controlArea(QWidget):
 
         self.previousButton = CustomButton("Previous Run", mainWindow)
         self.nextButton = CustomButton("Next Run", mainWindow)
-        self.removePeak = CustomButton("Ignore Peak", mainWindow, 1)
+        self.removePeak = CustomButton("Disable Peak", mainWindow, 1)
         self.updateSigData = CustomButton("Update Sig Vars", mainWindow, 1)
         self.optimizeButton = CustomButton("Fit Sigmoid", mainWindow,1)
         self.calKappaButton = CustomButton("Calculate Kappa", mainWindow, 1)
@@ -205,7 +206,7 @@ class controlArea(QWidget):
         self.setPalette(palette)
 
     def IgnorePeakClicked(self):
-        self.mainWindow.controller.removePeak()
+        self.mainWindow.controller.disablePeak()
 
     def updateSigVarsClicked(self):
         updateDialog = InputForm(self.mainWindow)
@@ -221,10 +222,10 @@ class controlArea(QWidget):
         self.mainWindow.subSecond()
 
     def nextButtonClicked(self):
-        self.mainWindow.updatePeak(min(self.mainWindow.getPeak() + 1, self.mainWindow.getMaxPeak() - 1))
+        self.mainWindow.switchToPeak(min(self.mainWindow.getPeak() + 1, self.mainWindow.getMaxPeak() - 1))
 
     def previousButtonClicked(self):
-        self.mainWindow.updatePeak(max(0, self.mainWindow.getPeak() - 1))
+        self.mainWindow.switchToPeak(max(0, self.mainWindow.getPeak() - 1))
 
     def optimizeButtonClicked(self):
         self.mainWindow.controller.optimizationProcedure()

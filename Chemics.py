@@ -50,8 +50,6 @@ class Controller():
         self.smpsFile = None
         # The single ccnc file which contains the data, created by combining all the ccn files
         self.ccncFile = None
-        # The temporary files used to store the data needed for the program to function
-        self.tempFolder = tempfile.mkdtemp('Temp')
         # The list of start time entries
         self.startTimeEntries = None
         # the list of end time entries
@@ -83,7 +81,10 @@ class Controller():
         # If the processing is cancelled
         self.cancel = False
 
-        # Necessary information
+        # Variable needed for peak alignment
+        self.flowRate = 0.3
+
+        # variables to store the data
         self.ccnList = None
         self.cnList = None
         self.ccnFixedList = None
@@ -95,12 +96,7 @@ class Controller():
         self.diameterMidpointList = []
         self.ccncnSimList = []
 
-        self.ccnNormalizedFullList = []
-        self.ccncnFullList = []
-        self.ccncnSimFullList = []
-        self.ccncSigFullList = []
-
-        # Variables for peak analysis
+        # Variables for peak analysis/optimization/sigmodal fit
         self.b = 0
         self.d = 0
         self.c = 0
@@ -122,8 +118,10 @@ class Controller():
         self.dList = []
         self.cList = []
         self.dp50List = []
+        self.dp50WetList = []
+        self.dp50Plus20List = []
 
-        # Graph variables
+        # Vars for graphs
         self.adjustedGraph = None
         self.dryDiaGraph = None
         self.minCompareGraph = None
@@ -133,7 +131,7 @@ class Controller():
         self.minPosSMPSList = []
         self.minPosCCNCList = []
 
-        # Variables for calculating kappa
+        # Vars for kappa
         self.sigma = 0.072
         self.temp = 298.15
         self.aParam = 0.00000869251 * self.sigma / self.temp
@@ -151,10 +149,14 @@ class Controller():
         self.kappaExcel = None
         self.shiftList = []
 
+        # Dicts to store kappa values
         self.kappaCalculatedDict = {}
         self.alphaPineneDict = {}
+
+        # Store the index of the current peak in the data - the first point of the peak
         self.peakPositionInData = []
-        self.usablePeakList = []
+        # State of a peak, whether usable to calculate kappa or not
+        self.usableForKappaCalList = []
 
     #-------------File processing------------------
 
@@ -192,6 +194,14 @@ class Controller():
             raise FileNotFoundError()
 
     # -------------General data processing------------------
+
+    def getFlowRate(self):
+        """
+        Get the flow rate of the data from user input
+        """
+        self.flowRate = self.view.InputFlowRate()
+        print self.flowRate
+        self.flowRate = 1/(self.flowRate*1000/60)
 
     def getRawDataFromFiles(self):
         """
@@ -407,7 +417,7 @@ class Controller():
         Calculate the stretch factor of the ccnc measurement
         """
         try:
-            self.usablePeakList = []
+            self.usableForKappaCalList = []
             self.minPosCCNCList = []
             self.minPosSMPSList = []
             additionalDataCount = int(self.timeFrame / 2)
@@ -427,7 +437,7 @@ class Controller():
                 if minPosSMPS == -1:
                     self.minPosSMPSList.append(None)
                     self.minPosCCNCList.append(None)
-                    self.usablePeakList.append(False)
+                    self.usableForKappaCalList.append(False)
                     minPosSMPS = 0
                     minPosCCNC = 0
                 else:
@@ -437,11 +447,11 @@ class Controller():
                     if minPosCCNC == -1:
                         self.minPosSMPSList[-1] = None
                         self.minPosCCNCList.append(None)
-                        self.usablePeakList.append(False)
+                        self.usableForKappaCalList.append(False)
                         minPosSMPS = 0
                         minPosCCNC = 0
                     else:
-                        self.usablePeakList.append(True)
+                        self.usableForKappaCalList.append(True)
                         shiftFactor = shiftFactor + minPosCCNC - minPosSMPS
                         if currPeak == 0:
                             self.minPosCCNCList.append(minPosSMPS)
@@ -489,16 +499,24 @@ class Controller():
         figure.canvas.mpl_connect('pick_event', self.onPick)
 
         # Prepare the data
-        tempSMPSPeak = []
-        tempCCNCList = []
+        tempSMPSPeakList = []
+        tempCCNPeakCList = []
         # Plot only valid points
         for i in range(len(self.minPosCCNCList)):
             if self.minPosCCNCList[i] and self.minPosSMPSList[i]:
-                tempSMPSPeak.append(self.minPosSMPSList[i])
-                tempCCNCList.append(self.minPosCCNCList[i])
+                tempSMPSPeakList.append(self.minPosSMPSList[i])
+                tempCCNPeakCList.append(self.minPosCCNCList[i])
+            else:
+                # Make up for the null values
+                if len(tempSMPSPeakList) >0:
+                    tempSMPSPeakList.append(tempSMPSPeakList[-1] + self.timeFrame)
+                    tempCCNPeakCList.append(tempCCNPeakCList[-1] + self.timeFrame)
+                else:
+                    tempSMPSPeakList.append(10)
+                    tempCCNPeakCList.append(10)
 
-        x = numpy.asarray(tempSMPSPeak)
-        y = numpy.asarray(tempCCNCList)
+        x = numpy.asarray(tempSMPSPeakList)
+        y = numpy.asarray(tempCCNPeakCList)
 
         result = scipy.stats.linregress(x, y)
         slope = result[0]
@@ -509,7 +527,7 @@ class Controller():
         for i in range(len(self.data)):
             correctedIndexList.append(round((i * slope + yIntercept) * 10))
         plt.plot(x, x * slope + yIntercept, linewidth = 4, color = '#43A047', label = "Regression line")
-        plt.plot(x, y, "o", ms = 10, color = "#43A047",picker=0, mew = 0, label = "Minimum")
+        plt.plot(x, y, "o", ms = 10, color = "#43A047",picker=5, mew = 0, label = "Minimum")
         textToShow = str(slope) + "* x" + " + " + str(yIntercept)
         self.currentPoint, = plt.plot(x[0],y[0],'o', color = "#81C784", ms = 12, mew = 0)
         plt.text(x[4], y[3], textToShow, color = "#81C784" )
@@ -533,7 +551,7 @@ class Controller():
         """
         peak = event.ind[0]
         if peak != self.currPeak:
-            self.updatePeak(peak)
+            self.switchToPeak(peak)
 
     # -------------Single peak processing ------------------
 
@@ -564,7 +582,7 @@ class Controller():
                 self.diameterMidpointList.append(self.dNlog[i][0])
                 dNdLogDpList.append(self.dNlog[i][self.currPeak + 1])
             self.ccnNormalizedList = normalizeList(dNdLogDpList)
-            self.usablePeakList[self.currPeak] = True
+            self.usableForKappaCalList[self.currPeak] = True
         except:
             raise OptimizationError()
 
@@ -664,7 +682,7 @@ class Controller():
 
             self.gCcnList = self.ccnFixedList[:]
             self.gCnList = self.cnFixedList[:]
-            self.usablePeakList[self.currPeak] = True
+            self.usableForKappaCalList[self.currPeak] = True
         except:
             raise OptimizationError()
 
@@ -727,8 +745,6 @@ class Controller():
                         self.maxDpAsym = self.diameterList[i - 1]
                         break
 
-
-
             self.maxDp = self.maxDpAsym
             # Get the data
             asymsList = []
@@ -746,7 +762,7 @@ class Controller():
                     self.ccncnSimList.append(n)
                 else:
                     self.ccncnSimList.append(self.ccncnSimList[i - 1])
-            self.usablePeakList[self.currPeak] = True
+            self.usableForKappaCalList[self.currPeak] = True
         except:
             raise OptimizationError()
 
@@ -769,12 +785,21 @@ class Controller():
             self.c = result[0][1]
             self.ccncnSimList = [0]
             for i in range(1, len(self.diameterList)):
+                if i > self.dp50:
+                    self.dp50Wet = self.dropSizeList[i - 1]
+                    break
+            for i in range(1, len(self.diameterList)):
+                if i > (self.dp50 + 20):
+                    self.dp50Plus20 = self.dropSizeList[i - 1]
+                    break
+
+            for i in range(1, len(self.diameterList)):
                 if self.minDp < self.diameterList[i] < self.maxDp:
                     n = self.b / (1 + (self.diameterList[i] / self.d) ** self.c)
                     self.ccncnSimList.append(n)
                 else:
                     self.ccncnSimList.append(self.ccncnSimList[i - 1])
-            self.usablePeakList[self.currPeak] = True
+            self.usableForKappaCalList[self.currPeak] = True
         except:
             raise OptimizationError()
 
@@ -784,97 +809,112 @@ class Controller():
         """
         Make the comparable CCN and CN graph after adjustment of minimum peak
         """
-        if len(self.cnList) != len(self.ccnList) or len(self.cnList) == 0 or len(self.ccnList) == 0:
-            return
-        if newFigure is None:
-            figure = plt.figure(facecolor=settings.graphBackgroundColor)
-        else:
-            figure = newFigure
-            figure.clf()
-            plt.figure(figure.number)
-        plt.axes(frameon=False)
-        plt.grid(color='0.5')
-        plt.axhline(0, color='0.6', linewidth=4)
-        plt.axvline(0, color='0.6', linewidth=4)
-        plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
-        plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
-        plt.gca().yaxis.label.set_color('0.6')
-        plt.gca().xaxis.label.set_color('0.6')
-        x = range(self.timeFrame)
-        plt.plot(x, self.cnList, linewidth = 4, color = '#EF5350', label = "CN")
-        plt.plot(x, self.ccnList, linewidth = 4, color = '#2196F3',label = "CCN")
-        handles, labels = plt.gca().get_legend_handles_labels()
-        legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0, 0.9))
-        legend.get_frame().set_facecolor('#9E9E9E')
+        try:
+            if len(self.cnList) != len(self.ccnList) or len(self.cnList) == 0 or len(self.ccnList) == 0:
+                return
+            if newFigure is None:
+                figure = plt.figure(facecolor=settings.graphBackgroundColor)
+            else:
+                figure = newFigure
+                figure.clf()
+                plt.figure(figure.number)
+            plt.axes(frameon=False)
+            plt.grid(color='0.5')
+            plt.axhline(0, color='0.6', linewidth=4)
+            plt.axvline(0, color='0.6', linewidth=4)
+            plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+            plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+            plt.gca().yaxis.label.set_color('0.6')
+            plt.gca().xaxis.label.set_color('0.6')
+            x = range(self.timeFrame)
+            plt.plot(x, self.cnList, linewidth = 4, color = '#EF5350', label = "CN")
+            plt.plot(x, self.ccnList, linewidth = 4, color = '#2196F3',label = "CCN")
+            handles, labels = plt.gca().get_legend_handles_labels()
+            legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0, 0.9))
+            legend.get_frame().set_facecolor('#9E9E9E')
 
-        plt.xlabel("Scan time(s)")
-        plt.ylabel("Concentration(cm3)")
-        self.adjustedGraphList.append(plt.gcf())
+            plt.xlabel("Scan time(s)")
+            plt.ylabel("Concentration(cm3)")
+        except:
+            figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        finally:
+            self.adjustedGraphList.append(plt.gcf())
 
     def makeCCNGraph(self, newFigure = None):
         """
         Make graph for the CCN data. Used to cross check for peak alignment.
         """
-        if newFigure is None:
+        try:
+            if newFigure is None:
+                figure = plt.figure(facecolor=settings.graphBackgroundColor)
+            else:
+                figure = newFigure
+                figure.clf()
+                plt.figure(figure.number)
+            plt.axes(frameon=False)
+            plt.grid(color='0.5')
+            plt.axhline(0, color='0.6', linewidth=2)
+            plt.axvline(0, color='0.6', linewidth=4)
+            plt.axhline(1, color='0.7', linewidth=2, linestyle = 'dashed')
+            plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+            plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+            plt.gca().yaxis.label.set_color('0.6')
+            plt.gca().xaxis.label.set_color('0.6')
+            plt.plot(self.diameterList, self.ccncnList, 'o', color="#2196F3", mew=0.5,mec = "#0D47A1",  ms = 9, label = "CCN/CN")
+            yLim = min(2, max(self.ccncnList)) + 0.2
+            plt.gca().axes.set_ylim([-0.1, yLim])
+            handles, labels = plt.gca().get_legend_handles_labels()
+            legend = plt.legend(handles, labels,loc="upper right", bbox_to_anchor=(1,0.9))
+            legend.get_frame().set_facecolor('#9E9E9E')
+            plt.xlabel("Diameter (nm)")
+            plt.ylabel("CCN/CN")
+        except:
             figure = plt.figure(facecolor=settings.graphBackgroundColor)
-        else:
-            figure = newFigure
-            figure.clf()
-            plt.figure(figure.number)
-        plt.axes(frameon=False)
-        plt.grid(color='0.5')
-        plt.axhline(0, color='0.6', linewidth=2)
-        plt.axvline(0, color='0.6', linewidth=4)
-        plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
-        plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
-        plt.gca().yaxis.label.set_color('0.6')
-        plt.gca().xaxis.label.set_color('0.6')
-        plt.plot(self.diameterList, self.ccncnList, 'o', color="#2196F3", mew=0.5,mec = "#0D47A1",  ms = 9, label = "CCN/CN")
-        plt.gca().axes.set_ylim([-0.1, 1.2])
-        handles, labels = plt.gca().get_legend_handles_labels()
-        legend = plt.legend(handles, labels,loc="upper right", bbox_to_anchor=(1,0.9))
-        legend.get_frame().set_facecolor('#9E9E9E')
-        plt.xlabel("Diameter (nm)")
-        plt.ylabel("CCN/CN")
-        self.dryDiaGraphList.append(plt.gcf())
+        finally:
+            self.dryDiaGraphList.append(plt.gcf())
 
     def makeFullDryDiameterGraph(self, newFigure = None):
         """
         Make complete graph of the dry diameter after optimization and sigmodal fit
         """
-        if not self.minPosCCNCList[self.currPeak] or not self.minPosSMPSList[self.currPeak]:
-            self.makeCCNGraph(newFigure)
-            return
+        try:
+            if not self.minPosCCNCList[self.currPeak] or not self.minPosSMPSList[self.currPeak]:
+                self.makeCCNGraph(newFigure)
+                return
 
-        if newFigure is None:
+            if newFigure is None:
+                figure = plt.figure(facecolor=settings.graphBackgroundColor)
+            else:
+                figure = newFigure
+                figure.clf()
+                plt.figure(figure.number)
+            plt.axes(frameon=False)
+            plt.grid(color='0.5')
+            plt.axhline(0, color='0.6', linewidth=4)
+            plt.axvline(0, color='0.6', linewidth=4)
+            plt.axhline(1, color='0.7', linewidth=2, linestyle = "--")
+            plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+            plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+            plt.gca().yaxis.label.set_color('0.6')
+            plt.gca().xaxis.label.set_color('0.6')
+            yLim = min(2, max(self.ccncSigList)) + 0.2
+            plt.gca().axes.set_ylim([-0.1, yLim])
+
+            plt.plot(self.diameterMidpointList, self.ccnNormalizedList, linewidth=4, color='#43A047', label="dN/dLogDP")
+            # Graph the sig fit only if the peak is usable
+            if self.usableForKappaCalList[self.currPeak]:
+                plt.plot(self.diameterList, self.ccncnSimList, linewidth=5, color='#EF5350', label="Sigmodal Fit")
+            plt.plot(self.diameterList, self.ccncnList, 'o', color="#2196F3", mew=0.5,mec = "#1976D2",  ms = 9, label = "CCN/CN")
+            plt.plot(self.diameterList, self.ccncSigList, 'o', color="#1565C0", mew=0.5,mec = "#0D47A1",  ms = 9, label = "CCN/CN (Corrected)")
+            plt.xlabel("Dry diameter(nm)")
+            plt.ylabel("CCN/CN ratio and Normalized dN/dLogDP")
+            handles, labels = plt.gca().get_legend_handles_labels()
+            legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.7, 1.1))
+            legend.get_frame().set_facecolor('#9E9E9E')
+        except:
             figure = plt.figure(facecolor=settings.graphBackgroundColor)
-        else:
-            figure = newFigure
-            figure.clf()
-            plt.figure(figure.number)
-        plt.axes(frameon=False)
-        plt.grid(color='0.5')
-        plt.axhline(0, color='0.6', linewidth=4)
-        plt.axvline(0, color='0.6', linewidth=4)
-        plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
-        plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
-        plt.gca().yaxis.label.set_color('0.6')
-        plt.gca().xaxis.label.set_color('0.6')
-        plt.gca().axes.set_ylim([-0.1, 1.2])
-
-        plt.plot(self.diameterMidpointList, self.ccnNormalizedList, linewidth=4, color='#43A047', label="dN/dLogDP")
-        # Graph the sig fit only if the peak is usable
-        if self.usablePeakList[self.currPeak]:
-            plt.plot(self.diameterList, self.ccncnSimList, linewidth=5, color='#EF5350', label="Sigmodal Fit")
-        plt.plot(self.diameterList, self.ccncnList, 'o', color="#2196F3", mew=0.5,mec = "#1976D2",  ms = 9, label = "CCN/CN")
-        plt.plot(self.diameterList, self.ccncSigList, 'o', color="#1565C0", mew=0.5,mec = "#0D47A1",  ms = 9, label = "CCN/CN (Corrected)")
-        plt.xlabel("Dry diameter(nm)")
-        plt.ylabel("CCN/CN ratio and Normalized dN/dLogDP")
-        handles, labels = plt.gca().get_legend_handles_labels()
-        legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.7, 1.1))
-        legend.get_frame().set_facecolor('#9E9E9E')
-
-        self.dryDiaGraphList.append(plt.gcf())
+        finally:
+            self.dryDiaGraphList.append(plt.gcf())
 
     def makeInitialGraphs(self):
         """
@@ -891,6 +931,51 @@ class Controller():
         plt.ioff()
         self.makeFullDryDiameterGraph()
 
+    def makeKappaGraph(self, fullGraph=True):
+        """
+        Produce the kappa graph, may be in full or only around the points
+        """
+        klines = pandas.read_excel("klines.xlsx", header=1)
+        header = klines.columns
+        diaList = klines[header[1]]
+        figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        plt.axes(frameon=False)
+        plt.grid(color='0.5')
+        plt.axhline(0.1, color='0.6', linewidth=4)
+        plt.axvline(10, color='0.6', linewidth=4)
+        plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+        plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+        plt.gca().yaxis.label.set_color('0.6')
+        plt.gca().xaxis.label.set_color('0.6')
+        plt.ylim([0.1, 1.5])
+        plt.xlim([10, 200])
+        plt.grid(True, which='both', color="0.85")
+        plt.xlabel("Dry diameter(nm)")
+        plt.ylabel("Super Saturation(%)")
+
+        # Draw all the kapap lines
+        if fullGraph:
+            for i in range(2, len(header)):
+                y = klines[header[i]]
+                plt.loglog(diaList, y, label=str(header[i]), linewidth=4)
+
+        # Draw only the portion around the kappa
+        else:
+            pass
+        # Draw the points
+        xList = []
+        yList = []
+        for aKey in self.alphaPineneDict.keys():
+            xList.append(self.alphaPineneDict[aKey][0])
+            yList.append(aKey)
+
+        plt.plot(xList, yList, 'o', color="#1565C0", mew=0.5, mec="#0D47A1", ms=9,
+                 label=" Kappa Points")
+        handles, labels = plt.gca().get_legend_handles_labels()
+        legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.15, 1))
+        legend.get_frame().set_facecolor('#9E9E9E')
+        self.kappaGraph = plt.gcf()
+
     # -------------Single peak procedure ------------------
 
     def singlePeakProcessingProcedure(self):
@@ -906,16 +991,17 @@ class Controller():
             # Make the peak invalid
             self.minPosCCNCList[self.currPeak] = None
             self.minPosSMPSList[self.currPeak] = None
-            self.usablePeakList[self.currPeak] = False
+            self.usableForKappaCalList[self.currPeak] = False
 
     def singlePeakOptimizationProcedure(self):
         """
-        The steps required to optimizePeak a single peak
-        :return:
+        The steps required to optimize a single peak
         """
         try:
             # If a peak is invalid, then do nothing
             if not self.minPosCCNCList[self.currPeak] or not self.minPosSMPSList[self.currPeak]:
+                self.preparePeakData()
+                self.makeFullDryDiameterGraph()
                 raise OptimizationError()
             else:
                 self.ccncSigList = []
@@ -938,12 +1024,14 @@ class Controller():
                 self.makeProgress()
         except OptimizationError:
             # Disable the peak
-            self.usablePeakList[self.currPeak] = False
+            self.usableForKappaCalList[self.currPeak] = False
             # Add empty data to the list
             self.bList.append(0)
             self.dList.append(0)
             self.cList.append(0)
             self.dp50List.append((0, 0))
+            self.dp50WetList.append(0)
+            self.dp50Plus20List.append(0)
             self.minDpList.append(0)
             self.minDpAsymList.append(0)
             self.maxDpAsymList.append(0)
@@ -955,31 +1043,28 @@ class Controller():
             self.bList.append(self.b)
             self.dList.append(self.d)
             self.cList.append(self.c)
+            self.dp50WetList.append(self.dp50Wet)
+            self.dp50Plus20List.append(self.dp50Plus20)
             self.dp50List.append((self.d, self.ssList[self.currPeak]))
 
     # --------------General processing procedure-------------
 
     def preparationProcedure(self):
         """
-        The process necessary to read in and pre-process the data
+        The processes necessary to read in and pre-process the data
         """
         try:
+            # reset all constants
+            self.reset()
             # reset the GUI
             self.view.reset()
             # clear all figures
-            for aFigure in self.adjustedGraphList:
-                aFigure.clf()
-                plt.close(aFigure)
-            self.adjustedGraphList = []
-            for aFigure in self.dryDiaGraphList:
-                aFigure.clf()
-                plt.close(aFigure)
-            self.dryDiaGraphList = []
             self.makeProgress(maxValue=7)
             self.makeProgress("Searching files for CCNC and SMPS files...")
             self.getFileNames()
             self.makeProgress("Merging SMPS and CCNC files...")
             self.mergeCSVFiles()
+            self.getFlowRate()
             self.makeProgress("Processing raw data from files...")
             self.getRawDataFromFiles()
             self.makeProgress("Acquiring DnLog data...")
@@ -1010,8 +1095,9 @@ class Controller():
             raise DataPreparationError()
 
     def initialProcessProcedure(self):
-        # -1 because we kind of making up the last peak for alignment
-        # 5 for 5 step for each peak processing
+        """
+        The processes required to process all the peak data
+        """
         try:
             if self.completedStep < 1:
                 self.view.showError("Data preparation process is not completed.")
@@ -1027,14 +1113,14 @@ class Controller():
             self.makeProgress(complete=True)
             self.view.updateData()
             self.peakAlignAndGraph()
-            self.updatePeak(0)
+            self.switchToPeak(0)
             self.view.updateTotalViewFigure(self.minCompareGraph)
         except InterruptError:
             self.view.showError("The data initialization process is cancelled")
 
     def optimizationProcedure(self):
         """
-        The optimization process for all peaks
+        The processes required to optimize/sigmodal fit all peaks
         """
         try:
             if self.completedStep < 2:
@@ -1056,137 +1142,14 @@ class Controller():
             self.currPeak = -1
             self.completedStep = 3
             self.makeProgress(complete=True)
-            self.updatePeak(0)
+            self.switchToPeak(0)
         except InterruptError:
             self.view.showError("The optimization process is cancelled")
 
-    #--------------- UI interaction functions--------------------
 
-    def updatePeakData(self):
-        """
-        Get the information of the current peak
-        """
-        if self.optimized:
-            self.b = self.bList[self.currPeak]
-            self.d = self.dList[self.currPeak]
-            self.c = self.cList[self.currPeak]
-            self.minDpAsym = self.minDpAsymList[self.currPeak]
-            self.minDp = self.minDpList[self.currPeak]
-            self.maxDpAsym = self.maxDpAsymList[self.currPeak]
-            self.superSaturation = self.dp50List[self.currPeak][1]
-            self.dp50 = self.dp50List[self.currPeak][0]
-        else:
-            self.superSaturation = self.ssList[self.currPeak]
-        self.adjustedGraph = self.adjustedGraphList[self.currPeak]
-        self.dryDiaGraph = self.dryDiaGraphList[self.currPeak]
-        self.dp50LessCount = 0
-        self.dp50MoreCount = 0
-        for i in self.diameterList:
-            if i >= self.dp50:
-                self.dp50MoreCount += 1
-            else:
-                self.dp50LessCount += 1
-        for i in range(1,len(self.diameterList)):
-            if i > self.dp50:
-                self.dp50Wet = self.dropSizeList[i-1]
-                break
-        for i in range(1, len(self.diameterList)):
-            if i > (self.dp50 + 20):
-                self.dp50Plus20 = self.dropSizeList[i - 1]
-                break
+    #----------------Kappa Calculation--------------------------
 
-        self.view.updateFigures(self.adjustedGraph, self.dryDiaGraph)
-        self.view.updateTotalViewFigure(self.minCompareGraph)
-        self.currentPoint.set_xdata(numpy.asarray(self.minPosSMPSList)[self.currPeak])
-        self.currentPoint.set_ydata(numpy.asarray(self.minPosCCNCList)[self.currPeak])
-        if self.optimized:
-            self.view.updateSigFitPeakInfo()
-        else:
-            self.view.updateBasicPeakInfo()
-
-    def shiftDataCCNC(self, forward=True):
-
-        if self.completedStep <=1:
-            return
-        # If the peak is invalid, do nothing
-        if not self.usablePeakList[self.currPeak] or self.minPosSMPSList[self.currPeak] is None or \
-                        self.minPosCCNCList[self.currPeak] is None:
-            return
-        # Get the shift factor
-        shiftFactor = self.shiftList[self.currPeak]
-        # Change the shift factor
-        if forward == True:
-            shiftFactor -= 1
-        else:
-            shiftFactor += 1
-        self.shiftList[self.currPeak] = shiftFactor
-        # Get the new data list from raw data
-        startTime = self.peakPositionInData[self.currPeak] + shiftFactor
-        endTime = startTime + self.timeFrame
-        newCCN = list(self.rawData.iloc[startTime:endTime, 4])
-        newAveSize = list(self.rawData.iloc[startTime:endTime, 5])
-
-        # Get the location of the replacement in the data
-        dataStartTime = self.timeFrame * self.currPeak
-        dataEndTime = dataStartTime + self.timeFrame
-
-        # Replace the data in the data
-        for i in range(self.timeFrame):
-            self.data.iat[dataStartTime + i, 4] = newCCN[i]
-            self.data.iat[dataStartTime + i, 5] = newAveSize[i]
-
-        # Update the data
-        self.preparePeakData()
-        # Fix the graph
-        figure = self.adjustedGraph
-        self.makeAdjustedGraph(newFigure=figure)
-        figure = self.dryDiaGraph
-        self.makeCCNGraph(figure)
-        # Update the graph in view
-        self.view.updateFigures(self.adjustedGraph, self.dryDiaGraph)
-
-    def makeKappaGraph(self):
-        klines = pandas.read_excel("klines.xlsx", header=1)
-        header = klines.columns
-        diaList = klines[header[1]]
-        figure = plt.figure(facecolor=settings.graphBackgroundColor)
-        plt.axes(frameon=False)
-        plt.grid(color='0.5')
-        plt.axhline(0.1, color='0.6', linewidth=4)
-        plt.axvline(10, color='0.6', linewidth=4)
-        plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
-        plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
-        plt.gca().yaxis.label.set_color('0.6')
-        plt.gca().xaxis.label.set_color('0.6')
-        plt.ylim([0.1, 1.5])
-        plt.xlim([10, 200])
-        plt.grid(True, which='both', color="0.85")
-        plt.xlabel("Dry diameter(nm)")
-        plt.ylabel("Super Saturation(%)")
-
-        # Draw the kappa lines
-        for i in range(2, len(header)):
-            y = klines[header[i]]
-            plt.loglog(diaList, y, label=str(header[i]), linewidth = 4)
-
-        # Draw the points
-        xList = []
-        yList = []
-        for aKey in self.alphaPineneDict.keys():
-            xList.append(self.alphaPineneDict[aKey][0])
-            yList.append(aKey)
-
-
-        plt.plot(xList, yList, 'o', color="#1565C0", mew=0.5, mec="#0D47A1", ms=9,
-                 label=" Kappa Points")
-
-
-        handles, labels = plt.gca().get_legend_handles_labels()
-        legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.15, 1))
-        legend.get_frame().set_facecolor('#9E9E9E')
-        self.kappaGraph = plt.gcf()
-
-    def setConstantForCalKappa(self,sigma = None,temp = None, dd1 = None,iKappa = None, dd2 = None,iKappa2 = None, solu = None):
+    def setConstantForCalKappa(self, sigma=None, temp=None, dd1=None, iKappa=None, dd2=None, iKappa2=None, solu=None):
         """
         Update the necessary constants to calculate Kappa
         """
@@ -1206,9 +1169,12 @@ class Controller():
             self.solubility = solu
 
     def calKappa(self):
+        """
+        Calculate the kappa values - producing both raw data kappa and graph data kappa
+        """
         # self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
         # for i in range(len(self.dp50List)):
-        #     self.usablePeakList.append(True)
+        #     self.usableForKappaCalList.append(True)
 
         self.makeProgress("Calculating Kappa...", maxValue=len(self.dp50List) + 3)
         self.makeProgress("Reading in lookup table")
@@ -1221,7 +1187,7 @@ class Controller():
         firstAKappa = 0
         scCalcs = False
         for i in range(len(self.dp50List)):
-            if not self.usablePeakList[i]:
+            if not self.usableForKappaCalList[i]:
                 continue
             ss = float(self.dp50List[i][1])
             dp50 = float(self.dp50List[i][0])
@@ -1302,11 +1268,11 @@ class Controller():
             self.makeProgress("Processing peak" + str(i + 1))
             self.trueSC = (max(sList1[i:]) - 1) * 100
             self.anaKappa = (4 * self.aParam ** 3) / (27 * (dp50 * 0.000000001) ** 3 * log(ss / 100 + 1) ** 2)
-            kDevi = (self.appKappa-self.anaKappa)/self.appKappa * 100
+            kDevi = (self.appKappa - self.anaKappa) / self.appKappa * 100
             if ss in self.kappaCalculatedDict.keys():
-                self.kappaCalculatedDict[ss].append([dp50, self.appKappa, self.anaKappa,kDevi,self.trueSC])
+                self.kappaCalculatedDict[ss].append([dp50, self.appKappa, self.anaKappa, kDevi, self.trueSC])
             else:
-                self.kappaCalculatedDict[ss] = ([[dp50, self.appKappa, self.anaKappa, kDevi,self.trueSC]])
+                self.kappaCalculatedDict[ss] = ([[dp50, self.appKappa, self.anaKappa, kDevi, self.trueSC]])
 
         for aKey in self.kappaCalculatedDict.keys():
             aSSList = self.kappaCalculatedDict[aKey]
@@ -1330,81 +1296,115 @@ class Controller():
             self.alphaPineneDict[aKey] = (meanDp, stdDp, meanApp, stdApp, meanAna, stdAna, meanDev, devMean)
         self.makeProgress(complete=True)
 
-    def run(self):
-        """
-        The main running procedure of the program
-        """
-        # If not testing
-        if not self.mode:
-            # If view is not exist, initiate the view
-            if not self.view:
-                view = MainWindow(self)
-                self.setView(view)
-                view.run()
+    #--------------- UI interaction - Data interaction functions--------------------
 
-            # Run the procedure
+    def updateGUI(self):
+        """
+        Update the GUI with the newest data of the current peak
+        """
+        if self.optimized:
+            self.b = self.bList[self.currPeak]
+            self.d = self.dList[self.currPeak]
+            self.c = self.cList[self.currPeak]
+            self.minDpAsym = self.minDpAsymList[self.currPeak]
+            self.minDp = self.minDpList[self.currPeak]
+            self.maxDpAsym = self.maxDpAsymList[self.currPeak]
+            self.superSaturation = self.dp50List[self.currPeak][1]
+            self.dp50 = self.dp50List[self.currPeak][0]
+            self.dp50Wet = self.dp50WetList[self.currPeak]
+            self.dp50Plus20 = self.dp50Plus20List[self.currPeak]
+        else:
+            self.superSaturation = self.ssList[self.currPeak]
+
+        self.adjustedGraph = self.adjustedGraphList[self.currPeak]
+        self.dryDiaGraph = self.dryDiaGraphList[self.currPeak]
+        self.dp50LessCount = 0
+        self.dp50MoreCount = 0
+        for i in self.diameterList:
+            if i >= self.dp50:
+                self.dp50MoreCount += 1
             else:
-                try:
-                    self.preparationProcedure()
-                except DataPreparationError:
-                    pass
-                else:
-                    self.initialProcessProcedure()
+                self.dp50LessCount += 1
 
-
+        self.view.updateFigures(self.adjustedGraph, self.dryDiaGraph)
+        self.view.updateTotalViewFigure(self.minCompareGraph)
+        self.currentPoint.set_xdata(numpy.asarray(self.minPosSMPSList)[self.currPeak])
+        self.currentPoint.set_ydata(numpy.asarray(self.minPosCCNCList)[self.currPeak])
+        if self.optimized:
+            self.view.updateSigFitPeakInfo()
         else:
-            self.getRawDataFromFiles(csvFilePath, txtFilePath)
-            self.getDNlog()
-            self.getSMPSAndCCNC()
-            self.matchSMPSCCNCData()
-            self.preparePeakData()
+            self.view.updateBasicPeakInfo()
 
-    def updatePeak(self, peak):
-        if peak != self.currPeak:
-            self.currPeak = peak
-            self.updatePeakData()
+    def shiftOneSecond(self, forward=True):
 
-    def setView(self, view):
-        """
-        Set the view for the controller
-        :param view: the view which associate with the controller
-        """
-        self.view = view
-
-    def showData(self):
-        if not self.mode:
-            self.view.showData()
-
-    def makeProgress(self, message=None, maxValue=None, complete=False, value=1):
-        if not self.mode:
-            self.view.makeProgress(message, maxValue, complete, value)
+        if self.completedStep <=1:
+            return
+        # If the peak is invalid, do nothing
+        if not self.usableForKappaCalList[self.currPeak] or self.minPosSMPSList[self.currPeak] is None or \
+                        self.minPosCCNCList[self.currPeak] is None:
+            return
+        # Get the shift factor
+        shiftFactor = self.shiftList[self.currPeak]
+        # Change the shift factor
+        if forward == True:
+            shiftFactor -= 1
         else:
-            print message
-        if self.cancel == True:
-            self.cancel = False
-            raise InterruptError()
+            shiftFactor += 1
+        self.shiftList[self.currPeak] = shiftFactor
+        # Get the new data list from raw data
+        startTime = self.peakPositionInData[self.currPeak] + shiftFactor
+        endTime = startTime + self.timeFrame
+        newCCN = list(self.rawData.iloc[startTime:endTime, 4])
+        newAveSize = list(self.rawData.iloc[startTime:endTime, 5])
 
-    def cancelProgress(self):
-        self.cancel = True
+        # Get the location of the replacement in the data
+        dataStartTime = self.timeFrame * self.currPeak
+        dataEndTime = dataStartTime + self.timeFrame
+
+        # Replace the data in the data
+        for i in range(self.timeFrame):
+            self.data.iat[dataStartTime + i, 4] = newCCN[i]
+            self.data.iat[dataStartTime + i, 5] = newAveSize[i]
+
+        # Update the data
+        self.preparePeakData()
+        # Fix the graph
+        figure = self.adjustedGraph
+        self.makeAdjustedGraph(newFigure=figure)
+        figure = self.dryDiaGraph
+        self.makeCCNGraph(figure)
+        # Update the graph in view
+        self.view.updateFigures(self.adjustedGraph, self.dryDiaGraph)
 
     def disablePeak(self):
         # disable the peak
-        self.usablePeakList[self.currPeak] = False
+        if self.completedStep == 0:
+            return
+        if not self.optimized:
+            self.minPosSMPSList[self.currPeak] = None
+            self.minPosCCNCList[self.currPeak] = None
+            self.usableForKappaCalList[self.currPeak] = False
+        else:
+            self.usableForKappaCalList[self.currPeak] = False
+        self.updateGUI()
 
-    def enablePeak(self):
+    def switchToPeak(self, peak):
         """
-        Enable the peak
+        Switch to a new peak
+        :param peak: the new peak
         """
-        self.usablePeakList[self.currPeak] = True
+        if peak != self.currPeak:
+            self.currPeak = peak
+            self.updateGUI()
 
-    def reOptimization(self,minDp,minDpAsym,maxDpAsym):
+    def reOptimization(self, minDp, minDpAsym, maxDpAsym):
         """
         Re-optimize the data after changing constants minDp, minDpAsym, maxDpAsym
         """
         if not self.optimized:
             return
         self.makeProgress("Re-Optimizaing peak" + str(self.currPeak + 1), maxValue=6)
-        self.enablePeak()
+        self.usableForKappaCalList[self.currPeak] = True
         self.ccncSigList = []
         # Get data
         try:
@@ -1436,11 +1436,11 @@ class Controller():
             self.dList[self.currPeak] = self.d
             self.cList[self.currPeak] = self.c
             self.dp50List[self.currPeak] = (self.d, self.ssList[self.currPeak])
-            self.updatePeakData()
+            self.updateGUI()
             self.makeProgress(complete=True)
         except:
             # Disable the peak
-            self.usablePeakList[self.currPeak] = False
+            self.usableForKappaCalList[self.currPeak] = False
             self.minDpList[self.currPeak] = 0
             self.minDpAsymList[self.currPeak] = 0
             self.maxDpAsymList[self.currPeak] = 0
@@ -1448,20 +1448,127 @@ class Controller():
             self.dList[self.currPeak] = 0
             self.cList[self.currPeak] = 0
             self.dp50List[self.currPeak] = (0, 0)
-            self.updatePeakData()
+            self.updateGUI()
             self.makeProgress(complete=True)
 
+    #----------------------Misc------------------------------------------
 
-    def removePeak(self):
-        if self.completedStep == 0:
-            return
-        if not self.optimized:
-            self.minPosSMPSList[self.currPeak] = None
-            self.minPosCCNCList[self.currPeak] = None
-            self.usablePeakList[self.currPeak] = False
+    def run(self):
+        """
+        The main running procedure of the program
+        """
+        # If view is not exist, initiate the view
+        if not self.view:
+            view = MainWindow(self)
+            self.setView(view)
+            view.run()
+
+        # Run the procedure
         else:
-            self.usablePeakList[self.currPeak] = False
-        self.updatePeakData()
+            try:
+                self.preparationProcedure()
+            except DataPreparationError:
+                pass
+            else:
+                self.initialProcessProcedure()
+
+    def reset(self):
+        """
+        Reset all values of the program to process a new peak
+        """
+        for aFigure in self.adjustedGraphList:
+            aFigure.clf()
+            plt.close(aFigure)
+        self.adjustedGraphList = []
+        for aFigure in self.dryDiaGraphList:
+            aFigure.clf()
+            plt.close(aFigure)
+        self.dryDiaGraphList = []
+        if self.minCompareGraph:
+            self.minCompareGraph.clf()
+            plt.close(self.minCompareGraph)
+            self.minCompareGraph = None
+        if self.kappaGraph:
+            self.kappaGraph.clf()
+            plt.close(self.kappaGraph)
+            self.kappaGraph = None
+
+        self.currentPoint = None
+        self.optimized = False
+        self.cancel = False
+        self.flowRate = 0.3
+        self.ccnList = None
+        self.cnList = None
+        self.ccnFixedList = None
+        self.cnFixedList = None
+        self.gCnList = None
+        self.gCcnList = None
+        self.ccncSigList = []
+        self.ccnNormalizedList = []
+        self.diameterMidpointList = []
+        self.ccncnSimList = []
+        self.b = 0
+        self.d = 0
+        self.c = 0
+        self.minCcn = 4
+        self.minDp = 0
+        self.maxDp = 0
+        self.maxDpAsym = 0
+        self.minDpAsym = 0
+        self.dp50 = 0
+        self.superSaturation = 0
+        self.dp50LessCount = 0
+        self.dp50MoreCount = 0
+        self.dp50Wet = 0
+        self.dp50Plus20 = 0
+        self.minDpList = []
+        self.minDpAsymList = []
+        self.maxDpAsymList = []
+        self.bList = []
+        self.dList = []
+        self.cList = []
+        self.dp50List = []
+        self.dp50WetList = []
+        self.dp50Plus20List = []
+        self.sigma = 0.072
+        self.temp = 298.15
+        self.aParam = 0.00000869251 * self.sigma / self.temp
+        self.dd = 280
+        self.iKappa = 0.00567
+        self.sc = 0
+        self.asc = 0
+        self.dd2 = 100
+        self.iKappa2 = 0.6
+        self.solubility = 0.03
+        self.sc2 = 0
+        self.appKappa = 0
+        self.anaKappa = 0
+        self.trueSC = 0
+        self.kappaExcel = None
+        self.shiftList = []
+        self.kappaCalculatedDict = {}
+        self.alphaPineneDict = {}
+        self.peakPositionInData = []
+        self.usableForKappaCalList = []
+
+    def setView(self, view):
+        """
+        Set the view for the controller
+        :param view: the view which associate with the controller
+        """
+        self.view = view
+
+    def makeProgress(self, message=None, maxValue=None, complete=False, value=1):
+        if not self.mode:
+            self.view.makeProgress(message, maxValue, complete, value)
+        else:
+            print message
+        if self.cancel == True:
+            self.cancel = False
+            raise InterruptError()
+
+    def cancelProgress(self):
+        self.cancel = True
 
 def main():
     controller = Controller(False)
