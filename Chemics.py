@@ -95,7 +95,12 @@ class Controller():
         self.ccnNormalizedList = []
         self.diameterMidpointList = []
         self.ccncnSimList = []
-
+        self.temp1List = []
+        self.temp2List = []
+        self.temp3List =[]
+        self.temp1 = []
+        self.temp2 = []
+        self.temp3 = []
         # Variables for peak analysis/optimization/sigmodal fit
         self.b = 0
         self.d = 0
@@ -126,10 +131,12 @@ class Controller():
         self.dryDiaGraph = None
         self.minCompareGraph = None
         self.kappaGraph = None
+        self.tempGraph = None
         self.adjustedGraphList = []
         self.dryDiaGraphList = []
         self.minPosSMPSList = []
         self.minPosCCNCList = []
+        self.tempGraphList = []
 
         # Vars for kappa
         self.sigma = 0.072
@@ -157,6 +164,7 @@ class Controller():
         self.peakPositionInData = []
         # State of a peak, whether usable to calculate kappa or not
         self.usableForKappaCalList = []
+
 
     #-------------File processing------------------
 
@@ -336,6 +344,9 @@ class Controller():
             timeStamp = datetime.strptime(startTime[0], "%I:%M:%S")
             self.peakPositionInData = []
             while (True):
+                self.temp1 = []
+                self.temp2 = []
+                self.temp3 = []
                 sizeSum = 0
                 countSum = 0
                 previousTimeStamp = datetime.strptime(startTime[i], "%I:%M:%S").time()
@@ -348,6 +359,9 @@ class Controller():
                     sizeSum = 0
                     countSum = 0
                     aLine.append(float(csvContent[k + t][-3]))
+                    self.temp1.append(csvContent[k + t][5])
+                    self.temp2.append(csvContent[k + t][7])
+                    self.temp3.append(csvContent[k + t][9])
                     if csvContent[k + t][1] > maxSS:
                         maxSS = csvContent[k + t][1]
                     for m in range(0, 20):
@@ -362,7 +376,12 @@ class Controller():
                     smpsCcnList.append(aLine)
                     timeStamp += timedelta(seconds=1)
                 k += self.timeFrame
+
+                # Update the lists
                 self.ssList.append(maxSS)
+                self.temp1List.append(self.temp1)
+                self.temp2List.append(self.temp2)
+                self.temp3List.append(self.temp3)
 
                 # If reach the end of smps, collect the rest of ccnc for alignment
                 timeGap = 0
@@ -583,6 +602,10 @@ class Controller():
                 dNdLogDpList.append(self.dNlog[i][self.currPeak + 1])
             self.ccnNormalizedList = normalizeList(dNdLogDpList)
             self.usableForKappaCalList[self.currPeak] = True
+            self.temp1 = self.temp1List[self.currPeak]
+            self.temp2 = self.temp2List[self.currPeak]
+            self.temp3 = self.temp3List[self.currPeak]
+
         except:
             raise OptimizationError()
 
@@ -873,6 +896,31 @@ class Controller():
         finally:
             self.dryDiaGraphList.append(plt.gcf())
 
+    def makeTempGraph(self):
+        """
+        Make the temperature graphs
+        """
+        figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        plt.axes(frameon=False)
+        plt.grid(color='0.5')
+        plt.axhline(0, color='0.6', linewidth=4)
+        plt.axvline(0, color='0.6', linewidth=4)
+        plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+        plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+        plt.gca().yaxis.label.set_color('0.6')
+        plt.gca().xaxis.label.set_color('0.6')
+
+        x = range(self.timeFrame)
+        plt.plot(x, self.temp1, linewidth=5, color='#EF5350', label="T1")
+        plt.plot(x, self.temp2, linewidth=5, color='#2196F3', label="T2")
+        plt.plot(x, self.temp3, linewidth=5, color='#1565C0', label="T3")
+        plt.xlabel("Scan time(s)")
+        plt.ylabel("Temperature")
+        handles, labels = plt.gca().get_legend_handles_labels()
+        legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.7, 1.1))
+        legend.get_frame().set_facecolor('#9E9E9E')
+        self.tempGraphList.append(plt.gcf())
+
     def makeFullDryDiameterGraph(self, newFigure = None):
         """
         Make complete graph of the dry diameter after optimization and sigmodal fit
@@ -922,6 +970,7 @@ class Controller():
         plt.ioff()
         self.makeAdjustedGraph()
         self.makeCCNGraph()
+        self.makeTempGraph()
 
     def makeOptimizedGraphs(self):
         """
@@ -1125,6 +1174,12 @@ class Controller():
             if self.completedStep < 2:
                 self.view.showError("Data initialization process is not completed.")
                 return
+
+            #clear temp graphs
+            for aFigure in self.tempGraphList:
+                aFigure.clf()
+                plt.close(aFigure)
+            self.tempGraphList = []
             # clear dry diameter graphs
             for aFigure in self.dryDiaGraphList:
                 aFigure.clf()
@@ -1313,10 +1368,12 @@ class Controller():
             self.dp50Wet = self.dp50WetList[self.currPeak]
             self.dp50Plus20 = self.dp50Plus20List[self.currPeak]
         else:
+            self.tempGraph = self.tempGraphList[self.currPeak]
             self.superSaturation = self.ssList[self.currPeak]
 
         self.adjustedGraph = self.adjustedGraphList[self.currPeak]
         self.dryDiaGraph = self.dryDiaGraphList[self.currPeak]
+
         self.dp50LessCount = 0
         self.dp50MoreCount = 0
         for i in self.diameterList:
@@ -1326,7 +1383,7 @@ class Controller():
                 self.dp50LessCount += 1
 
         self.view.updateFigures(self.adjustedGraph, self.dryDiaGraph)
-        self.view.updateTotalViewFigure(self.minCompareGraph)
+        self.view.updateTotalViewFigure(self.minCompareGraph,self.tempGraph)
         self.currentPoint.set_xdata(numpy.asarray(self.minPosSMPSList)[self.currPeak])
         self.currentPoint.set_ydata(numpy.asarray(self.minPosCCNCList)[self.currPeak])
         if self.optimized:
@@ -1475,6 +1532,11 @@ class Controller():
         """
         Reset all values of the program to process a new peak
         """
+        for aFigure in self.tempGraphList:
+            aFigure.clf()
+            plt.close(aFigure)
+        self.tempGraphList = []
+        self.adjustedGraphList = []
         for aFigure in self.adjustedGraphList:
             aFigure.clf()
             plt.close(aFigure)
@@ -1549,6 +1611,9 @@ class Controller():
         self.alphaPineneDict = {}
         self.peakPositionInData = []
         self.usableForKappaCalList = []
+        self.temp1List = []
+        self.temp2List = []
+        self.temp3List = []
 
     def setView(self, view):
         """

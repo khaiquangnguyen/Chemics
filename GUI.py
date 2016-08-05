@@ -170,12 +170,13 @@ class MainWindow(QMainWindow):
     def getAlphaPineneDict(self):
         return self.controller.alphaPineneDict
 
-    def updateTotalViewFigure(self, aFigure):
+    def updateTotalViewFigure(self, minFigure, tempFigure):
         """
         Update the figure in the total view. Either the graph of the whole experiment or of the minimum
         :param aFigure: The figure to update
         """
-        self.centralWidget().graphWidget.totalView.updateFigure(aFigure)
+        self.centralWidget().graphWidget.totalView.updateFigure(minFigure)
+        self.centralWidget().graphWidget.tempView.updateFigure(tempFigure)
 
     def addSecond(self):
         self.controller.shiftOneSecond()

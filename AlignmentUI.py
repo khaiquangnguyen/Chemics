@@ -126,6 +126,7 @@ class graphWidget(QWidget):
         self.setFixedWidth(parentWidth * 3 / 4)
         self.setFixedHeight(parentHeight)
         self.totalView.resize(self.width(),self.height())
+        self.tempView.resize(self.width(),self.height())
         self.controlArea.resize(self.width(),self.height())
         self.individualViews.resize(self.width(),self.height())
 
@@ -135,11 +136,14 @@ class graphWidget(QWidget):
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.totalView = totalView()
+        self.totalView = HorizontalView()
+        self.tempView = HorizontalView()
         self.individualViews = individualViews()
         self.controlArea = controlArea(mainWindow)
+
         self.layout.addWidget(self.individualViews)
         self.layout.addWidget(self.controlArea)
+        self.layout.addWidget(self.tempView)
         self.layout.addWidget(self.totalView)
 
 class controlArea(QWidget):
@@ -245,9 +249,9 @@ class controlArea(QWidget):
             self.mainWindow.updateKappaVars(sig,temp,dd1,iKappa1,dd2,iKappa2,solu)
             self.mainWindow.calKappa()
 
-class totalView(FigureCanvas):
+class HorizontalView(FigureCanvas):
     def resize(self, parentWidth, parentHeight):
-        self.setFixedHeight(parentHeight * 2 / 5 + 5)
+        self.setFixedHeight(parentHeight * 1 / 4 + 3)
         self.setFixedWidth(parentWidth)
 
     def __init__(self, mainWindow=None):
@@ -278,7 +282,7 @@ class individualViews(QWidget):
 
     def resize(self, parentWidth, parentHeight):
         self.setFixedWidth(parentWidth)
-        self.setFixedHeight(parentHeight * 1 / 2)
+        self.setFixedHeight(parentHeight * 2 / 5)
         self.dpView.resize(self.width(), self.height())
         self.dNlogView.resize(self.width(), self.height())
 
