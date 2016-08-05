@@ -785,11 +785,11 @@ class Controller():
             self.c = result[0][1]
             self.ccncnSimList = [0]
             for i in range(1, len(self.diameterList)):
-                if i > self.dp50:
+                if self.diameterList[i] > self.d:
                     self.dp50Wet = self.dropSizeList[i - 1]
                     break
             for i in range(1, len(self.diameterList)):
-                if i > (self.dp50 + 20):
+                if self.diameterList[i] > (self.d + 20):
                     self.dp50Plus20 = self.dropSizeList[i - 1]
                     break
 
@@ -881,7 +881,6 @@ class Controller():
             if not self.minPosCCNCList[self.currPeak] or not self.minPosSMPSList[self.currPeak]:
                 self.makeCCNGraph(newFigure)
                 return
-
             if newFigure is None:
                 figure = plt.figure(facecolor=settings.graphBackgroundColor)
             else:
@@ -911,9 +910,9 @@ class Controller():
             handles, labels = plt.gca().get_legend_handles_labels()
             legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.7, 1.1))
             legend.get_frame().set_facecolor('#9E9E9E')
+            self.dryDiaGraphList.append(plt.gcf())
         except:
             figure = plt.figure(facecolor=settings.graphBackgroundColor)
-        finally:
             self.dryDiaGraphList.append(plt.gcf())
 
     def makeInitialGraphs(self):
