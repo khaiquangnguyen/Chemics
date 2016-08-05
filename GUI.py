@@ -199,6 +199,9 @@ class MainWindow(QMainWindow):
         self.controller.iKappa2 = i2
         self.controller.solubility = solu
 
+    def updateKappaGraph(self):
+        self.centralWidget().graphWidget.totalView.updateFigure(self.controller.kappaGraph)
+
     def InputFlowRate(self):
         returnValue = self.controller.flowRate
         while True:

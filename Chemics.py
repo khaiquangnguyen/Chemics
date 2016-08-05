@@ -155,6 +155,8 @@ class Controller():
         self.trueSC = 0
         self.kappaExcel = None
         self.shiftList = []
+        self.kappaExcludeList = []
+        self.kappaPoints = []
 
         # Dicts to store kappa values
         self.kappaCalculatedDict = {}
@@ -1003,13 +1005,14 @@ class Controller():
         plt.grid(True, which='both', color="0.85")
         plt.xlabel("Dry diameter(nm)")
         plt.ylabel("Super Saturation(%)")
+        figure.canvas.mpl_connect('pick_event', self.onKappaPick)
 
         # Draw all the kapap lines
+
         if fullGraph:
             for i in range(2, len(header)):
                 y = klines[header[i]]
                 plt.loglog(diaList, y, label=str(header[i]), linewidth=4)
-
         # Draw only the portion around the kappa
         else:
             pass
@@ -1019,13 +1022,52 @@ class Controller():
         for aKey in self.alphaPineneDict.keys():
             xList.append(self.alphaPineneDict[aKey][0])
             yList.append(aKey)
+            self.kappaPoints.append((self.alphaPineneDict[aKey][0],aKey))
 
-        plt.plot(xList, yList, 'o', color="#1565C0", mew=0.5, mec="#0D47A1", ms=9,
+        self.currentPoint = None
+
+        plt.plot(xList, yList, 'o', color="#81C784", picker=5,mew=0.5, mec="#0D47A1", ms=12,
                  label=" Kappa Points")
         handles, labels = plt.gca().get_legend_handles_labels()
-        legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.15, 1))
+        legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.1, 1))
         legend.get_frame().set_facecolor('#9E9E9E')
         self.kappaGraph = plt.gcf()
+
+    def onKappaPick(self, event):
+        """
+        When a kappa point is clicked
+        """
+        kappaPoint = event.ind[0]
+        excluded = False
+        # if already in excluded list, include the points
+        for i in range(len(self.kappaExcludeList)):
+            if self.kappaExcludeList[i] == kappaPoint:
+                self.kappaExcludeList = self.kappaExcludeList[:i] + self.kappaExcludeList[i+1:]
+                excluded = True
+                break
+        # else, exclude the point
+        if not excluded:
+            self.kappaExcludeList.append(kappaPoint)
+
+        xList = []
+        yList = []
+        for j in (self.kappaExcludeList):
+            xList.append(self.kappaPoints[j][0])
+            yList.append(self.kappaPoints[j][1])
+        xList = numpy.asarray(xList)
+        yList = numpy.asarray(yList)
+
+        if not self.currentPoint:
+            # get kappa figures
+            plt.figure(self.kappaGraph.number)
+            self.currentPoint, = plt.plot(xList, yList, 'x', color="#1565C0", ms=8, mew=0, label = "excluded kappa")
+        else:
+            self.currentPoint.set_xdata(xList)
+            self.currentPoint.set_ydata(yList)
+
+        self.view.updateKappaGraph()
+
+
 
     # -------------Single peak procedure ------------------
 
@@ -1229,9 +1271,9 @@ class Controller():
         """
         Calculate the kappa values - producing both raw data kappa and graph data kappa
         """
-        # self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
-        # for i in range(len(self.dp50List)):
-        #     self.usableForKappaCalList.append(True)
+        self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
+        for i in range(len(self.dp50List)):
+            self.usableForKappaCalList.append(True)
 
         self.makeProgress("Calculating Kappa...", maxValue=len(self.dp50List) + 3)
         self.makeProgress("Reading in lookup table")
@@ -1617,6 +1659,8 @@ class Controller():
         self.temp1List = []
         self.temp2List = []
         self.temp3List = []
+        self.kappaExcludeList = []
+        self.kappaPoints = []
 
     def setView(self, view):
         """
