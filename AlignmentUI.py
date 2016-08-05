@@ -142,8 +142,8 @@ class graphWidget(QWidget):
         self.controlArea = controlArea(mainWindow)
 
         self.layout.addWidget(self.individualViews)
-        self.layout.addWidget(self.controlArea)
         self.layout.addWidget(self.tempView)
+        self.layout.addWidget(self.controlArea)
         self.layout.addWidget(self.totalView)
 
 class controlArea(QWidget):

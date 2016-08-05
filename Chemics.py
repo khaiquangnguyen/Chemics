@@ -359,9 +359,9 @@ class Controller():
                     sizeSum = 0
                     countSum = 0
                     aLine.append(float(csvContent[k + t][-3]))
-                    self.temp1.append(csvContent[k + t][5])
-                    self.temp2.append(csvContent[k + t][7])
-                    self.temp3.append(csvContent[k + t][9])
+                    self.temp1.append(float(csvContent[k + t][5]))
+                    self.temp2.append(float(csvContent[k + t][7]))
+                    self.temp3.append(float(csvContent[k + t][9]))
                     if csvContent[k + t][1] > maxSS:
                         maxSS = csvContent[k + t][1]
                     for m in range(0, 20):
@@ -911,13 +911,16 @@ class Controller():
         plt.gca().xaxis.label.set_color('0.6')
 
         x = range(self.timeFrame)
+        minY = min(min(self.temp1), min(self.temp2), min(self.temp3)) - 3
+        maxY = max(max(self.temp1), max(self.temp2), max(self.temp3)) + 3
+        plt.gca().axes.set_ylim([minY, maxY])
         plt.plot(x, self.temp1, linewidth=5, color='#EF5350', label="T1")
         plt.plot(x, self.temp2, linewidth=5, color='#2196F3', label="T2")
         plt.plot(x, self.temp3, linewidth=5, color='#1565C0', label="T3")
         plt.xlabel("Scan time(s)")
         plt.ylabel("Temperature")
         handles, labels = plt.gca().get_legend_handles_labels()
-        legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.7, 1.1))
+        legend = plt.legend(handles, labels, loc="upper right", bbox_to_anchor=(1.1, 1.1))
         legend.get_frame().set_facecolor('#9E9E9E')
         self.tempGraphList.append(plt.gcf())
 
@@ -1162,7 +1165,7 @@ class Controller():
             self.view.updateData()
             self.peakAlignAndGraph()
             self.switchToPeak(0)
-            self.view.updateTotalViewFigure(self.minCompareGraph)
+
         except InterruptError:
             self.view.showError("The data initialization process is cancelled")
 
