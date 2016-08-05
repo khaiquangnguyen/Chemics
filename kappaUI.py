@@ -279,6 +279,8 @@ class KappaControlTabWidget(QWidget):
         self.graphDataButton.resize(self.width(),self.height())
         self.rawDataButton.resize(self.width(), self.height())
         self.variableButton.resize(self.width(), self.height())
+        self.fullGraphButton.resize(self.width(), self.height())
+        self.focusedGraphButton.resize(self.width(), self.height())
 
     def __init__(self, mainWindow = None):
         self.mainWindow = mainWindow
@@ -289,12 +291,19 @@ class KappaControlTabWidget(QWidget):
         self.rawDataButton = CustomButton("Raw Data", mainWindow)
         self.graphDataButton = CustomButton("Graph Data", mainWindow)
         self.variableButton = CustomButton("Variables", mainWindow)
+        self.fullGraphButton = CustomButton("Full Graph", mainWindow)
+        self.focusedGraphButton = CustomButton("Focused Graph", mainWindow)
         self.rawDataButton.clicked.connect(self.rawDataButtonClicked)
         self.graphDataButton.clicked.connect(self.graphButtonClicked)
         self.variableButton.clicked.connect(self.variableButtonClicked)
+        self.fullGraphButton.clicked.connect(self.fullGraphClicked)
+        self.focusedGraphButton.clicked.connect(self.focusedGraphClicked)
+
         self.layout.addWidget(self.rawDataButton)
         self.layout.addWidget(self.graphDataButton)
         self.layout.addWidget(self.variableButton)
+        self.layout.addWidget(self.focusedGraphButton)
+        self.layout.addWidget(self.fullGraphButton)
         self.setLayout(self.layout)
 
         self.setAutoFillBackground(True)
@@ -311,6 +320,12 @@ class KappaControlTabWidget(QWidget):
 
     def variableButtonClicked(self):
         self.mainWindow.centralWidget().infoWidget.changeToConstDataTable()
+
+    def fullGraphClicked(self):
+        self.mainWindow.controller.makeKappaGraph(fullGraph=True)
+
+    def focusedGraphClicked(self):
+        self.mainWindow.controller.makeKappaGraph(fullGraph=False)
 
 class KappaFigureCanvas(FigureCanvas):
     def resize(self, parentWidth, parentHeight):

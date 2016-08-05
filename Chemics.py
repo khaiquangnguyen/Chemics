@@ -991,7 +991,11 @@ class Controller():
         klines = pandas.read_excel("klines.xlsx", header=1)
         header = klines.columns
         diaList = klines[header[1]]
-        figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        if self.kappaGraph:
+            figure = plt.figure(self.kappaGraph.number)
+            figure.clf()
+        else:
+            figure = plt.figure(facecolor=settings.graphBackgroundColor)
         plt.axes(frameon=False)
         plt.grid(color='0.5')
         plt.axhline(0.1, color='0.6', linewidth=4)
@@ -1092,6 +1096,7 @@ class Controller():
         legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.1, 1))
         legend.get_frame().set_facecolor('#9E9E9E')
         self.kappaGraph = plt.gcf()
+        self.view.updateKappaGraph()
 
     def onKappaPick(self, event):
         """
