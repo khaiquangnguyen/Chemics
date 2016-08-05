@@ -984,7 +984,7 @@ class Controller():
         plt.ioff()
         self.makeFullDryDiameterGraph()
 
-    def makeKappaGraph(self, fullGraph=True):
+    def makeKappaGraph(self, fullGraph=False):
         """
         Produce the kappa graph, may be in full or only around the points
         """
@@ -1007,27 +1007,87 @@ class Controller():
         plt.ylabel("Super Saturation(%)")
         figure.canvas.mpl_connect('pick_event', self.onKappaPick)
 
-        # Draw all the kapap lines
+        # Get the points
+        xList = []
+        yList = []
+        kappaList = []
+        stdKappaList = []
+        for aKey in self.alphaPineneDict.keys():
+            xList.append(self.alphaPineneDict[aKey][0])
+            kappaList.append(self.alphaPineneDict[aKey][2])
+            stdKappaList.append(self.alphaPineneDict[aKey][3])
+            yList.append(aKey)
+            self.kappaPoints.append((self.alphaPineneDict[aKey][0], aKey))
 
+        tempKList = []
+        for i in range(len(kappaList)):
+            tempKList.append(kappaList[i] + stdKappaList[i])
+        maxKappa = max(tempKList)
+        tempKList = []
+        for i in range(len(kappaList)):
+            tempKList.append(kappaList[i] - stdKappaList[i])
+        minKappa = min(tempKList)
+
+        # Draw all the kappa lines
         if fullGraph:
             for i in range(2, len(header)):
                 y = klines[header[i]]
                 plt.loglog(diaList, y, label=str(header[i]), linewidth=4)
         # Draw only the portion around the kappa
         else:
-            pass
+            i = 2
+            kappa = 1
+            step = 0.1
+            kappaStartPos = 2
+            kappaEndPos = len(header)
+            while True:
+                if maxKappa > kappa:
+                    kappaStartPos = max(2,i - 3)
+                    break
+                i += 1
+                kappa -= step
+                if kappa == step:
+                    step /= 10
+                if i >= len(header):
+                    kappaStartPos = len(header)
+                    break
+            i = 2
+            kappa = 1
+            step = 0.1
+            while True:
+                if minKappa > kappa:
+                    kappaEndPos = min(i + 3,len(header))
+                    break
+                i += 1
+                kappa -= step
+                if kappa == step:
+                    step /= 10
+                if i>= len(header):
+                    kappaEndPos = len(header)
+                    break
+            for i in range(kappaStartPos, kappaEndPos):
+                y = klines[header[i]]
+                plt.loglog(diaList, y, label=str(header[i]), linewidth=4)
+
         # Draw the points
-        xList = []
-        yList = []
-        for aKey in self.alphaPineneDict.keys():
-            xList.append(self.alphaPineneDict[aKey][0])
-            yList.append(aKey)
-            self.kappaPoints.append((self.alphaPineneDict[aKey][0],aKey))
-
-        self.currentPoint = None
-
         plt.plot(xList, yList, 'o', color="#81C784", picker=5,mew=0.5, mec="#0D47A1", ms=12,
                  label=" Kappa Points")
+
+        # If there is no excluded points
+        if len(self.kappaExcludeList) == 0:
+            self.currentPoint = None
+        else:
+            for j in (self.kappaExcludeList):
+                xList.append(self.kappaPoints[j][0])
+                yList.append(self.kappaPoints[j][1])
+            xList = numpy.asarray(xList)
+            yList = numpy.asarray(yList)
+            if self.currentPoint:
+                self.currentPoint.set_xdata(xList)
+                self.currentPoint.set_ydata(yList)
+            else:
+                self.currentPoint, = plt.plot(xList, yList, 'x', color="#1565C0", ms=8, mew=0, label="excluded kappa")
+
         handles, labels = plt.gca().get_legend_handles_labels()
         legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.1, 1))
         legend.get_frame().set_facecolor('#9E9E9E')
@@ -1056,15 +1116,13 @@ class Controller():
             yList.append(self.kappaPoints[j][1])
         xList = numpy.asarray(xList)
         yList = numpy.asarray(yList)
-
         if not self.currentPoint:
             # get kappa figures
             plt.figure(self.kappaGraph.number)
-            self.currentPoint, = plt.plot(xList, yList, 'x', color="#1565C0", ms=8, mew=0, label = "excluded kappa")
+            self.currentPoint, = plt.plot(xList, yList, 'o', color="#1565C0", ms=8, mew=0, label = "excluded kappa")
         else:
             self.currentPoint.set_xdata(xList)
             self.currentPoint.set_ydata(yList)
-
         self.view.updateKappaGraph()
 
 
