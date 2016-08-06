@@ -160,6 +160,7 @@ class Controller():
         self.klines = None
         self.maxKappa = None
         self.minKappa = None
+        self.isFullKappaGraph = False
 
         # Dicts to store kappa values
         self.kappaCalculatedDict = {}
@@ -987,7 +988,7 @@ class Controller():
         plt.ioff()
         self.makeFullDryDiameterGraph()
 
-    def makeKappaGraph(self, fullGraph=False):
+    def makeKappaGraph(self):
         """
         Produce the kappa graph, may be in full or only around the points
         """
@@ -1063,7 +1064,7 @@ class Controller():
 
         # Graph the klines
         # Full kappa lines
-        if fullGraph:
+        if self.isFullKappaGraph:
             for i in range(2, len(header)):
                 y = self.klines[header[i]]
                 plt.loglog(diaList, y, label=str(header[i]), linewidth=4)
@@ -1270,7 +1271,7 @@ class Controller():
             self.currPeak = -1
             self.completedStep = 2
             self.makeProgress(complete=True)
-            self.view.updateData()
+            self.view.updateGeneralInfo()
             self.peakAlignAndGraph()
             self.switchToPeak(0)
 
@@ -1298,7 +1299,6 @@ class Controller():
             self.dryDiaGraphList = []
             self.makeProgress("Preparing data for peak processing...", maxValue=self.maxPeak * 12)
             self.optimized = True
-
             for i in range(0, self.maxPeak):
                 self.currPeak = i
                 self.makeProgress("Processing peak " + str(i + 1), value=0)
@@ -1468,6 +1468,9 @@ class Controller():
         """
         Update the GUI with the newest data of the current peak
         """
+        self.adjustedGraph = self.adjustedGraphList[self.currPeak]
+        self.dryDiaGraph = self.dryDiaGraphList[self.currPeak]
+        self.view.updateDpDNLogFigures(self.adjustedGraph, self.dryDiaGraph)
         if self.optimized:
             self.b = self.bList[self.currPeak]
             self.d = self.dList[self.currPeak]
@@ -1479,29 +1482,25 @@ class Controller():
             self.dp50 = self.dp50List[self.currPeak][0]
             self.dp50Wet = self.dp50WetList[self.currPeak]
             self.dp50Plus20 = self.dp50Plus20List[self.currPeak]
+            self.dp50LessCount = 0
+            self.dp50MoreCount = 0
+            for i in self.diameterList:
+                if i >= self.dp50:
+                    self.dp50MoreCount += 1
+                else:
+                    self.dp50LessCount += 1
+            self.currentPoint.set_xdata(numpy.asarray(self.minPosSMPSList)[self.currPeak])
+            self.currentPoint.set_ydata(numpy.asarray(self.minPosCCNCList)[self.currPeak])
+            self.view.updateTempOrMinFigure(self.minCompareGraph)
+            self.view.updateSigFitPeakInfo()
+
         else:
             self.tempGraph = self.tempGraphList[self.currPeak]
             self.superSaturation = self.ssList[self.currPeak]
-
-        self.adjustedGraph = self.adjustedGraphList[self.currPeak]
-        self.dryDiaGraph = self.dryDiaGraphList[self.currPeak]
-
-        self.dp50LessCount = 0
-        self.dp50MoreCount = 0
-        for i in self.diameterList:
-            if i >= self.dp50:
-                self.dp50MoreCount += 1
-            else:
-                self.dp50LessCount += 1
-
-        self.view.updateFigures(self.adjustedGraph, self.dryDiaGraph)
-        self.view.updateTotalViewFigure(self.minCompareGraph,self.tempGraph)
-        self.currentPoint.set_xdata(numpy.asarray(self.minPosSMPSList)[self.currPeak])
-        self.currentPoint.set_ydata(numpy.asarray(self.minPosCCNCList)[self.currPeak])
-        if self.optimized:
-            self.view.updateSigFitPeakInfo()
-        else:
+            self.view.updateTempOrMinFigure(self.tempGraph)
             self.view.updateBasicPeakInfo()
+
+
 
     def shiftOneSecond(self, forward=True):
 
@@ -1542,7 +1541,7 @@ class Controller():
         figure = self.dryDiaGraph
         self.makeCCNGraph(figure)
         # Update the graph in view
-        self.view.updateFigures(self.adjustedGraph, self.dryDiaGraph)
+        self.view.updateDpDNLogFigures(self.adjustedGraph, self.dryDiaGraph)
 
     def disablePeak(self):
         # disable the peak

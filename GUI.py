@@ -128,26 +128,21 @@ class MainWindow(QMainWindow):
     def resizeEvent(self, resizeEvent):
         self.centralWidget().resize()
 
-    def updateFigures(self,adjustedFigure,diaFigure):
-        """
-        Update the two figures in the adjust-figure area and diameter-figure area
-        :param adjustedFigure: the figure to update into the area
-        :param diaFigure: the figure to update into the area
-        """
-        self.centralWidget().graphWidget.individualViews.dpView.updateFigure(adjustedFigure)
-        self.centralWidget().graphWidget.individualViews.dNlogView.updateFigure(diaFigure)
+    def updateDpDNLogFigures(self, adjustedFigure, diaFigure):
+        self.centralWidget().graphWidget.dpAndDnlogView.dpView.updateFigure(adjustedFigure)
+        self.centralWidget().graphWidget.dpAndDnlogView.dNlogView.updateFigure(diaFigure)
+
+    def updateTempOrMinFigure(self, aFigure):
+        self.centralWidget().graphWidget.tempAndMinView.updateFigure(aFigure)
 
     def calKappa(self):
         # if self.controller.completedStep >=2:
         self.controller.calKappa()
-        self.controller.makeKappaGraph()
         self.centralWidget().switchToKappa()
+        self.controller.makeKappaGraph()
 
-    def updateData(self):
-        """
-        Update the information area
-        """
-        self.centralWidget().infoWidget.infoTable.updateData()
+    def updateGeneralInfo(self):
+        self.centralWidget().infoWidget.infoTable.updateGeneralInfo()
 
     def updateBasicPeakInfo(self):
         self.centralWidget().infoWidget.infoTable.updateBasicPeakInfo()
@@ -155,40 +150,8 @@ class MainWindow(QMainWindow):
     def updateSigFitPeakInfo(self):
         self.centralWidget().infoWidget.infoTable.updateSigFitPeakInfo()
 
-    def switchToPeak(self, peak):
-        self.controller.switchToPeak(peak)
-
-    def getPeak(self):
-        return self.controller.currPeak
-
-    def getMaxPeak(self):
-        return self.controller.maxPeak
-
-    def getKappaDict(self):
-        return self.controller.kappaCalculatedDict
-
-    def getAlphaPineneDict(self):
-        return self.controller.alphaPineneDict
-
-    def updateTotalViewFigure(self, minFigure, tempFigure):
-        """
-        Update the figure in the total view. Either the graph of the whole experiment or of the minimum
-        :param aFigure: The figure to update
-        """
-        self.centralWidget().graphWidget.totalView.updateFigure(minFigure)
-        self.centralWidget().graphWidget.tempView.updateFigure(tempFigure)
-
-    def addSecond(self):
-        self.controller.shiftOneSecond()
-
-    def subSecond(self):
-        self.controller.shiftOneSecond(forward=False)
-
     def reset(self):
         self.centralWidget().switchToPeak()
-
-    def getKappaVars(self):
-        return (self.controller.sigma, self.controller.temp, self.controller.dd, self.controller.iKappa, self.controller.dd2, self.controller.iKappa2, self.controller.solubility)
 
     def updateKappaVars(self,sigma,temp,dd1,i1,dd2,i2,solu):
         self.controller.sigma = sigma
@@ -200,7 +163,7 @@ class MainWindow(QMainWindow):
         self.controller.solubility = solu
 
     def updateKappaGraph(self):
-        self.centralWidget().graphWidget.totalView.updateFigure(self.controller.kappaGraph)
+        self.centralWidget().graphWidget.graphView.updateFigure(self.controller.kappaGraph)
 
     def InputFlowRate(self):
         returnValue = self.controller.flowRate
@@ -211,9 +174,6 @@ class MainWindow(QMainWindow):
                 break
         return returnValue
 
-    def getFlowRate(self):
-        return self.controller.flowRate
-
 class ControlPanel(QWidget):
     def __init__(self, mainWindow = None):
         QWidget.__init__(self)
@@ -222,8 +182,8 @@ class ControlPanel(QWidget):
         self.layout = QHBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.infoWidget = PeakAlignDataWidget(self.mainWindow)
-        self.graphWidget = graphWidget(self.mainWindow)
+        self.infoWidget = PeakTextDataWidget(self.mainWindow)
+        self.graphWidget = PeakGraphWidget(self.mainWindow)
         self.layout.addWidget(self.infoWidget)
         self.layout.addWidget(self.graphWidget)
         self.setLayout(self.layout)
@@ -235,19 +195,18 @@ class ControlPanel(QWidget):
     def switchToKappa(self):
         self.clearLayout(self.layout)
         self.infoWidget = KappaTextDataWidget(self.mainWindow)
-        self.graphWidget = KappaGraphDataWidget(self.mainWindow)
+        self.graphWidget = KappaGraphWidget(self.mainWindow)
         self.clearLayout(self.layout)
         self.layout.addWidget(self.infoWidget)
         self.layout.addWidget(self.graphWidget)
         self.setLayout(self.layout)
         self.infoWidget.updateData()
-        self.graphWidget.totalView.updateFigure(self.mainWindow.controller.kappaGraph)
         self.resize()
 
     def switchToPeak(self):
         self.clearLayout(self.layout)
-        self.infoWidget = PeakAlignDataWidget(self.mainWindow)
-        self.graphWidget = graphWidget(self.mainWindow)
+        self.infoWidget = PeakTextDataWidget(self.mainWindow)
+        self.graphWidget = PeakGraphWidget(self.mainWindow)
         self.layout.addWidget(self.infoWidget)
         self.layout.addWidget(self.graphWidget)
         self.setLayout(self.layout)

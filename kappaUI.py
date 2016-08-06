@@ -99,7 +99,7 @@ class KappaRawDataTable(QTableWidget):
         devi = TableHeader('% devi')
         self.setCellWidget(self.rowCount() - 1, 4, devi)
 
-        kappaDict = self.mainWindow.getKappaDict()
+        kappaDict = self.mainWindow.controller.kappaCalculatedDict
         for aKey in kappaDict.keys():
             if kappaDict[aKey]:
                 for aSS in kappaDict[aKey]:
@@ -156,7 +156,7 @@ class KappaGraphDataTable(QTableWidget):
         for i in range(self.rowCount()):
             self.removeRow(self.rowCount() - 1)
 
-        dataDict = self.mainWindow.getAlphaPineneDict()
+        dataDict = self.mainWindow.controller.alphaPineneDict
         self.setColumnCount(len(dataDict.keys()) + 1)
         self.headerList = []
         ssHeader = SingleTableHeaderItem("SS(%)")
@@ -230,7 +230,8 @@ class KappaConstDataTable(QTableWidget):
         header = TableHeader("Variables")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
-        kappaVars = self.mainWindow.getKappaVars()
+        controller = self.mainWindow.controller
+        kappaVars = (controller.sigma, controller.temp, controller.dd, controller.iKappa, controller.dd2,controller.iKappa2, controller.solubility)
         s = kappaVars[0]
         t = kappaVars[1]
         d1 = kappaVars[2]
@@ -253,12 +254,12 @@ class KappaConstDataTable(QTableWidget):
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount()-1,0,item)
 
-class KappaGraphDataWidget(QWidget):
+class KappaGraphWidget(QWidget):
     def resize(self, parentWidth, parentHeight):
         self.setFixedWidth(parentWidth * 3 / 4)
         self.setFixedHeight(parentHeight)
-        self.totalView.resize(self.width(),self.height())
-        self.controlArea.resize(self.width(),self.height())
+        self.graphView.resize(self.width(), self.height())
+        self.controlWidget.resize(self.width(), self.height())
 
     def __init__(self, mainWindow=None):
         super(self.__class__, self).__init__(mainWindow)
@@ -266,10 +267,10 @@ class KappaGraphDataWidget(QWidget):
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.totalView = KappaFigureCanvas()
-        self.controlArea = KappaControlTabWidget(mainWindow)
-        self.layout.addWidget(self.totalView)
-        self.layout.addWidget(self.controlArea)
+        self.graphView = KappaFigureCanvas()
+        self.controlWidget = KappaControlTabWidget(mainWindow)
+        self.layout.addWidget(self.graphView)
+        self.layout.addWidget(self.controlWidget)
 
 class KappaControlTabWidget(QWidget):
     def resize(self, parentWidth, parentHeight):
@@ -321,10 +322,12 @@ class KappaControlTabWidget(QWidget):
         self.mainWindow.centralWidget().infoWidget.changeToConstDataTable()
 
     def fullGraphClicked(self):
-        self.mainWindow.controller.makeKappaGraph(fullGraph=True)
+        self.mainWindow.controller.isFullKappaGraph = True
+        self.mainWindow.controller.makeKappaGraph()
 
     def focusedGraphClicked(self):
-        self.mainWindow.controller.makeKappaGraph(fullGraph=False)
+        self.mainWindow.controller.isFullKappaGraph = False
+        self.mainWindow.controller.makeKappaGraph()
 
 class KappaFigureCanvas(FigureCanvas):
     def resize(self, parentWidth, parentHeight):

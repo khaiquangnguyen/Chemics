@@ -12,14 +12,14 @@ import time
 from InputDialog import *
 from KappaVarConfirmDialog import *
 
-class PeakAlignDataWidget(QWidget):
+class PeakTextDataWidget(QWidget):
     def __init__(self, mainWindow=None):
         super(self.__class__,self).__init__(mainWindow)
         self.layout = QVBoxLayout()  #Vertical layout
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.infoTable = PeakAlignDataTable(mainWindow)
+        self.infoTable = PeakDataTable(mainWindow)
         self.layout.addWidget(self.infoTable)
 
     def resize(self, parentWidth, parentHeight):
@@ -27,7 +27,7 @@ class PeakAlignDataWidget(QWidget):
         self.setFixedHeight(parentHeight)
         self.infoTable.resize(self.width(), self.height())
 
-class PeakAlignDataTable(QTableWidget):
+class PeakDataTable(QTableWidget):
     def resize(self, parentWidth, parentHeight):
         self.setFixedHeight(parentHeight)
         self.setFixedWidth(parentWidth)
@@ -53,15 +53,15 @@ class PeakAlignDataTable(QTableWidget):
         palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
         self.setPalette(palette)
 
-    def updateData(self):
+    def updateGeneralInfo(self):
         header = TableHeader("Data Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         self.addMessage("Date",self.mainWindow.controller.date)
         self.addMessage("Time frame",self.mainWindow.controller.startTimeEntries[0] + " to " + self.mainWindow.controller.endTimeEntries[-1])
         self.addMessage("Time per run",self.mainWindow.controller.timeFrame)
-        self.addMessage("Total run",self.mainWindow.getMaxPeak())
-        self.addMessage("CPC", self.mainWindow.getFlowRate())
+        self.addMessage("Total run",self.mainWindow.controller.maxPeak)
+        self.addMessage("CPC", self.mainWindow.controller.flowRate)
 
     def updateBasicPeakInfo(self):
         if self.rowCount() > 6:
@@ -70,12 +70,12 @@ class PeakAlignDataTable(QTableWidget):
         header = TableHeader("Basic Peak Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
-        currPeak = self.mainWindow.getPeak()
+        currPeak = self.mainWindow.controller.currPeak
         if self.mainWindow.controller.minPosCCNCList[currPeak] and self.mainWindow.controller.minPosCCNCList[currPeak]:
             self.addMessage("Status", "Valid for curve fit")
         else:
             self.addMessage("Status", "Invalid for curve fit", color='#EF5350')
-        self.addMessage("Current run",self.mainWindow.getPeak() + 1)
+        self.addMessage("Current run",currPeak + 1)
         self.addMessage("Saturation",self.mainWindow.controller.superSaturation)
 
     def updateSigFitPeakInfo(self):
@@ -87,19 +87,18 @@ class PeakAlignDataTable(QTableWidget):
         header = TableHeader("Basic Peak Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
-        currPeak = self.mainWindow.getPeak()
+        currPeak = self.mainWindow.controller.currPeak
         if self.mainWindow.controller.minPosCCNCList[currPeak] and self.mainWindow.controller.minPosCCNCList[currPeak]:
             self.addMessage("Status", "Valid for curve fit")
         else:
             self.addMessage("Status", "Invalid for curve fit",  color='#EF5350')
-        self.addMessage("Current run", self.mainWindow.getPeak() + 1)
+        self.addMessage("Current run", currPeak + 1)
         self.addMessage("Saturation", self.mainWindow.controller.superSaturation)
 
         # Add advance information data
         header = TableHeader("Advance Peak Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
-        currPeak = self.mainWindow.getPeak()
         if self.mainWindow.controller.usableForKappaCalList[currPeak]:
             self.addMessage("Status", "Valid for Kappa Cal")
         else:
@@ -121,32 +120,29 @@ class PeakAlignDataTable(QTableWidget):
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount()-1,0,item)
 
-class graphWidget(QWidget):
+class PeakGraphWidget(QWidget):
     def resize(self, parentWidth, parentHeight):
         self.setFixedWidth(parentWidth * 3 / 4)
         self.setFixedHeight(parentHeight)
-        self.totalView.resize(self.width(),self.height())
-        self.tempView.resize(self.width(),self.height())
-        self.controlArea.resize(self.width(),self.height())
-        self.individualViews.resize(self.width(),self.height())
+        self.tempAndMinView.resize(self.width(), self.height())
+        self.controlWidget.resize(self.width(), self.height())
+        self.dpAndDnlogView.resize(self.width(), self.height())
 
     def __init__(self, mainWindow=None):
         super(self.__class__, self).__init__(mainWindow)
+        self.mainWindow = mainWindow
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.totalView = HorizontalView()
-        self.tempView = HorizontalView()
-        self.individualViews = individualViews()
-        self.controlArea = controlArea(mainWindow)
+        self.tempAndMinView = PeakRectFigureCanvas()
+        self.dpAndDnlogView = PeakDpDnLogGraphWidget()
+        self.controlWidget = PeakControlTabWidget(mainWindow)
+        self.layout.addWidget(self.dpAndDnlogView)
+        self.layout.addWidget(self.controlWidget)
+        self.layout.addWidget(self.tempAndMinView)
 
-        self.layout.addWidget(self.individualViews)
-        self.layout.addWidget(self.tempView)
-        self.layout.addWidget(self.controlArea)
-        self.layout.addWidget(self.totalView)
-
-class controlArea(QWidget):
+class PeakControlTabWidget(QWidget):
     def resize(self, parentWidth, parentHeight):
         self.setFixedHeight(parentHeight * 1 / 10)
         self.setFixedWidth(parentWidth)
@@ -218,24 +214,27 @@ class controlArea(QWidget):
             (a,b,c) = updateDialog.getData()
             self.mainWindow.controller.reOptimization(a,b,c)
 
-
     def addSecondClicked(self):
-        self.mainWindow.addSecond()
+        self.mainWindow.controller.shiftOneSecond()
 
     def subSecondClicked(self):
-        self.mainWindow.subSecond()
+        self.mainWindow.controller.shiftOneSecond(forward=False)
 
     def nextButtonClicked(self):
-        self.mainWindow.switchToPeak(min(self.mainWindow.getPeak() + 1, self.mainWindow.getMaxPeak() - 1))
+        currPeak = self.mainWindow.controller.currPeak
+        maxPeak = self.mainWindow.controller.maxPeak
+        self.mainWindow.controller.switchToPeak(min(currPeak + 1, maxPeak - 1))
 
     def previousButtonClicked(self):
-        self.mainWindow.switchToPeak(max(0, self.mainWindow.getPeak() - 1))
+        currPeak = self.mainWindow.controller.currPeak
+        self.mainWindow.controller.switchToPeak(max(0, currPeak - 1))
 
     def optimizeButtonClicked(self):
         self.mainWindow.controller.optimizationProcedure()
 
     def calKappaButtonClicked(self):
-        kappaVars = self.mainWindow.getKappaVars()
+        controller = self.mainWindow.controller
+        kappaVars = (controller.sigma, controller.temp, controller.dd, controller.iKappa, controller.dd2, controller.iKappa2,controller.solubility)
         sig = kappaVars[0]
         temp = kappaVars[1]
         dd1 = kappaVars[2]
@@ -249,9 +248,28 @@ class controlArea(QWidget):
             self.mainWindow.updateKappaVars(sig,temp,dd1,iKappa1,dd2,iKappa2,solu)
             self.mainWindow.calKappa()
 
-class HorizontalView(FigureCanvas):
+
+class PeakDpDnLogGraphWidget(QWidget):
+    def __init__(self):
+        QWidget.__init__(self)
+        self.dpView = PeakSquareFigureCanvas()
+        self.dNlogView = PeakSquareFigureCanvas()
+        self.layout = QHBoxLayout()
+        self.layout.setSpacing(0)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.addWidget(self.dpView)
+        self.layout.addWidget(self.dNlogView)
+        self.setLayout(self.layout)
+
     def resize(self, parentWidth, parentHeight):
-        self.setFixedHeight(parentHeight * 1 / 4 + 3)
+        self.setFixedWidth(parentWidth)
+        self.setFixedHeight(parentHeight * 1 / 2)
+        self.dpView.resize(self.width(), self.height())
+        self.dNlogView.resize(self.width(), self.height())
+
+class PeakRectFigureCanvas(FigureCanvas):
+    def resize(self, parentWidth, parentHeight):
+        self.setFixedHeight(parentHeight * 2 / 5 + 3)
         self.setFixedWidth(parentWidth)
 
     def __init__(self, mainWindow=None):
@@ -268,26 +286,7 @@ class HorizontalView(FigureCanvas):
         self.setFixedHeight(h)
 
 
-class individualViews(QWidget):
-    def __init__(self):
-        QWidget.__init__(self)
-        self.dpView = dpView()
-        self.dNlogView = dNlogView()
-        self.layout = QHBoxLayout()
-        self.layout.setSpacing(0)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.addWidget(self.dpView)
-        self.layout.addWidget(self.dNlogView)
-        self.setLayout(self.layout)
-
-    def resize(self, parentWidth, parentHeight):
-        self.setFixedWidth(parentWidth)
-        self.setFixedHeight(parentHeight * 2 / 5)
-        self.dpView.resize(self.width(), self.height())
-        self.dNlogView.resize(self.width(), self.height())
-
-
-class dpView(FigureCanvas):
+class PeakSquareFigureCanvas(FigureCanvas):
     def resize(self, parentWidth, parentHeight):
         self.setFixedHeight(parentHeight)
         self.setFixedWidth(parentWidth / 2)
@@ -303,20 +302,4 @@ class dpView(FigureCanvas):
         self.setFixedHeight(h / 2)
         self.setFixedHeight(h)
 
-
-class dNlogView(FigureCanvas):
-    def resize(self, parentWidth, parentHeight):
-        self.setFixedHeight(parentHeight)
-        self.setFixedWidth(parentWidth / 2)
-
-    def __init__(self, mainWindow=None):
-        fig = Figure(facecolor=settings.graphBackgroundColor)
-        super(self.__class__, self).__init__(fig)
-
-    def updateFigure(self, figure):
-        self.figure = figure
-        self.draw()
-        h = self.height()
-        self.setFixedHeight(h / 2)
-        self.setFixedHeight(h)
 
