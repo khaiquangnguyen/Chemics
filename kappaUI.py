@@ -140,7 +140,6 @@ class KappaGraphDataTable(QTableWidget):
         self.setShowGrid(False)
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().setVisible(False)
-        self.horizontalHeader().setStretchLastSection(True)
         self.verticalHeader().setDefaultSectionSize(self.height() / 25)
         self.setWordWrap(True)
         self.setFrameStyle(QFrame.NoFrame)

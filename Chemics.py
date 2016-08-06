@@ -15,13 +15,13 @@ import matplotlib.pyplot as plt
 import matplotlib
 from sys import exit
 import settings
-matplotlib.style.use('ggplot')
 import scipy.optimize as opt
 import time
 from PySide import QtGui
 from Exceptions import *
 from HelperFunctions import *
 from HelperFunctions import csvProcessing
+matplotlib.style.use('ggplot')
 
 csvFilePath = "E:\Updated program\Demonstration_Files\CCN data 100203092813.csv"
 txtFilePath = "E:\Updated program\Demonstration_Files\AS_Calibration_SMPS.txt"
@@ -158,6 +158,8 @@ class Controller():
         self.kappaExcludeList = []
         self.kappaPoints = []
         self.klines = None
+        self.maxKappa = None
+        self.minKappa = None
 
         # Dicts to store kappa values
         self.kappaCalculatedDict = {}
@@ -989,10 +991,56 @@ class Controller():
         """
         Produce the kappa graph, may be in full or only around the points
         """
+        # Read in the kappa lines csv files.
         if self.klines is None:
             self.klines = pandas.read_csv("klines.csv", header=1)
+            # Acquire the kappa points
+            kappaList = []
+            stdKappaList = []
+            for aKey in self.alphaPineneDict.keys():
+                kappaList.append(self.alphaPineneDict[aKey][2])
+                stdKappaList.append(self.alphaPineneDict[aKey][3])
+                self.kappaPoints.append((self.alphaPineneDict[aKey][0], aKey))
+
+            # Determine maximum and minimum kappas
+            tempKList = []
+            for i in range(len(kappaList)):
+                tempKList.append(kappaList[i] + stdKappaList[i])
+            self.maxKappa = max(tempKList)
+            tempKList = []
+            for i in range(len(kappaList)):
+                tempKList.append(kappaList[i] - stdKappaList[i])
+            self.minKappa = min(tempKList)
         header = self.klines.columns
         diaList = self.klines[header[1]]
+
+        fullKXList = []
+        fullKYList = []
+        kpXList = []
+        kpYList = []
+        excludedXList = []
+        excludedYList = []
+        # Get all the kappa points
+        for i in range(len(self.kappaPoints)):
+            fullKXList.append(self.kappaPoints[i][0])
+            fullKYList.append(self.kappaPoints[i][1])
+        # Process which point is included and which point is excluded
+        # Include all excluded points to exclude list
+        for i in self.kappaExcludeList:
+            excludedXList.append(self.kappaPoints[i][0])
+            excludedYList.append(self.kappaPoints[i][1])
+        # Exclude all excluded points from kpx/y list
+        for i in range(len(self.kappaPoints)):
+            if i not in self.kappaExcludeList:
+                kpXList.append(self.kappaPoints[i][0])
+                kpYList.append(self.kappaPoints[i][1])
+        # convert list to array
+        excludedXList = numpy.asarray(excludedXList)
+        excludedYList = numpy.asarray(excludedYList)
+        kpXList = numpy.asarray(kpXList)
+        kpYList = numpy.asarray(kpYList)
+
+        # Prepare the figure
         if self.kappaGraph:
             figure = plt.figure(self.kappaGraph.number)
             figure.clf()
@@ -1013,28 +1061,8 @@ class Controller():
         plt.ylabel("Super Saturation(%)")
         figure.canvas.mpl_connect('pick_event', self.onKappaPick)
 
-        # Get the points
-        xList = []
-        yList = []
-        kappaList = []
-        stdKappaList = []
-        for aKey in self.alphaPineneDict.keys():
-            xList.append(self.alphaPineneDict[aKey][0])
-            kappaList.append(self.alphaPineneDict[aKey][2])
-            stdKappaList.append(self.alphaPineneDict[aKey][3])
-            yList.append(aKey)
-            self.kappaPoints.append((self.alphaPineneDict[aKey][0], aKey))
-
-        tempKList = []
-        for i in range(len(kappaList)):
-            tempKList.append(kappaList[i] + stdKappaList[i])
-        maxKappa = max(tempKList)
-        tempKList = []
-        for i in range(len(kappaList)):
-            tempKList.append(kappaList[i] - stdKappaList[i])
-        minKappa = min(tempKList)
-
-        # Draw all the kappa lines
+        # Graph the klines
+        # Full kappa lines
         if fullGraph:
             for i in range(2, len(header)):
                 y = self.klines[header[i]]
@@ -1047,8 +1075,8 @@ class Controller():
             kappaStartPos = 2
             kappaEndPos = len(header)
             while True:
-                if maxKappa > kappa:
-                    kappaStartPos = max(2,i - 3)
+                if self.maxKappa > kappa:
+                    kappaStartPos = max(2, i - 3)
                     break
                 i += 1
                 kappa -= step
@@ -1061,39 +1089,28 @@ class Controller():
             kappa = 1
             step = 0.1
             while True:
-                if minKappa > kappa:
-                    kappaEndPos = min(i + 3,len(header))
+                if self.minKappa > kappa:
+                    kappaEndPos = min(i + 3, len(header))
                     break
                 i += 1
                 kappa -= step
                 if kappa == step:
                     step /= 10
-                if i>= len(header):
+                if i >= len(header):
                     kappaEndPos = len(header)
                     break
             for i in range(kappaStartPos, kappaEndPos):
                 y = self.klines[header[i]]
                 plt.loglog(diaList, y, label=str(header[i]), linewidth=4)
 
-        # Draw the points
-        plt.plot(xList, yList, 'o', color="#81C784", picker=5,mew=0.5, mec="#0D47A1", ms=12,
+        # Graph all the kappa points
+        plt.plot(fullKXList, fullKYList, 'o', picker=5, mew=0.5, ms=12, alpha = 0)
+        # Graph the kappa points
+        plt.plot(kpXList, kpYList, 'o', color="#81C784", mew=0.5, mec="#81C784", ms=12,
                  label=" Kappa Points")
-
-        # If there is no excluded points
-        if len(self.kappaExcludeList) == 0:
-            self.currentPoint = None
-        else:
-            for j in (self.kappaExcludeList):
-                xList.append(self.kappaPoints[j][0])
-                yList.append(self.kappaPoints[j][1])
-            xList = numpy.asarray(xList)
-            yList = numpy.asarray(yList)
-            if self.currentPoint:
-                self.currentPoint.set_xdata(xList)
-                self.currentPoint.set_ydata(yList)
-            else:
-                self.currentPoint, = plt.plot(xList, yList, 'x', color="#1565C0", ms=8, mew=0, label="excluded kappa")
-
+        # Graph the excluded points
+        if len(excludedXList) >0 and len(excludedYList) > 0:
+            plt.plot(excludedXList, excludedYList, 'x', mec="#81C784", color="#81C784",mew=4,ms = 12, label="excluded kappa")
         handles, labels = plt.gca().get_legend_handles_labels()
         legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.1, 1))
         legend.get_frame().set_facecolor('#9E9E9E')
@@ -1109,30 +1126,14 @@ class Controller():
         # if already in excluded list, include the points
         for i in range(len(self.kappaExcludeList)):
             if self.kappaExcludeList[i] == kappaPoint:
-                self.kappaExcludeList = self.kappaExcludeList[:i] + self.kappaExcludeList[i+1:]
+                self.kappaExcludeList = self .kappaExcludeList[:i] + self.kappaExcludeList[i+1:]
                 excluded = True
                 break
         # else, exclude the point
         if not excluded:
             self.kappaExcludeList.append(kappaPoint)
-
-        xList = []
-        yList = []
-        for j in (self.kappaExcludeList):
-            xList.append(self.kappaPoints[j][0])
-            yList.append(self.kappaPoints[j][1])
-        xList = numpy.asarray(xList)
-        yList = numpy.asarray(yList)
-        if not self.currentPoint:
-            # get kappa figures
-            plt.figure(self.kappaGraph.number)
-            self.currentPoint, = plt.plot(xList, yList, 'o', color="#1565C0", ms=8, mew=0, label = "excluded kappa")
-        else:
-            self.currentPoint.set_xdata(xList)
-            self.currentPoint.set_ydata(yList)
-        self.view.updateKappaGraph()
-
-
+        # Remake the kappa graph
+        self.makeKappaGraph()
 
     # -------------Single peak procedure ------------------
 
@@ -1336,7 +1337,7 @@ class Controller():
         """
         Calculate the kappa values - producing both raw data kappa and graph data kappa
         """
-        # self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
+        self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
         for i in range(len(self.dp50List)):
             self.usableForKappaCalList.append(True)
 
