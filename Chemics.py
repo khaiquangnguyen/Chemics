@@ -537,14 +537,11 @@ class Controller():
         yIntercept = result[1]
 
         # Recalculate the position of the smps
-        correctedIndexList = []
-        for i in range(len(self.data)):
-            correctedIndexList.append(round((i * slope + yIntercept) * 10))
         plt.plot(x, x * slope + yIntercept, linewidth = 4, color = '#43A047', label = "Regression line")
         plt.plot(x, y, "o", ms = 10, color = "#43A047",picker=5, mew = 0, label = "Minimum")
         textToShow = str(slope) + "* x" + " + " + str(yIntercept)
+        plt.text(x[4], y[3], textToShow, color="#81C784")
         self.currentPoint, = plt.plot(x[0],y[0],'o', color = "#81C784", ms = 12, mew = 0)
-        plt.text(x[4], y[3], textToShow, color = "#81C784" )
         plt.xlabel("SMPS minumum point")
         plt.ylabel("CCNC minimum point")
 
@@ -1103,6 +1100,10 @@ class Controller():
                 y = self.klines[header[i]]
                 plt.loglog(diaList, y, label=str(header[i]), linewidth=4)
 
+        # Calculate the best fit line
+        result = scipy.stats.linregress(kpXList, kpYList)
+        slope = result[0]
+        yIntercept = result[1]
         # Graph all the kappa points
         plt.plot(fullKXList, fullKYList, 'o', picker=5, mew=0.5, ms=12, alpha = 0)
         # Graph the kappa points
@@ -1336,7 +1337,7 @@ class Controller():
         """
         Calculate the kappa values - producing both raw data kappa and graph data kappa
         """
-        # self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
+        self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
         for i in range(len(self.dp50List)):
             self.usableForKappaCalList.append(True)
         self.makeProgress("Calculating Kappa...", maxValue=len(self.dp50List) + 3)
