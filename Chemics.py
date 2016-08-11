@@ -1,31 +1,24 @@
-import csv
 import re
 import pandas
-from ggplot import *
 from datetime import *
 from scipy import signal
 import numpy
-import peakutils
 from scipy import *
 from scipy import stats
 from GUI import *
-import tempfile
 import scipy.constants
 import matplotlib.pyplot as plt
 import matplotlib
-from sys import exit
 import settings
 import scipy.optimize as opt
 import time
 from PySide import QtGui
 from Exceptions import *
+import FileDialog
+import Tkinter
 from HelperFunctions import *
-from HelperFunctions import csvProcessing
 matplotlib.style.use('ggplot')
 
-csvFilePath = "E:\Updated program\Demonstration_Files\CCN data 100203092813.csv"
-txtFilePath = "E:\Updated program\Demonstration_Files\AS_Calibration_SMPS.txt"
-b = 0
 
 class Controller():
     def __init__(self, mode=True):
@@ -95,9 +88,6 @@ class Controller():
         self.ccnNormalizedList = []
         self.diameterMidpointList = []
         self.ccncnSimList = []
-        self.temp1List = []
-        self.temp2List = []
-        self.temp3List =[]
         self.temp1 = []
         self.temp2 = []
         self.temp3 = []
@@ -214,7 +204,6 @@ class Controller():
         Get the flow rate of the data from user input
         """
         self.flowRate = self.view.InputFlowRate()
-        print self.flowRate
         self.flowRate = 1/(self.flowRate*1000/60)
 
     def getRawDataFromFiles(self):
@@ -350,9 +339,6 @@ class Controller():
             timeStamp = datetime.strptime(startTime[0], "%I:%M:%S")
             self.peakPositionInData = []
             while (True):
-                self.temp1 = []
-                self.temp2 = []
-                self.temp3 = []
                 sizeSum = 0
                 countSum = 0
                 previousTimeStamp = datetime.strptime(startTime[i], "%I:%M:%S").time()
@@ -365,9 +351,6 @@ class Controller():
                     sizeSum = 0
                     countSum = 0
                     aLine.append(float(csvContent[k + t][-3]))
-                    self.temp1.append(float(csvContent[k + t][5]))
-                    self.temp2.append(float(csvContent[k + t][7]))
-                    self.temp3.append(float(csvContent[k + t][9]))
                     if csvContent[k + t][1] > maxSS:
                         maxSS = csvContent[k + t][1]
                     for m in range(0, 20):
@@ -379,15 +362,15 @@ class Controller():
                         aLine.append(0)
                     else:
                         aLine.append(sizeSum / countSum)
+                    aLine.append(float(csvContent[k + t][5]))
+                    aLine.append(float(csvContent[k + t][7]))
+                    aLine.append(float(csvContent[k + t][9]))
                     smpsCcnList.append(aLine)
                     timeStamp += timedelta(seconds=1)
                 k += self.timeFrame
 
                 # Update the lists
                 self.ssList.append(maxSS)
-                self.temp1List.append(self.temp1)
-                self.temp2List.append(self.temp2)
-                self.temp3List.append(self.temp3)
 
                 # If reach the end of smps, collect the rest of ccnc for alignment
                 timeGap = 0
@@ -423,6 +406,9 @@ class Controller():
                         aLine.append(0)
                     else:
                         aLine.append(sizeSum / countSum)
+                    aLine.append(float(csvContent[k + t][5]))
+                    aLine.append(float(csvContent[k + t][7]))
+                    aLine.append(float(csvContent[k + t][9]))
                     smpsCcnList.append(aLine)
                     timeStamp += timedelta(seconds=1)
                 k += timeGap
@@ -432,7 +418,7 @@ class Controller():
                 if i >= len(startTime):
                     break
 
-            title = ["scan time"] + ["real time"] + ["dp"] + ["SMPS Count"] + ["CCNC Count"] + ["Ave Size"]
+            title = ["scan time"] + ["real time"] + ["dp"] + ["SMPS Count"] + ["CCNC Count"] + ["Ave Size"] + ["T1"] + ["T2"] + ["T3"]
             self.rawData = pandas.DataFrame(smpsCcnList, columns=title)
         except:
             raise DataError()
@@ -492,7 +478,10 @@ class Controller():
                     smpsCount = self.rawData.iat[startTime + i, 3]
                     ccncCount = self.rawData.iat[startTime + i + shiftFactor, 4]
                     aveSize = self.rawData.iat[startTime + i + shiftFactor, 5]
-                    newData.append([scanTime, realTime, dp, smpsCount, ccncCount, aveSize])
+                    t1 = self.rawData.iat[startTime + i + shiftFactor, 6]
+                    t2 = self.rawData.iat[startTime + i + shiftFactor, 7]
+                    t3 = self.rawData.iat[startTime + i + shiftFactor, 8]
+                    newData.append([scanTime, realTime, dp, smpsCount, ccncCount, aveSize,t1,t2,t3])
 
                 currPeak += 1
                 if endTime + shiftFactor >= len(self.rawData) or currPeak >= len(self.peakPositionInData):
@@ -593,6 +582,9 @@ class Controller():
             self.diameterList = list(self.data[startPoint:endPoint]['dp'])
             ccnList = list(self.data[startPoint:endPoint]['CCNC Count'])
             cnList = list(self.data[startPoint:endPoint]['SMPS Count'])
+            self.temp1 = list(self.data[startPoint:endPoint]['T1'])
+            self.temp2 = list(self.data[startPoint:endPoint]['T2'])
+            self.temp3 = list(self.data[startPoint:endPoint]['T3'])
 
             # modify this to get aParam decently good number
             cnList = [x * 0.2 for x in cnList]
@@ -608,9 +600,7 @@ class Controller():
                 dNdLogDpList.append(self.dNlog[i][self.currPeak + 1])
             self.ccnNormalizedList = normalizeList(dNdLogDpList)
             self.usableForKappaCalList[self.currPeak] = True
-            self.temp1 = self.temp1List[self.currPeak]
-            self.temp2 = self.temp2List[self.currPeak]
-            self.temp3 = self.temp3List[self.currPeak]
+
 
         except:
             raise OptimizationError()
@@ -902,33 +892,42 @@ class Controller():
         finally:
             self.dryDiaGraphList.append(plt.gcf())
 
-    def makeTempGraph(self):
+    def makeTempGraph(self, newFigure = None):
         """
         Make the temperature graphs
         """
-        figure = plt.figure(facecolor=settings.graphBackgroundColor)
-        plt.axes(frameon=False)
-        plt.grid(color='0.5')
-        plt.axhline(0, color='0.6', linewidth=4)
-        plt.axvline(0, color='0.6', linewidth=4)
-        plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
-        plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
-        plt.gca().yaxis.label.set_color('0.6')
-        plt.gca().xaxis.label.set_color('0.6')
+        try:
+            if newFigure is None:
+                figure = plt.figure(facecolor=settings.graphBackgroundColor)
+            else:
+                figure = newFigure
+                figure.clf()
+                plt.figure(figure.number)
+            plt.axes(frameon=False)
+            plt.grid(color='0.5')
+            plt.axhline(0, color='0.6', linewidth=4)
+            plt.axvline(0, color='0.6', linewidth=4)
+            plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+            plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+            plt.gca().yaxis.label.set_color('0.6')
+            plt.gca().xaxis.label.set_color('0.6')
 
-        x = range(self.timeFrame)
-        minY = min(min(self.temp1), min(self.temp2), min(self.temp3)) - 3
-        maxY = max(max(self.temp1), max(self.temp2), max(self.temp3)) + 3
-        plt.gca().axes.set_ylim([minY, maxY])
-        plt.plot(x, self.temp1, linewidth=5, color='#EF5350', label="T1")
-        plt.plot(x, self.temp2, linewidth=5, color='#2196F3', label="T2")
-        plt.plot(x, self.temp3, linewidth=5, color='#1565C0', label="T3")
-        plt.xlabel("Scan time(s)")
-        plt.ylabel("Temperature")
-        handles, labels = plt.gca().get_legend_handles_labels()
-        legend = plt.legend(handles, labels, loc="upper right", bbox_to_anchor=(1.1, 1.1))
-        legend.get_frame().set_facecolor('#9E9E9E')
-        self.tempGraphList.append(plt.gcf())
+            x = range(self.timeFrame)
+            minY = min(min(self.temp1), min(self.temp2), min(self.temp3)) - 3
+            maxY = max(max(self.temp1), max(self.temp2), max(self.temp3)) + 3
+            plt.gca().axes.set_ylim([minY, maxY])
+            plt.plot(x, self.temp1, linewidth=5, color='#EF5350', label="T1")
+            plt.plot(x, self.temp2, linewidth=5, color='#2196F3', label="T2")
+            plt.plot(x, self.temp3, linewidth=5, color='#1565C0', label="T3")
+            plt.xlabel("Scan time(s)")
+            plt.ylabel("Temperature")
+            handles, labels = plt.gca().get_legend_handles_labels()
+            legend = plt.legend(handles, labels, loc="upper right", bbox_to_anchor=(1.1, 1.1))
+            legend.get_frame().set_facecolor('#9E9E9E')
+        except:
+            figure = plt.figure(facecolor=settings.graphBackgroundColor)
+        finally:
+            self.tempGraphList.append(plt.gcf())
 
     def makeFullDryDiameterGraph(self, newFigure = None):
         """
@@ -1337,10 +1336,9 @@ class Controller():
         """
         Calculate the kappa values - producing both raw data kappa and graph data kappa
         """
-        self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
+        # self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
         for i in range(len(self.dp50List)):
             self.usableForKappaCalList.append(True)
-
         self.makeProgress("Calculating Kappa...", maxValue=len(self.dp50List) + 3)
         self.makeProgress("Reading in lookup table")
         if self.kappaExcel is None:
@@ -1500,8 +1498,6 @@ class Controller():
             self.view.updateTempOrMinFigure(self.tempGraph)
             self.view.updateBasicPeakInfo()
 
-
-
     def shiftOneSecond(self, forward=True):
 
         if self.completedStep <=1:
@@ -1523,6 +1519,9 @@ class Controller():
         endTime = startTime + self.timeFrame
         newCCN = list(self.rawData.iloc[startTime:endTime, 4])
         newAveSize = list(self.rawData.iloc[startTime:endTime, 5])
+        newT1 = list(self.rawData.iloc[startTime:endTime,6])
+        newT2 = list(self.rawData.iloc[startTime:endTime,7])
+        newT3 = list(self.rawData.iloc[startTime:endTime,8])
 
         # Get the location of the replacement in the data
         dataStartTime = self.timeFrame * self.currPeak
@@ -1532,6 +1531,9 @@ class Controller():
         for i in range(self.timeFrame):
             self.data.iat[dataStartTime + i, 4] = newCCN[i]
             self.data.iat[dataStartTime + i, 5] = newAveSize[i]
+            self.data.iat[dataStartTime + i, 6] = newT1[i]
+            self.data.iat[dataStartTime + i, 7] = newT2[i]
+            self.data.iat[dataStartTime + i, 8] = newT3[i]
 
         # Update the data
         self.preparePeakData()
@@ -1540,8 +1542,11 @@ class Controller():
         self.makeAdjustedGraph(newFigure=figure)
         figure = self.dryDiaGraph
         self.makeCCNGraph(figure)
+        figure = self.tempGraph
+        self.makeTempGraph(figure)
         # Update the graph in view
         self.view.updateDpDNLogFigures(self.adjustedGraph, self.dryDiaGraph)
+        self.view.updateTempOrMinFigure(self.tempGraph)
 
     def disablePeak(self):
         # disable the peak
@@ -1722,9 +1727,6 @@ class Controller():
         self.alphaPineneDict = {}
         self.peakPositionInData = []
         self.usableForKappaCalList = []
-        self.temp1List = []
-        self.temp2List = []
-        self.temp3List = []
         self.kappaExcludeList = []
         self.kappaPoints = []
 

@@ -63,7 +63,6 @@ class SingleTableHeaderItem(QWidget):
         palette.setColor(QPalette.Base, settings.infoAreaItemBackgroundColor)
         self.setPalette(palette)
 
-
 class TableHeader(QWidget):
     def __init__(self, header):
         QWidget.__init__(self)
