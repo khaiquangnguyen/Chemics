@@ -11,6 +11,7 @@ import time
 
 from AlignmentUI import *
 from KappaUI import *
+import webbrowser
 
 matplotlib.use('Qt4Agg')
 matplotlib.rcParams['backend.qt4']='PySide'
@@ -46,6 +47,10 @@ class MainWindow(QMainWindow):
         folderSelection.triggered.connect(self.folderSelection)
         fileMenu.addAction(folderSelection)
 
+        feedbackSelection = QAction('&Feedback', self)
+        feedbackSelection.triggered.connect(self.feedbackSelection)
+        menubar.addAction(feedbackSelection)
+
         #add exit button
         exitAction = QAction( '&Exit', self)
         exitAction.setShortcut('Ctrl+Q')
@@ -56,6 +61,14 @@ class MainWindow(QMainWindow):
         #set central widget
         self.setCentralWidget(ControlPanel(self))
         self.showMaximized()
+
+    def feedbackSelection(self):
+        """
+        Submit feedback by showing a google form
+        """
+        webbrowser.open("https://goo.gl/forms/Cf6YQtdOXAqGx21U2")
+
+
 
     def folderSelection(self):
         """
