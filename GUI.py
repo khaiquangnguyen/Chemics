@@ -12,6 +12,7 @@ import time
 from AlignmentUI import *
 from KappaUI import *
 import webbrowser
+import urllib2
 
 matplotlib.use('Qt4Agg')
 matplotlib.rcParams['backend.qt4']='PySide'
@@ -51,6 +52,11 @@ class MainWindow(QMainWindow):
         feedbackSelection.triggered.connect(self.feedbackSelection)
         menubar.addAction(feedbackSelection)
 
+
+        updateSelection = QAction('&Update', self)
+        updateSelection.triggered.connect(self.updateSelection)
+        menubar.addAction(updateSelection)
+
         #add exit button
         exitAction = QAction( '&Exit', self)
         exitAction.setShortcut('Ctrl+Q')
@@ -62,11 +68,35 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(ControlPanel(self))
         self.showMaximized()
 
+        #get update
+        response = urllib2.urlopen('http://khaiquangnguyen.github.io/chemics_update.html')
+        html = response.read()
+        update = int(html[0])
+        if update == 1:
+            self.showUpdateDialog()
+
+
+    def showUpdateDialog(self, update = 1):
+        """ show the update"""
+        updateDialog = QMessageBox()
+        if update == 1:
+            updateDialog.setText("The program has an update. Please download the update for the program.")
+        else:
+            updateDialog.setText("The program is up-to-date.")
+        updateDialog.exec_()
+
     def feedbackSelection(self):
         """
         Submit feedback by showing a google form
         """
         webbrowser.open("https://goo.gl/forms/Cf6YQtdOXAqGx21U2")
+
+    def updateSelection(self):
+        response = urllib2.urlopen('http://khaiquangnguyen.github.io/chemics_update.html')
+        html = response.read()
+        update = int(html[0])
+        self.showUpdateDialog(update)
+
 
 
 

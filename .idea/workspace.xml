@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="52680c79-2416-4816-9b69-b1aa9e4f4874" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GUI.py" afterPath="$PROJECT_DIR$/GUI.py" />
     </list>
     <ignored path="Chemics.iws" />
@@ -19,7 +18,7 @@
     <SUITE FILE_PATH="coverage/Chemics$GUI.coverage" NAME="GUI Coverage Results" MODIFIED="1467044667222" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chemics$testFunction.coverage" NAME="testFunction Coverage Results" MODIFIED="1465934603876" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chemics$test.coverage" NAME="test Coverage Results" MODIFIED="1465372719716" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Chemics$Chemics.coverage" NAME="Chemics Coverage Results" MODIFIED="1471973197502" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chemics$Chemics.coverage" NAME="Chemics Coverage Results" MODIFIED="1471973913485" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -139,17 +138,17 @@
       <file leaf-file-name="GUI.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/GUI.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="664">
-              <caret line="59" column="0" selection-start-line="59" selection-start-column="0" selection-end-line="59" selection-end-column="0" />
+            <state relative-caret-position="1006">
+              <caret line="85" column="28" selection-start-line="85" selection-start-column="28" selection-end-line="85" selection-end-column="28" />
               <folding>
                 <element signature="e#1#11#0" expanded="true" />
-                <element signature="e#1833#1897#1" expanded="true" />
-                <element signature="e#2006#2067#1" expanded="true" />
-                <element signature="e#2308#2616#1" expanded="true" />
-                <element signature="e#3972#4088#1" expanded="true" />
-                <element signature="e#4390#4474#1" expanded="true" />
-                <element signature="e#5681#5928#0" expanded="false" />
-                <element signature="e#6092#6381#0" expanded="false" />
+                <element signature="e#2592#2656#1" expanded="true" />
+                <element signature="e#2988#3049#1" expanded="true" />
+                <element signature="e#3290#3598#1" expanded="true" />
+                <element signature="e#4954#5070#1" expanded="true" />
+                <element signature="e#5372#5456#1" expanded="true" />
+                <element signature="e#6663#6910#0" expanded="false" />
+                <element signature="e#7074#7363#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -1520,17 +1519,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/GUI.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="664">
-          <caret line="59" column="0" selection-start-line="59" selection-start-column="0" selection-end-line="59" selection-end-column="0" />
+        <state relative-caret-position="1006">
+          <caret line="85" column="28" selection-start-line="85" selection-start-column="28" selection-end-line="85" selection-end-column="28" />
           <folding>
             <element signature="e#1#11#0" expanded="true" />
-            <element signature="e#1833#1897#1" expanded="true" />
-            <element signature="e#2006#2067#1" expanded="true" />
-            <element signature="e#2308#2616#1" expanded="true" />
-            <element signature="e#3972#4088#1" expanded="true" />
-            <element signature="e#4390#4474#1" expanded="true" />
-            <element signature="e#5681#5928#0" expanded="false" />
-            <element signature="e#6092#6381#0" expanded="false" />
+            <element signature="e#2592#2656#1" expanded="true" />
+            <element signature="e#2988#3049#1" expanded="true" />
+            <element signature="e#3290#3598#1" expanded="true" />
+            <element signature="e#4954#5070#1" expanded="true" />
+            <element signature="e#5372#5456#1" expanded="true" />
+            <element signature="e#6663#6910#0" expanded="false" />
+            <element signature="e#7074#7363#0" expanded="false" />
           </folding>
         </state>
       </provider>
