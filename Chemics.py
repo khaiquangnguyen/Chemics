@@ -211,217 +211,216 @@ class Controller():
         Acquire raw data from the SMPS and CCNC files
         """
         # Get the basic contents
-        try:
-            self.csvContent = csvProcessing(self.ccncCsvFilePath)
-            self.date = self.csvContent[0]
-            self.txtContent = txtProcessing(self.smpsTxtFilePath)
-            self.startTimeEntries = self.txtContent[0]
-            self.endTimeEntries = []
 
-            # Get the running time( in seconds) of each run
-            for i in range(len(self.txtContent)):
-                if ''.join(self.txtContent[i][0].split()).lower() == "scanuptime(s)":
-                    scanUpTime = self.txtContent[i][1]
-                    scanDownTime = self.txtContent[i+1][1]
-            self.timeFrame = int(scanUpTime) + int(scanDownTime)
+        self.csvContent = csvProcessing(self.ccncCsvFilePath)
+        self.date = self.csvContent[0]
+        self.txtContent = txtProcessing(self.smpsTxtFilePath)
+        self.startTimeEntries = self.txtContent[0]
+        self.endTimeEntries = []
 
-            # Get the time stamp of each run
-            for i in range(len(self.startTimeEntries)):
-                self.endTimeEntries.append(datetime.strptime(self.startTimeEntries[i], "%I:%M:%S") + timedelta(
-                seconds=self.timeFrame))
-            smpsEndTime = self.endTimeEntries[-1]
-            csvEndTime = datetime.strptime(self.csvContent[1][len(self.csvContent[1]) - 1][0], "%I:%M:%S")
+        # Get the running time( in seconds) of each run
+        for i in range(len(self.txtContent)):
+            if ''.join(self.txtContent[i][0].split()).lower() == "scanuptime(s)":
+                scanUpTime = self.txtContent[i][1]
+                scanDownTime = self.txtContent[i+1][1]
+        self.timeFrame = int(scanUpTime) + int(scanDownTime)
 
-            # If there are more data in the SMPS file than in the CCNC file. Remove the last smps data
-            if smpsEndTime > csvEndTime:
-                self.startTimeEntries = self.startTimeEntries[:-1]
-                self.endTimeEntries = self.endTimeEntries[:-1]
-            self.endTimeEntries = [datetime.strftime(x,"%I:%M:%S") for x in self.endTimeEntries]
+        # Get the time stamp of each run
+        for i in range(len(self.startTimeEntries)):
+            self.endTimeEntries.append(datetime.strptime(self.startTimeEntries[i], "%H:%M:%S") + timedelta(
+            seconds=self.timeFrame))
+        smpsEndTime = self.endTimeEntries[-1]
+        csvEndTime = datetime.strptime(self.csvContent[1][len(self.csvContent[1]) - 1][0], "%H:%M:%S")
 
-            # Get the total number of run
-            self.maxPeak = len(self.startTimeEntries)
-        except:
-            raise FileProcessingError()
+        # If there are more data in the SMPS file than in the CCNC file. Remove the last smps data
+        if smpsEndTime > csvEndTime:
+            self.startTimeEntries = self.startTimeEntries[:-1]
+            self.endTimeEntries = self.endTimeEntries[:-1]
+        self.endTimeEntries = [datetime.strftime(x,"%H:%M:%S") for x in self.endTimeEntries]
+
+        # Get the total number of run
+        self.maxPeak = len(self.startTimeEntries)
 
     def getDNlog(self):
         """
         Get the DNlog data from the txt file
         """
-        try:
-            for k in range(1, len(self.txtContent)):
-                if re.search('[aParam-zA-Z]', self.txtContent[k][0]):
-                    dNlogPos = k
-                    break
-            startTime = ['dp'] + self.startTimeEntries
-            endTime = ['dp'] + self.endTimeEntries
-            dNlogList = [startTime, endTime]
-            for k in range(1, dNlogPos):
-                dNlogList.append(self.txtContent[k][:len(startTime)])
-            self.dNlog = dNlogList
-        except Exception:
-            raise DNlogDataError()
+        for k in range(1, len(self.txtContent)):
+            if re.search('[aParam-zA-Z]', self.txtContent[k][0]):
+                dNlogPos = k
+                break
+        startTime = ['dp'] + self.startTimeEntries
+        endTime = ['dp'] + self.endTimeEntries
+        dNlogList = [startTime, endTime]
+        for k in range(1, dNlogPos):
+            dNlogList.append(self.txtContent[k][:len(startTime)])
+        self.dNlog = dNlogList
+
 
     def getSMPSAndCCNC(self):
         """
         Get the SMPS data from raw SMPS and CCN from raw CCN
         """
-        try:
-            # Get the data from the SMPS file
-            csvContent = self.csvContent[1]
-            txtContent = self.txtContent
-            startTime = self.startTimeEntries
-            endTime = self.endTimeEntries
-            width = self.maxPeak
+        # Get the data from the SMPS file
+        csvContent = self.csvContent[1]
+        txtContent = self.txtContent
+        startTime = self.startTimeEntries
+        endTime = self.endTimeEntries
+        width = self.maxPeak
 
-            # get the count position
-            for k in range(3, len(self.txtContent)):
-                if re.search('[aParam-zA-Z]', self.txtContent[k][0]):
-                    for j in range(k, len(self.txtContent)):
-                        if not re.search('[aParam-zA-Z]', self.txtContent[j][0]):
-                            countPos = j
-                            break
-                    break
+        # get the count position
+        for k in range(3, len(self.txtContent)):
+            if re.search('[aParam-zA-Z]', self.txtContent[k][0]):
+                for j in range(k, len(self.txtContent)):
+                    if not re.search('[aParam-zA-Z]', self.txtContent[j][0]):
+                        countPos = j
+                        break
+                break
 
-            # Get the count for each scan smps
-            loopCount = 0
-            countList = []
-            smpsList = []
-            sumSMPS = 0
-            count = 0
+        # Get the count for each scan smps
+        loopCount = 0
+        countList = []
+        smpsList = []
+        sumSMPS = 0
+        count = 0
 
-            for k in range(countPos, len(txtContent) - 1):
-                loopCount += 1
-                for j in range(0, width):
-                    sumSMPS += float(txtContent[k][j * 2 + 1]) * int(txtContent[k][j * 2 + 2])
-                if not countList:
-                    for j in range(1, width + 1):
-                        num = int(txtContent[k][j * 2])
-                        countList.append(num)
+        for k in range(countPos, len(txtContent) - 1):
+            loopCount += 1
+            for j in range(0, width):
+                sumSMPS += float(txtContent[k][j * 2 + 1]) * int(txtContent[k][j * 2 + 2])
+            if not countList:
+                for j in range(1, width + 1):
+                    num = int(txtContent[k][j * 2])
+                    countList.append(num)
+            else:
+                for j in range(1, width + 1):
+                    num = int(txtContent[k][j * 2])
+                    countList[j - 1] += num
+
+            if loopCount == 10:
+                count += 1
+                if sum(countList) == 0:
+                    smpsList.append([0] + [count] + countList)
                 else:
-                    for j in range(1, width + 1):
-                        num = int(txtContent[k][j * 2])
-                        countList[j - 1] += num
-
-                if loopCount == 10:
-                    count += 1
                     smpsList.append([sumSMPS / sum(countList)] + [count] + countList)
-                    loopCount = 0
-                    sumSMPS = 0
-                    countList = []
 
-            # Get the CCNC data
-            ccnList = []
-            aveSizeList = []
-            extraCCNList = []
-            extraAveSizeList = []
-            previousK = 0
-            sizeList = [0.625] + [0.875]
-            size = 1.25
-            binPos = 25
-            aSSList = []
 
-            # Calculate the size of each bin
-            for i in range(0, width):
-                sizeList.append(size)
-                size += 0.5
+                loopCount = 0
+                sumSMPS = 0
+                countList = []
 
-            # Get the first time stamp position in the ccnc file
-            timeStamp = startTime[0]
-            for k in range(0, len(csvContent)):
-                if csvContent[k][0] == timeStamp:
-                    previousK = k
-                    break
+        # Get the CCNC data
+        ccnList = []
+        aveSizeList = []
+        extraCCNList = []
+        extraAveSizeList = []
+        previousK = 0
+        sizeList = [0.625] + [0.875]
+        size = 1.25
+        binPos = 25
+        aSSList = []
 
-            i = 0
-            t = 0
-            isPeakTimeStamp = True
-            smpsCcnList = []
-            timeStamp = datetime.strptime(startTime[0], "%I:%M:%S")
-            self.peakPositionInData = []
-            while (True):
+        # Calculate the size of each bin
+        for i in range(0, width):
+            sizeList.append(size)
+            size += 0.5
+
+        # Get the first time stamp position in the ccnc file
+        timeStamp = startTime[0]
+        for k in range(0, len(csvContent)):
+            if csvContent[k][0] == timeStamp:
+                previousK = k
+                break
+
+        i = 0
+        t = 0
+        isPeakTimeStamp = True
+        smpsCcnList = []
+        timeStamp = datetime.strptime(startTime[0], "%H:%M:%S")
+        self.peakPositionInData = []
+        while (True):
+            sizeSum = 0
+            countSum = 0
+            previousTimeStamp = datetime.strptime(startTime[i], "%H:%M:%S").time()
+            maxSS = 0
+            # Get all data within the time frame
+            self.peakPositionInData.append(len(smpsCcnList))
+            for t in range(self.timeFrame):
+                aLine = [smpsList[t][1]] + [timeStamp.time()] + [float(smpsList[t][0])] + [
+                    float(smpsList[t][i + 2])]
                 sizeSum = 0
                 countSum = 0
-                previousTimeStamp = datetime.strptime(startTime[i], "%I:%M:%S").time()
-                maxSS = 0
-                # Get all data within the time frame
-                self.peakPositionInData.append(len(smpsCcnList))
-                for t in range(self.timeFrame):
-                    aLine = [smpsList[t][1]] + [timeStamp.time()] + [float(smpsList[t][0])] + [
-                        float(smpsList[t][i + 2])]
-                    sizeSum = 0
-                    countSum = 0
-                    aLine.append(float(csvContent[k + t][-3]))
-                    if csvContent[k + t][1] > maxSS:
-                        maxSS = csvContent[k + t][1]
-                    for m in range(0, 20):
-                        sizeSum += sizeList[m] * float(csvContent[k + t][binPos + m])
-                        size += 0.5
-                        countSum += float(csvContent[k + t][binPos + m])
-                        # get the average size for each scan
-                    if countSum == 0:
-                        aLine.append(0)
-                    else:
-                        aLine.append(sizeSum / countSum)
-                    aLine.append(float(csvContent[k + t][5]))
-                    aLine.append(float(csvContent[k + t][7]))
-                    aLine.append(float(csvContent[k + t][9]))
-                    smpsCcnList.append(aLine)
-                    timeStamp += timedelta(seconds=1)
-                k += self.timeFrame
-
-                # Update the lists
-                self.ssList.append(maxSS)
-
-                # If reach the end of smps, collect the rest of ccnc for alignment
-                timeGap = 0
-                if i == len(startTime) - 1:
-                    timeGap = (datetime.strptime(csvContent[-1][0], "%I:%M:%S") - timeStamp).seconds
-                # Do whatever
+                aLine.append(float(csvContent[k + t][-3]))
+                if csvContent[k + t][1] > maxSS:
+                    maxSS = csvContent[k + t][1]
+                for m in range(0, 20):
+                    sizeSum += sizeList[m] * float(csvContent[k + t][binPos + m])
+                    size += 0.5
+                    countSum += float(csvContent[k + t][binPos + m])
+                    # get the average size for each scan
+                if countSum == 0:
+                    aLine.append(0)
                 else:
-                    nextTimeStamp = datetime.strptime(startTime[i + 1], "%I:%M:%S")
-                    if nextTimeStamp < timeStamp:
-                        timeGap = -(timeStamp - nextTimeStamp).seconds
-                    else:
-                        timeGap = (nextTimeStamp - timeStamp).seconds
+                    aLine.append(sizeSum / countSum)
+                aLine.append(float(csvContent[k + t][5]))
+                aLine.append(float(csvContent[k + t][7]))
+                aLine.append(float(csvContent[k + t][9]))
+                smpsCcnList.append(aLine)
+                timeStamp += timedelta(seconds=1)
+            k += self.timeFrame
 
-                # If the time shown in header is smaller than the supposed actual time frame
-                # Then correct the header accordingly
-                if timeGap < 0:
-                    startTime[i+1] = (datetime.strptime(startTime[i + 1], "%I:%M:%S") + timedelta(seconds = abs(timeGap))).strftime( "%I:%M:%S")
-                    self.startTimeEntries = startTime
-                    timeGamp = 0
-                for t in range(timeGap):
-                    aLine = [None] + [timeStamp.time()] + [None] + [None]
-                    sizeSum = 0
-                    countSum = 0
-                    aLine.append(float(csvContent[k + t][-3]))
-                    if csvContent[k + t][1] > maxSS:
-                        maxSS = csvContent[k + t][1]
-                    for m in range(0, 20):
-                        sizeSum += sizeList[m] * float(csvContent[k + t][binPos + m])
-                        size += 0.5
-                        countSum += float(csvContent[k + t][binPos + m])
-                        # get the average size for each scan
-                    if countSum == 0:
-                        aLine.append(0)
-                    else:
-                        aLine.append(sizeSum / countSum)
-                    aLine.append(float(csvContent[k + t][5]))
-                    aLine.append(float(csvContent[k + t][7]))
-                    aLine.append(float(csvContent[k + t][9]))
-                    smpsCcnList.append(aLine)
-                    timeStamp += timedelta(seconds=1)
-                k += timeGap
+            # Update the lists
+            self.ssList.append(maxSS)
 
-                # Loop break condition
-                i += 1
-                if i >= len(startTime):
-                    break
+            # If reach the end of smps, collect the rest of ccnc for alignment
+            timeGap = 0
+            if i == len(startTime) - 1:
+                timeGap = (datetime.strptime(csvContent[-1][0], "%H:%M:%S") - timeStamp).seconds
+            # Do whatever
+            else:
+                nextTimeStamp = datetime.strptime(startTime[i + 1], "%H:%M:%S")
+                if nextTimeStamp < timeStamp:
+                    timeGap = -(timeStamp - nextTimeStamp).seconds
+                else:
+                    timeGap = (nextTimeStamp - timeStamp).seconds
 
-            title = ["scan time"] + ["real time"] + ["dp"] + ["SMPS Count"] + ["CCNC Count"] + ["Ave Size"] + ["T1"] + ["T2"] + ["T3"]
-            self.rawData = pandas.DataFrame(smpsCcnList, columns=title)
-        except:
-            raise DataError()
+            # If the time shown in header is smaller than the supposed actual time frame
+            # Then correct the header accordingly
+            if timeGap < 0:
+                startTime[i+1] = (datetime.strptime(startTime[i + 1], "%H:%M:%S") + timedelta(seconds = abs(timeGap))).strftime( "%I:%M:%S")
+                self.startTimeEntries = startTime
+                timeGamp = 0
+            for t in range(timeGap):
+                aLine = [None] + [timeStamp.time()] + [None] + [None]
+                sizeSum = 0
+                countSum = 0
+                aLine.append(float(csvContent[k + t][-3]))
+                if csvContent[k + t][1] > maxSS:
+                    maxSS = csvContent[k + t][1]
+                for m in range(0, 20):
+                    sizeSum += sizeList[m] * float(csvContent[k + t][binPos + m])
+                    size += 0.5
+                    countSum += float(csvContent[k + t][binPos + m])
+                    # get the average size for each scan
+                if countSum == 0:
+                    aLine.append(0)
+                else:
+                    aLine.append(sizeSum / countSum)
+                aLine.append(float(csvContent[k + t][5]))
+                aLine.append(float(csvContent[k + t][7]))
+                aLine.append(float(csvContent[k + t][9]))
+                smpsCcnList.append(aLine)
+                timeStamp += timedelta(seconds=1)
+            k += timeGap
+
+            # Loop break condition
+            i += 1
+            if i >= len(startTime):
+                break
+
+        title = ["scan time"] + ["real time"] + ["dp"] + ["SMPS Count"] + ["CCNC Count"] + ["Ave Size"] + ["T1"] + ["T2"] + ["T3"]
+        self.rawData = pandas.DataFrame(smpsCcnList, columns=title)
+
 
     def matchSMPSCCNCData(self):
         """
@@ -1337,7 +1336,7 @@ class Controller():
         """
         Calculate the kappa values - producing both raw data kappa and graph data kappa
         """
-        self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
+        # self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
         for i in range(len(self.dp50List)):
             self.usableForKappaCalList.append(True)
         self.makeProgress("Calculating Kappa...", maxValue=len(self.dp50List) + 3)
@@ -1756,3 +1755,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
