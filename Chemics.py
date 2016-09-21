@@ -304,7 +304,6 @@ class Controller():
                 else:
                     smpsList.append([sumSMPS / sum(countList)] + [count] + countList)
 
-
                 loopCount = 0
                 sumSMPS = 0
                 countList = []
@@ -326,7 +325,13 @@ class Controller():
             size += 0.5
 
         # Get the first time stamp position in the ccnc file
-        timeStamp = startTime[0]
+        while (True):
+            timeStamp = startTime[0]
+            if csvContent[0][0] > timeStamp:
+                startTime = startTime[1:]
+                endTime = endTime[1:]
+            else:
+                break
         for k in range(0, len(csvContent)):
             if csvContent[k][0] == timeStamp:
                 previousK = k
@@ -426,74 +431,74 @@ class Controller():
         """
         Calculate the stretch factor of the ccnc measurement
         """
-        try:
-            self.usableForKappaCalList = []
-            self.minPosCCNCList = []
-            self.minPosSMPSList = []
-            additionalDataCount = int(self.timeFrame / 2)
-            startTime = 0
-            endTime = self.timeFrame
-            currPeak = 0
-            newData = [self.rawData.columns.values.tolist()]
-            minDist = self.timeFrame / 10
-            shiftFactor = 0
-            self.shiftList = []
 
-            while True:
-                # count currPeak smps
-                aPeak = numpy.asarray(self.rawData[startTime:endTime]["SMPS Count"])
-                minPosSMPS = getMinIndex(aPeak)
-                # assuming that count currPeak of smps is always correct, the first currPeak is in the right position
-                if minPosSMPS == -1:
-                    self.minPosSMPSList.append(None)
+        self.usableForKappaCalList = []
+        self.minPosCCNCList = []
+        self.minPosSMPSList = []
+        additionalDataCount = int(self.timeFrame / 2)
+        startTime = 0
+        endTime = self.timeFrame
+        currPeak = 0
+        newData = [self.rawData.columns.values.tolist()]
+        minDist = self.timeFrame / 10
+        shiftFactor = 0
+        self.shiftList = []
+        self.maxPeak = 0
+        while True:
+            # count currPeak smps
+            aPeak = numpy.asarray(self.rawData[startTime:endTime]["SMPS Count"])
+            minPosSMPS = getMinIndex(aPeak)
+            # assuming that count currPeak of smps is always correct, the first currPeak is in the right position
+            if minPosSMPS == -1:
+                self.minPosSMPSList.append(None)
+                self.minPosCCNCList.append(None)
+                self.usableForKappaCalList.append(False)
+                minPosSMPS = 0
+                minPosCCNC = 0
+            else:
+                self.minPosSMPSList.append(minPosSMPS + startTime)
+                aPeak = numpy.asarray(self.rawData[startTime + shiftFactor:endTime + additionalDataCount]["CCNC Count"])
+                minPosCCNC = getMinIndex(aPeak)
+                if minPosCCNC == -1:
+                    self.minPosSMPSList[-1] = None
                     self.minPosCCNCList.append(None)
                     self.usableForKappaCalList.append(False)
                     minPosSMPS = 0
                     minPosCCNC = 0
                 else:
-                    self.minPosSMPSList.append(minPosSMPS + startTime)
-                    aPeak = numpy.asarray(self.rawData[startTime + shiftFactor:endTime + additionalDataCount]["CCNC Count"])
-                    minPosCCNC = getMinIndex(aPeak)
-                    if minPosCCNC == -1:
-                        self.minPosSMPSList[-1] = None
-                        self.minPosCCNCList.append(None)
-                        self.usableForKappaCalList.append(False)
-                        minPosSMPS = 0
-                        minPosCCNC = 0
+                    self.usableForKappaCalList.append(True)
+                    shiftFactor = shiftFactor + minPosCCNC - minPosSMPS
+                    if currPeak == 0:
+                        self.minPosCCNCList.append(minPosSMPS)
                     else:
-                        self.usableForKappaCalList.append(True)
-                        shiftFactor = shiftFactor + minPosCCNC - minPosSMPS
-                        if currPeak == 0:
-                            self.minPosCCNCList.append(minPosSMPS)
-                        else:
-                            self.minPosCCNCList.append(minPosCCNC + minPosCCNC - minPosSMPS + startTime)
-                self.shiftList.append(shiftFactor)
+                        self.minPosCCNCList.append(minPosCCNC + minPosCCNC - minPosSMPS + startTime)
+            self.shiftList.append(shiftFactor)
 
-                # Add all peaks to data, whether a peak is a good one or not.
-                for i in range(self.timeFrame):
-                    scanTime = i + 1
-                    realTime = self.rawData.iat[startTime + i, 1]
-                    dp = self.rawData.iat[startTime + i, 2]
-                    smpsCount = self.rawData.iat[startTime + i, 3]
-                    ccncCount = self.rawData.iat[startTime + i + shiftFactor, 4]
-                    aveSize = self.rawData.iat[startTime + i + shiftFactor, 5]
-                    t1 = self.rawData.iat[startTime + i + shiftFactor, 6]
-                    t2 = self.rawData.iat[startTime + i + shiftFactor, 7]
-                    t3 = self.rawData.iat[startTime + i + shiftFactor, 8]
-                    newData.append([scanTime, realTime, dp, smpsCount, ccncCount, aveSize,t1,t2,t3])
+            # Add all peaks to data, whether a peak is a good one or not.
+            for i in range(self.timeFrame):
+                scanTime = i + 1
+                realTime = self.rawData.iat[startTime + i, 1]
+                dp = self.rawData.iat[startTime + i, 2]
+                smpsCount = self.rawData.iat[startTime + i, 3]
+                ccncCount = self.rawData.iat[startTime + i + shiftFactor, 4]
+                aveSize = self.rawData.iat[startTime + i + shiftFactor, 5]
+                t1 = self.rawData.iat[startTime + i + shiftFactor, 6]
+                t2 = self.rawData.iat[startTime + i + shiftFactor, 7]
+                t3 = self.rawData.iat[startTime + i + shiftFactor, 8]
+                newData.append([scanTime, realTime, dp, smpsCount, ccncCount, aveSize,t1,t2,t3])
 
-                currPeak += 1
-                if endTime + shiftFactor >= len(self.rawData) or currPeak >= len(self.peakPositionInData):
-                    break
+            currPeak += 1
+            self.maxPeak += 1
+            if endTime + self.timeFrame + shiftFactor >= len(self.rawData) or currPeak >= len(self.peakPositionInData):
+                break
 
-                startTime = self.peakPositionInData[currPeak]
-                endTime = startTime + self.timeFrame
+            startTime = self.peakPositionInData[currPeak]
+            endTime = startTime + self.timeFrame
 
-            headers = newData.pop(0)
-            self.data = pandas.DataFrame(newData, columns=headers)
-            self.data = dateConvert(self.data)
-        except:
-            raise DataMatchingError()
+        headers = newData.pop(0)
+        self.data = pandas.DataFrame(newData, columns=headers)
+        self.data = dateConvert(self.data)
+
 
     def peakAlignAndGraph(self):
         """
