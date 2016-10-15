@@ -16,9 +16,10 @@ from PySide import QtGui
 from Exceptions import *
 import FileDialog
 import Tkinter
+import copy
+import gc
 from HelperFunctions import *
 matplotlib.style.use('ggplot')
-
 
 class Controller():
     def __init__(self, mode=True):
@@ -160,7 +161,8 @@ class Controller():
         self.peakPositionInData = []
         # State of a peak, whether usable to calculate kappa or not
         self.usableForKappaCalList = []
-
+        # a clone of self
+        self.clone = None
 
     #-------------File processing------------------
 
@@ -205,39 +207,38 @@ class Controller():
         """
         self.flowRate = self.view.InputFlowRate()
         self.flowRate = 1/(self.flowRate*1000/60)
+        self.reset()
 
     def getRawDataFromFiles(self):
         """
         Acquire raw data from the SMPS and CCNC files
         """
         # Get the basic contents
-
         self.csvContent = csvProcessing(self.ccncCsvFilePath)
         self.date = self.csvContent[0]
         self.txtContent = txtProcessing(self.smpsTxtFilePath)
         self.startTimeEntries = self.txtContent[0]
-        self.endTimeEntries = []
-
         # Get the running time( in seconds) of each run
         for i in range(len(self.txtContent)):
             if ''.join(self.txtContent[i][0].split()).lower() == "scanuptime(s)":
                 scanUpTime = self.txtContent[i][1]
                 scanDownTime = self.txtContent[i+1][1]
         self.timeFrame = int(scanUpTime) + int(scanDownTime)
-
-        # Get the time stamp of each run
+        self.endTimeEntries = []
         for i in range(len(self.startTimeEntries)):
             self.endTimeEntries.append(datetime.strptime(self.startTimeEntries[i], "%H:%M:%S") + timedelta(
-            seconds=self.timeFrame))
-        smpsEndTime = self.endTimeEntries[-1]
-        csvEndTime = datetime.strptime(self.csvContent[1][len(self.csvContent[1]) - 1][0], "%H:%M:%S")
+                seconds=self.timeFrame))
 
-        # If there are more data in the SMPS file than in the CCNC file. Remove the last smps data
-        if smpsEndTime > csvEndTime:
-            self.startTimeEntries = self.startTimeEntries[:-1]
-            self.endTimeEntries = self.endTimeEntries[:-1]
+        #remove the time frames that doesn't have data in the CCNC
+        while (True):
+            smpsEndTime = self.endTimeEntries[-1]
+            csvEndTime = datetime.strptime(self.csvContent[1][len(self.csvContent[1]) - 1][0], "%H:%M:%S")
+            if smpsEndTime > csvEndTime:
+                self.startTimeEntries = self.startTimeEntries[:-1]
+                self.endTimeEntries = self.endTimeEntries[:-1]
+            else:
+                break
         self.endTimeEntries = [datetime.strftime(x,"%H:%M:%S") for x in self.endTimeEntries]
-
         # Get the total number of run
         self.maxPeak = len(self.startTimeEntries)
 
@@ -255,7 +256,6 @@ class Controller():
         for k in range(1, dNlogPos):
             dNlogList.append(self.txtContent[k][:len(startTime)])
         self.dNlog = dNlogList
-
 
     def getSMPSAndCCNC(self):
         """
@@ -296,14 +296,12 @@ class Controller():
                 for j in range(1, width + 1):
                     num = int(txtContent[k][j * 2])
                     countList[j - 1] += num
-
             if loopCount == 10:
                 count += 1
                 if sum(countList) == 0:
                     smpsList.append([0] + [count] + countList)
                 else:
                     smpsList.append([sumSMPS / sum(countList)] + [count] + countList)
-
                 loopCount = 0
                 sumSMPS = 0
                 countList = []
@@ -313,7 +311,6 @@ class Controller():
         aveSizeList = []
         extraCCNList = []
         extraAveSizeList = []
-        previousK = 0
         sizeList = [0.625] + [0.875]
         size = 1.25
         binPos = 25
@@ -332,9 +329,8 @@ class Controller():
                 endTime = endTime[1:]
             else:
                 break
-        for k in range(0, len(csvContent)):
-            if csvContent[k][0] == timeStamp:
-                previousK = k
+        for k in range(0, len(csvContent)-1):
+            if csvContent[k][0] == timeStamp and csvContent[k+1][0] != timeStamp:
                 break
 
         i = 0
@@ -417,7 +413,6 @@ class Controller():
                 smpsCcnList.append(aLine)
                 timeStamp += timedelta(seconds=1)
             k += timeGap
-
             # Loop break condition
             i += 1
             if i >= len(startTime):
@@ -426,12 +421,10 @@ class Controller():
         title = ["scan time"] + ["real time"] + ["dp"] + ["SMPS Count"] + ["CCNC Count"] + ["Ave Size"] + ["T1"] + ["T2"] + ["T3"]
         self.rawData = pandas.DataFrame(smpsCcnList, columns=title)
 
-
     def matchSMPSCCNCData(self):
         """
         Calculate the stretch factor of the ccnc measurement
         """
-
         self.usableForKappaCalList = []
         self.minPosCCNCList = []
         self.minPosSMPSList = []
@@ -499,7 +492,6 @@ class Controller():
         self.data = pandas.DataFrame(newData, columns=headers)
         self.data = dateConvert(self.data)
 
-
     def peakAlignAndGraph(self):
         """
         A graph of peak alignment, and also allow interaction to select peak to process
@@ -548,7 +540,6 @@ class Controller():
         self.currentPoint, = plt.plot(x[0],y[0],'o', color = "#81C784", ms = 12, mew = 0)
         plt.xlabel("SMPS minumum point")
         plt.ylabel("CCNC minimum point")
-
         handles, labels = plt.gca().get_legend_handles_labels()
         legend = plt.legend(handles, labels,loc="upper right", bbox_to_anchor=(1,0.7))
         legend.get_frame().set_facecolor('#9E9E9E')
@@ -556,7 +547,6 @@ class Controller():
         if not self.minCompareGraph:
             self.minCompareGraph = plt.gcf()
         else:
-            self.minCompareGraph.clf()
             plt.close(self.minCompareGraph)
             self.minCompareGraph = plt.gcf()
 
@@ -601,8 +591,6 @@ class Controller():
                 dNdLogDpList.append(self.dNlog[i][self.currPeak + 1])
             self.ccnNormalizedList = normalizeList(dNdLogDpList)
             self.usableForKappaCalList[self.currPeak] = True
-
-
         except:
             raise OptimizationError()
 
@@ -733,7 +721,6 @@ class Controller():
                     if isMid:
                         mpIndex = i
                         break
-
 
                 minDpAsymPos = 0
                 currMax = 0
@@ -995,23 +982,29 @@ class Controller():
         # Read in the kappa lines csv files.
         if self.klines is None:
             self.klines = pandas.read_csv("klines.csv", header=1)
-            # Acquire the kappa points
-            kappaList = []
-            stdKappaList = []
-            for aKey in self.alphaPineneDict.keys():
-                kappaList.append(self.alphaPineneDict[aKey][2])
-                stdKappaList.append(self.alphaPineneDict[aKey][3])
-                self.kappaPoints.append((self.alphaPineneDict[aKey][0], aKey))
+        # Acquire the kappa points
+        kappaList = []
+        stdKappaList = []
+        self.kappaPoints = []
 
-            # Determine maximum and minimum kappas
-            tempKList = []
-            for i in range(len(kappaList)):
-                tempKList.append(kappaList[i] + stdKappaList[i])
-            self.maxKappa = max(tempKList)
-            tempKList = []
-            for i in range(len(kappaList)):
-                tempKList.append(kappaList[i] - stdKappaList[i])
-            self.minKappa = min(tempKList)
+        for aKey in self.alphaPineneDict.keys():
+            kappaList.append(self.alphaPineneDict[aKey][2])
+            stdKappaList.append(self.alphaPineneDict[aKey][3])
+            if not self.isFullKappaGraph:
+                self.kappaPoints.append((self.alphaPineneDict[aKey][0], aKey))
+            else:
+                for i in self.alphaPineneDict[aKey][-1]:
+                    self.kappaPoints.append((i, aKey))
+
+        # Determine maximum and minimum kappas
+        tempKList = []
+        for i in range(len(kappaList)):
+            tempKList.append(kappaList[i] + stdKappaList[i])
+        self.maxKappa = max(tempKList)
+        tempKList = []
+        for i in range(len(kappaList)):
+            tempKList.append(kappaList[i] - stdKappaList[i])
+        self.minKappa = min(tempKList)
         header = self.klines.columns
         diaList = self.klines[header[1]]
 
@@ -1021,7 +1014,7 @@ class Controller():
         kpYList = []
         excludedXList = []
         excludedYList = []
-        # Get all the kappa points
+
         for i in range(len(self.kappaPoints)):
             fullKXList.append(self.kappaPoints[i][0])
             fullKYList.append(self.kappaPoints[i][1])
@@ -1041,6 +1034,7 @@ class Controller():
         kpXList = numpy.asarray(kpXList)
         kpYList = numpy.asarray(kpYList)
 
+        # Get all kappa points - without average
         # Prepare the figure
         if self.kappaGraph:
             figure = plt.figure(self.kappaGraph.number)
@@ -1064,50 +1058,46 @@ class Controller():
 
         # Graph the klines
         # Full kappa lines
-        if self.isFullKappaGraph:
-            for i in range(2, len(header)):
-                y = self.klines[header[i]]
-                plt.loglog(diaList, y, label=str(header[i]), linewidth=4)
+        #if self.isFullKappaGraph:
+         #   for i in range(2, len(header)):
+         #       y = self.klines[header[i]]
+        #        plt.loglog(diaList, y, label=str(header[i]), linewidth=4)
         # Draw only the portion around the kappa
-        else:
-            i = 2
-            kappa = 1
-            step = 0.1
-            kappaStartPos = 2
-            kappaEndPos = len(header)
-            while True:
-                if self.maxKappa > kappa:
-                    kappaStartPos = max(2, i - 3)
-                    break
-                i += 1
-                kappa -= step
-                if kappa == step:
-                    step /= 10
-                if i >= len(header):
-                    kappaStartPos = len(header)
-                    break
-            i = 2
-            kappa = 1
-            step = 0.1
-            while True:
-                if self.minKappa > kappa:
-                    kappaEndPos = min(i + 3, len(header))
-                    break
-                i += 1
-                kappa -= step
-                if kappa == step:
-                    step /= 10
-                if i >= len(header):
-                    kappaEndPos = len(header)
-                    break
-            for i in range(kappaStartPos, kappaEndPos):
-                y = self.klines[header[i]]
-                plt.loglog(diaList, y, label=str(header[i]), linewidth=4)
+       # else:
+        i = 2
+        kappa = 1
+        step = 0.1
+        kappaStartPos = 2
+        kappaEndPos = len(header)
+        while True:
+            if self.maxKappa > kappa:
+                kappaStartPos = max(2, i - 3)
+                break
+            i += 1
+            kappa -= step
+            if kappa == step:
+                step /= 10
+            if i >= len(header):
+                kappaStartPos = len(header)
+                break
+        i = 2
+        kappa = 1
+        step = 0.1
+        while True:
+            if self.minKappa > kappa:
+                kappaEndPos = min(i + 3, len(header))
+                break
+            i += 1
+            kappa -= step
+            if kappa == step:
+                step /= 10
+            if i >= len(header):
+                kappaEndPos = len(header)
+                break
+        for i in range(kappaStartPos, kappaEndPos):
+            y = self.klines[header[i]]
+            plt.loglog(diaList, y, label=str(header[i]), linewidth=4)
 
-        # Calculate the best fit line
-        result = scipy.stats.linregress(kpXList, kpYList)
-        slope = result[0]
-        yIntercept = result[1]
         # Graph all the kappa points
         plt.plot(fullKXList, fullKYList, 'o', picker=5, mew=0.5, ms=12, alpha = 0)
         # Graph the kappa points
@@ -1255,6 +1245,8 @@ class Controller():
             self.view.showError("Can't match SMPS and CCNC data!")
             raise DataPreparationError()
         except InterruptError:
+            self.reset()
+            self.view.reset()
             self.view.showError("The preparation process is cancelled")
             raise DataPreparationError()
 
@@ -1271,14 +1263,12 @@ class Controller():
                 self.currPeak = i
                 self.makeProgress("Processing peak " + str(i + 1), value=0)
                 self.singlePeakProcessingProcedure()
-            # reset currPeak
             self.currPeak = -1
-            self.completedStep = 2
             self.makeProgress(complete=True)
             self.view.updateGeneralInfo()
             self.peakAlignAndGraph()
             self.switchToPeak(0)
-
+            self.completedStep = 2
         except InterruptError:
             self.view.showError("The data initialization process is cancelled")
 
@@ -1314,6 +1304,18 @@ class Controller():
             self.switchToPeak(0)
         except InterruptError:
             self.view.showError("The optimization process is cancelled")
+            self.optimized = False
+            for aFigure in self.tempGraphList:
+                aFigure.clf()
+                plt.close(aFigure)
+            self.tempGraphList = []
+            # clear dry diameter graphs
+            for aFigure in self.dryDiaGraphList:
+                aFigure.clf()
+                plt.close(aFigure)
+            self.dryDiaGraphList = []
+            self.initialProcessProcedure()
+
 
 
     #----------------Kappa Calculation--------------------------
@@ -1341,7 +1343,6 @@ class Controller():
         """
         Calculate the kappa values - producing both raw data kappa and graph data kappa
         """
-        # self.dp50List = [(66.873131326442845, 0.2), (64.706293297900331, 0.2), (66.426791348408827, 0.2), (65.807043010964122, 0.4), (39.029118190703379, 0.4), (41.656041922784382, 0.4), (42.222353379447377, 0.4), (38.860120694533627, 0.4), (38.779984169692248, 0.4), (29.464779084111022, 0.6), (31.946994836267585, 0.6), (32.297643866436054, 0.6), (32.50404169014837, 0.6), (32.495398001104491, 0.6), (122.45185476098608, 0.8), (25.707116797205551, 0.8), (26.295107828742754, 0.8), (26.584143571968784, 0.8)]
         for i in range(len(self.dp50List)):
             self.usableForKappaCalList.append(True)
         self.makeProgress("Calculating Kappa...", maxValue=len(self.dp50List) + 3)
@@ -1433,7 +1434,6 @@ class Controller():
                 self.sc = (max(sList2) - 1) * 100
                 self.sc2 = (max(sList3) - 1) * 100
                 scCalcs = True
-
             self.makeProgress("Processing peak" + str(i + 1))
             self.trueSC = (max(sList1[i:]) - 1) * 100
             self.anaKappa = (4 * self.aParam ** 3) / (27 * (dp50 * 0.000000001) ** 3 * log(ss / 100 + 1) ** 2)
@@ -1462,7 +1462,7 @@ class Controller():
             stdAna = numpy.std(anaKappaList)
             meanDev = average(meanDevList)
             devMean = (meanApp - meanAna) / meanApp * 100
-            self.alphaPineneDict[aKey] = (meanDp, stdDp, meanApp, stdApp, meanAna, stdAna, meanDev, devMean)
+            self.alphaPineneDict[aKey] = (meanDp, stdDp, meanApp, stdApp, meanAna, stdAna, meanDev, devMean,dp50List)
         self.makeProgress(complete=True)
 
     #--------------- UI interaction - Data interaction functions--------------------
@@ -1504,7 +1504,6 @@ class Controller():
             self.view.updateBasicPeakInfo()
 
     def shiftOneSecond(self, forward=True):
-
         if self.completedStep <=1:
             return
         # If the peak is invalid, do nothing
@@ -1653,17 +1652,16 @@ class Controller():
         """
         Reset all values of the program to process a new peak
         """
+        i = 1
+        gc.collect()
         for aFigure in self.tempGraphList:
             aFigure.clf()
             plt.close(aFigure)
         self.tempGraphList = []
-        self.adjustedGraphList = []
         for aFigure in self.adjustedGraphList:
-            aFigure.clf()
             plt.close(aFigure)
         self.adjustedGraphList = []
         for aFigure in self.dryDiaGraphList:
-            aFigure.clf()
             plt.close(aFigure)
         self.dryDiaGraphList = []
         if self.minCompareGraph:
@@ -1674,7 +1672,6 @@ class Controller():
             self.kappaGraph.clf()
             plt.close(self.kappaGraph)
             self.kappaGraph = None
-
         self.currentPoint = None
         self.optimized = False
         self.cancel = False
@@ -1734,6 +1731,7 @@ class Controller():
         self.usableForKappaCalList = []
         self.kappaExcludeList = []
         self.kappaPoints = []
+        gc.collect()
 
     def setView(self, view):
         """

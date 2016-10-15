@@ -8,7 +8,6 @@ import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 import time
-
 from AlignmentUI import *
 from KappaUI import *
 import webbrowser
@@ -22,10 +21,12 @@ matplotlib.rcParams['backend.qt4']='PySide'
 qt_app = QApplication(sys.argv)
 width = 0
 height = 0
+VERSION = 101
 
 class MainWindow(QMainWindow):
 
     def __init__(self,controller):
+        global VERSION
         QMainWindow.__init__(self)
         self.progress = 0
         self.controller = controller
@@ -72,7 +73,7 @@ class MainWindow(QMainWindow):
         response = urllib2.urlopen('http://khaiquangnguyen.github.io/chemics_update.html')
         html = response.read()
         update = int(html[0])
-        if update == 1:
+        if update == VERSION:
             self.showUpdateDialog()
 
 
@@ -96,9 +97,6 @@ class MainWindow(QMainWindow):
         html = response.read()
         update = int(html[0])
         self.showUpdateDialog(update)
-
-
-
 
     def folderSelection(self):
         """

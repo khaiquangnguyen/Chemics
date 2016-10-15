@@ -1,2 +1,10 @@
 Update:
 - Fix can't read in file bug with 24h time stamp
+Update (25/9)
+- Fix csv doesn't have enough time data to match with SMPS completely
+- Fix problems with reading in csv. Change delimiter from " " to ","
+- Fix duplicate time entries
+Update 15/10 - 1.01
+- better version control system
+- update memory management. No longer hog a log of memory with each run
+- Update new Kappa graph with all Kappa points

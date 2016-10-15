@@ -107,7 +107,7 @@ def singleCSVFileProcessing(filePath):
        :return: aParam list, which represents the csv
        """
     with open(filePath, 'r') as csvFile:
-        reader = csv.reader(csvFile, delimiter=' ')
+        reader = csv.reader(csvFile, delimiter=',')
         line = 0
         # convert to list for easier processing
         csvContent = []
