@@ -58,9 +58,9 @@ class PeakDataTable(QTableWidget):
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         self.addMessage("Date",self.mainWindow.controller.date)
-        self.addMessage("Time frame",self.mainWindow.controller.startTimeEntries[0] + " to " + self.mainWindow.controller.endTimeEntries[-1])
-        self.addMessage("Time per run",self.mainWindow.controller.timeFrame)
-        self.addMessage("Total run",self.mainWindow.controller.maxPeak)
+        self.addMessage("Time frame",self.mainWindow.controller.start_time_list[0] + " to " + self.mainWindow.controller.end_time_list[-1])
+        self.addMessage("Time per run",self.mainWindow.controller.scan_time)
+        self.addMessage("Total run",self.mainWindow.controller.number_of_peak)
         self.addMessage("CPC", self.mainWindow.controller.flowRate)
 
     def updateBasicPeakInfo(self):
@@ -222,8 +222,8 @@ class PeakControlTabWidget(QWidget):
 
     def nextButtonClicked(self):
         currPeak = self.mainWindow.controller.currPeak
-        maxPeak = self.mainWindow.controller.maxPeak
-        self.mainWindow.controller.switchToPeak(min(currPeak + 1, maxPeak - 1))
+        number_of_peak = self.mainWindow.controller.number_of_peak
+        self.mainWindow.controller.switchToPeak(min(currPeak + 1, number_of_peak - 1))
 
     def previousButtonClicked(self):
         currPeak = self.mainWindow.controller.currPeak

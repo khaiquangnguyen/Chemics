@@ -70,12 +70,15 @@ class MainWindow(QMainWindow):
         self.showMaximized()
 
         #get update
-        response = urllib2.urlopen('http://khaiquangnguyen.github.io/chemics_update.html')
-        html = response.read()
-        update = int(html[0])
-        if update == VERSION:
-            self.showUpdateDialog()
+        # response = urllib2.urlopen('http://khaiquangnguyen.github.io/chemics_update.html')
+        # html = response.read()
+        # update = int(html[0])
+        # if update == VERSION:
+        #     self.showUpdateDialog()
 
+    def show_UI(self):
+        self.show()
+        qt_app.exec_()
 
     def showUpdateDialog(self, update = 1):
         """ show the update"""
@@ -105,7 +108,8 @@ class MainWindow(QMainWindow):
         dialog = QFileDialog()
         files = dialog.getOpenFileNames()[0]
         if files:
-            self.controller.selectFiles(files)
+            self.controller.files = files
+            self.controller.run()
 
     def makeProgress(self, message = None, maxValue = None, complete = False, value = 1):
         """
@@ -162,14 +166,11 @@ class MainWindow(QMainWindow):
         """
         self.controller.cancelProgress()
 
-    def run(self):
-        self.show()
-        qt_app.exec_()
 
     def resizeEvent(self, resizeEvent):
         self.centralWidget().resize()
 
-    def updateDpDNLogFigures(self, adjustedFigure, diaFigure):
+    def update_dp_dnlog_figures(self, adjustedFigure, diaFigure):
         self.centralWidget().graphWidget.dpAndDnlogView.dpView.updateFigure(adjustedFigure)
         self.centralWidget().graphWidget.dpAndDnlogView.dNlogView.updateFigure(diaFigure)
 
