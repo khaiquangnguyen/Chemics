@@ -49,7 +49,7 @@ class KappaVarConfirmDialog(QDialog):
             self.solu = float(self.soluLine.text())
             self.accept()
         except:
-            self.mainWindow.showError("Input data not valid.Please input again!")
+            self.mainWindow.show_error_dialog("Input processed_data not valid.Please input again!")
 
     def getData(self):
         return self.sigma, self.temp, self.dd1, self.dd2, self.iKappa1, self.iKappa2, self.solu
