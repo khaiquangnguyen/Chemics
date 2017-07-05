@@ -647,7 +647,6 @@ class Controller():
                                 self.ccnFixedList[j] = self.ccnFixedList[j] + moveDoubletCounts
                             break
                         j -= 1
-
                 if chargeList[n][3] < maxUpperBinBound:
                     j = lenDpList - 2
                     while (True):

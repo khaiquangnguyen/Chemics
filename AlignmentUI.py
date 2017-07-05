@@ -72,9 +72,9 @@ class PeakDataTable(QTableWidget):
         self.setCellWidget(self.rowCount() - 1, 0, header)
         currPeak = self.mainWindow.controller.currPeak
         if self.mainWindow.controller.minPosCCNCList[currPeak] and self.mainWindow.controller.minPosCCNCList[currPeak]:
-            self.addMessage("Status", "Valid for curve fit")
+            self.addMessage("Status", "Valid")
         else:
-            self.addMessage("Status", "Invalid for curve fit", color='#EF5350')
+            self.addMessage("Status", "Invalid", color='#EF5350')
         self.addMessage("Current run",currPeak + 1)
         self.addMessage("Saturation",self.mainWindow.controller.superSaturation)
 
@@ -84,14 +84,14 @@ class PeakDataTable(QTableWidget):
                 self.removeRow(self.rowCount() - 1)
 
         # Add basic information data
-        header = TableHeader("Basic Peak Information")
+        header = TableHeader("Single Run Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         currPeak = self.mainWindow.controller.currPeak
         if self.mainWindow.controller.minPosCCNCList[currPeak] and self.mainWindow.controller.minPosCCNCList[currPeak]:
-            self.addMessage("Status", "Valid for curve fit")
+            self.addMessage("Status", "Valid")
         else:
-            self.addMessage("Status", "Invalid for curve fit",  color='#EF5350')
+            self.addMessage("Status", "Invalid",  color='#EF5350')
         self.addMessage("Current run", currPeak + 1)
         self.addMessage("Saturation", self.mainWindow.controller.superSaturation)
 
@@ -165,7 +165,7 @@ class PeakControlTabWidget(QWidget):
 
         self.previousButton = CustomButton("Previous Run", mainWindow)
         self.nextButton = CustomButton("Next Run", mainWindow)
-        self.removePeak = CustomButton("Disable Peak", mainWindow, 1)
+        self.removePeak = CustomButton("Disable Run", mainWindow, 1)
         self.updateSigData = CustomButton("Update Sig Vars", mainWindow, 1)
         self.optimizeButton = CustomButton("Fit Sigmoid", mainWindow,1)
         self.calKappaButton = CustomButton("Calculate Kappa", mainWindow, 1)
