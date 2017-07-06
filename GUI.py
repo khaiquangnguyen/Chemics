@@ -133,7 +133,7 @@ class View(QMainWindow):
                 self.progress_dialog.show()
             else:
                 self.progress_dialog = QProgressDialog("Tasks in progress...", "Cancel", 0, max_value, self)
-                self.progress_dialog.canceled.connect(self.cancel_current_progress)
+                self.progress_dialog.canceled.connect(self.cancel_progress_bar)
                 self.progress_dialog.setWindowModality(Qt.WindowModal)
                 self.progress_dialog.show()
 
@@ -162,25 +162,24 @@ class View(QMainWindow):
         warning.setText(error_message)
         warning.exec_()
 
-    def cancel_current_progress(self):
+    def cancel_progress_bar(self):
         """
         Action when the cancelling button of the progress bar is clicked
         """
-        self.controller.cancel_current_progress()
+        self.controller.cancel_progress_bar()
 
     def resizeEvent(self, resizeEvent):
         self.centralWidget().resize()
 
-    def update_dp_dnlog_figures(self, adjusted_figure, diameter_figure):
-        self.centralWidget().graph_widget.dpAndDnlogView.dpView.update_figure(adjusted_figure)
-        self.centralWidget().graph_widget.dpAndDnlogView.dNlogView.update_figure(diameter_figure)
+    def update_alignment_and_sigmoid_fit_figures(self, scan_time_figure, sigmoid_figure):
+        self.centralWidget().graph_widget.alignment_and_sigmoid_fit_view.alignment_view.update_figure(scan_time_figure)
+        self.centralWidget().graph_widget.alignment_and_sigmoid_fit_view.sigmoid_fit_view.update_figure(sigmoid_figure)
 
-    def update_temp_and_min_figure(self, aFigure):
-        self.centralWidget().graphWidget.tempAndMinView.update_figure(aFigure)
+    def update_temp_and_min_figure(self, new_figure):
+        self.centralWidget().graph_widget.temp_and_alignment_view.update_figure(new_figure)
 
-    def calculate_kappa_values(self):
-        # if self.controller.completedStep >=2:
-        self.controller.calculate_kappa_values()
+    def calculate_kappa_value(self):
+        self.controller.calculate_kappa_value()
         self.centralWidget().switch_to_kappa_widget()
         self.controller.create_kappa_graph()
 
@@ -188,13 +187,13 @@ class View(QMainWindow):
         self.centralWidget().info_widget.information_table.update_scan_information()
 
     def update_scan_information(self):
-        self.centralWidget().info_windget.information_table.update_scan_information()
+        self.centralWidget().info_widget.information_table.update_scan_information()
 
     def update_scan_information_after_sigmoid_fit(self):
         self.centralWidget().info_widget.information_table.update_scan_information_after_sigmoid_fit()
 
     def reset(self):
-        self.centralWidget().switch_to_run_widget()
+        self.centralWidget().switch_to_scan_widget()
 
     def update_kappa_values(self, sigma, temp, dd1, i1, dd2, i2, solu):
         self.controller.sigma = sigma
@@ -206,7 +205,7 @@ class View(QMainWindow):
         self.controller.solubility = solu
 
     def update_kappa_graph(self):
-        self.centralWidget().graphWidget.graphView.update_figure(self.controller.kappaGraph)
+        self.centralWidget().graph_widget.graphView.update_figure(self.controller.kappaGraph)
 
     def get_concentration(self):
         return_value = self.controller.concentration
@@ -252,7 +251,7 @@ class ControlPanel(QWidget):
         self.info_widget.update_data()
         self.resize()
 
-    def switch_to_run_widget(self):
+    def switch_to_scan_widget(self):
         self.clear_layout(self.layout)
         self.info_widget = ScanInformationWidget(self.mainWindow)
         self.graph_widget = ScanGraphsWidget(self.mainWindow)

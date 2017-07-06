@@ -72,7 +72,7 @@ class ScanInformationTable(QTableWidget):
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         current_scan = self.main_window.controller.current_scan
-        if self.main_window.controller.min_pos_CCNC_list[current_scan] and self.main_window.controller.minPosCCNCList[current_scan]:
+        if self.main_window.controller.min_pos_CCNC_list[current_scan] and self.main_window.controller.min_pos_CCNC_list[current_scan]:
             self.add_message("Status", "Valid for curve fit")
         else:
             self.add_message("Status", "Invalid for curve fit", color='#EF5350')
@@ -127,22 +127,22 @@ class ScanGraphsWidget(QWidget):
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.tempAndMinView = PeakRectFigureCanvas()
-        self.dpAndDnlogView = PeakDpDnLogGraphWidget()
-        self.controlWidget = PeakControlTabWidget(main_window)
-        self.layout.addWidget(self.dpAndDnlogView)
-        self.layout.addWidget(self.controlWidget)
-        self.layout.addWidget(self.tempAndMinView)
+        self.temp_and_alignment_view = RectFigureCanvas()
+        self.alignment_and_sigmoid_fit_view = AlignmentAndSigmoidFitWidget()
+        self.buttons_widget = ButtonsWidget(main_window)
+        self.layout.addWidget(self.alignment_and_sigmoid_fit_view)
+        self.layout.addWidget(self.buttons_widget)
+        self.layout.addWidget(self.temp_and_alignment_view)
 
     def resize(self, parent_width, parent_height):
         self.setFixedWidth(parent_width * 3 / 4)
         self.setFixedHeight(parent_height)
-        self.tempAndMinView.resize(self.width(), self.height())
-        self.controlWidget.resize(self.width(), self.height())
-        self.dpAndDnlogView.resize(self.width(), self.height())
+        self.temp_and_alignment_view.resize(self.width(), self.height())
+        self.buttons_widget.resize(self.width(), self.height())
+        self.alignment_and_sigmoid_fit_view.resize(self.width(), self.height())
 
 
-class PeakControlTabWidget(QWidget):
+class ButtonsWidget(QWidget):
     def __init__(self, main_window=None):
         self.main_window = main_window
         QWidget.__init__(self)
@@ -221,13 +221,13 @@ class PeakControlTabWidget(QWidget):
         self.main_window.controller.shift_ccnc_data_by_one_second(forward=False)
 
     def on_click_next_scan(self):
-        currPeak = self.main_window.controller.currPeak
-        number_of_peak = self.main_window.controller.number_of_peak
-        self.main_window.controller.switch_to_run_widget(min(currPeak + 1, number_of_peak - 1))
+        currPeak = self.main_window.controller.current_scan
+        number_of_scan = self.main_window.controller.number_of_scan
+        self.main_window.controller.switch_to_scan_widget(min(currPeak + 1, number_of_scan - 1))
 
     def on_click_previous_scan(self):
         currPeak = self.main_window.controller.currPeak
-        self.main_window.controller.switch_to_run_widget(max(0, currPeak - 1))
+        self.main_window.controller.switch_to_scan_widget(max(0, currPeak - 1))
 
     def on_click_fit_sigmoid_line(self):
         self.main_window.controller.correct_charges_and_fit_sigmoid_all_scans()
@@ -246,30 +246,29 @@ class PeakControlTabWidget(QWidget):
         if confirmVarDialog.exec_() == QDialog.Accepted:
             (sig,temp,dd1,iKappa1,dd2,iKappa2,solu) = confirmVarDialog.getData()
             self.main_window.update_kappa_values(sig, temp, dd1, iKappa1, dd2, iKappa2, solu)
-            self.main_window.calculate_kappa_values()
+            self.main_window.calculate_kappa_value()
 
 
-class PeakDpDnLogGraphWidget(QWidget):
+class AlignmentAndSigmoidFitWidget(QWidget):
     def __init__(self):
         QWidget.__init__(self)
-        self.dry_diameter_view = PeakSquareFigureCanvas()
-        # TODO: what is dnLog???
-        self.dNlogView = PeakSquareFigureCanvas()
+        self.alignment_view = SquareFigureCanvas()
+        self.sigmoid_fit_view = SquareFigureCanvas()
         self.layout = QHBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.addWidget(self.dry_diameter_view)
-        self.layout.addWidget(self.dNlogView)
+        self.layout.addWidget(self.alignment_view)
+        self.layout.addWidget(self.sigmoid_fit_view)
         self.setLayout(self.layout)
 
     def resize(self, parent_width, parent_height):
         self.setFixedWidth(parent_width)
         self.setFixedHeight(parent_height * 1 / 2)
-        self.dry_diameter_view.resize(self.width(), self.height())
-        self.dNlogView.resize(self.width(), self.height())
+        self.alignment_view.resize(self.width(), self.height())
+        self.sigmoid_fit_view.resize(self.width(), self.height())
 
 
-class PeakRectFigureCanvas(FigureCanvas):
+class RectFigureCanvas(FigureCanvas):
     def __init__(self, main_window=None):
         fig = Figure(facecolor=settings.graphBackgroundColor)
         super(self.__class__, self).__init__(fig)
@@ -286,7 +285,7 @@ class PeakRectFigureCanvas(FigureCanvas):
         self.setFixedHeight(h)
 
 
-class PeakSquareFigureCanvas(FigureCanvas):
+class SquareFigureCanvas(FigureCanvas):
     def __init__(self, main_window=None):
         fig = Figure(facecolor=settings.graphBackgroundColor)
         super(self.__class__, self).__init__(fig)

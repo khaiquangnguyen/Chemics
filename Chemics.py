@@ -1302,7 +1302,7 @@ class Controller():
     def update_view(self):
         self.concentration_over_scan_time_graph = self.adjusted_graph_list[self.current_scan]
         self.complete_dry_diameter_graph = self.dry_diameter_graph_list[self.current_scan]
-        self.view.update_dp_dnlog_figures(self.concentration_over_scan_time_graph, self.complete_dry_diameter_graph)
+        self.view.update_alignment_and_sigmoid_fit_figures(self.concentration_over_scan_time_graph, self.complete_dry_diameter_graph)
         if self.finish_sigmoid_fit_phase:
             self.b = self.b_list[self.current_scan]
             self.d = self.d_list[self.current_scan]
