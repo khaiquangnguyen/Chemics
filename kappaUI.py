@@ -18,35 +18,35 @@ class KappaTextDataWidget(QWidget):
         self.layout = QVBoxLayout()  #Vertical layout
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.currDataTable = KappaConstDataTable(mainWindow)
-        self.layout.addWidget(self.currDataTable)
+        self.current_data_table = KappaConstDataTable(mainWindow)
+        self.layout.addWidget(self.current_data_table)
         self.setLayout(self.layout)
 
-    def resize(self, parentWidth, parentHeight):
-        self.setFixedWidth(parentWidth / 4)
-        self.setFixedHeight(parentHeight)
-        self.currDataTable.resize(self.width(), self.height())
+    def resize(self, parent_width, parent_height):
+        self.setFixedWidth(parent_width / 4)
+        self.setFixedHeight(parent_height)
+        self.current_data_table.resize(self.width(), self.height())
 
     def updateData(self):
-        self.currDataTable.updateData()
-        self.currDataTable.resize(self.width(), self.height())
+        self.current_data_table.updateData()
+        self.current_data_table.resize(self.width(), self.height())
 
     def changeToGraphDataTable(self):
         self.clearLayout(self.layout)
-        self.currDataTable = KappaGraphDataTable(self.mainWindow)
-        self.layout.addWidget(self.currDataTable)
+        self.current_data_table = KappaGraphDataTable(self.mainWindow)
+        self.layout.addWidget(self.current_data_table)
         self.updateData()
 
     def changeToRawDataTable(self):
         self.clearLayout(self.layout)
-        self.currDataTable = KappaRawDataTable(self.mainWindow)
-        self.layout.addWidget(self.currDataTable)
+        self.current_data_table = KappaRawDataTable(self.mainWindow)
+        self.layout.addWidget(self.current_data_table)
         self.updateData()
 
     def changeToConstDataTable(self):
         self.clearLayout(self.layout)
-        self.currDataTable = KappaConstDataTable(self.mainWindow)
-        self.layout.addWidget(self.currDataTable)
+        self.current_data_table = KappaConstDataTable(self.mainWindow)
+        self.layout.addWidget(self.current_data_table)
         self.updateData()
 
     def clearLayout(self, layout):
@@ -182,7 +182,7 @@ class KappaGraphDataTable(QTableWidget):
         for i in range(0,len(self.headerList)):
             self.insertRow(self.rowCount())
             self.setCellWidget(self.rowCount() - 1, 0, self.headerList[i])
-        # Insert data
+        # Insert processed_data
         count = 1
         for aKey in dataDict.keys():
             aList = [aKey]
@@ -323,11 +323,11 @@ class KappaControlTabWidget(QWidget):
 
     def fullGraphClicked(self):
         self.mainWindow.controller.isFullKappaGraph = True
-        self.mainWindow.controller.makeKappaGraph()
+        self.mainWindow.controller.create_kappa_graph()
 
     def focusedGraphClicked(self):
         self.mainWindow.controller.isFullKappaGraph = False
-        self.mainWindow.controller.makeKappaGraph()
+        self.mainWindow.controller.create_kappa_graph()
 
 class KappaFigureCanvas(FigureCanvas):
     def resize(self, parentWidth, parentHeight):

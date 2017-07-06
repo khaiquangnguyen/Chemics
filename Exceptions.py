@@ -29,7 +29,7 @@ class DataPreparationError(Exception):
         pass
 
 
-class OptimizationError(Exception):
+class ScanDataError(Exception):
     def __init__(self):
         pass
 

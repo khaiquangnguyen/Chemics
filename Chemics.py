@@ -768,7 +768,7 @@ class Controller():
         finally:
             self.adjusted_graph_list.append(plt.gcf())
 
-    def create_ccn_cn_ratio_over_diameter_graph(self, new_figure=one):
+    def create_ccn_cn_ratio_over_diameter_graph(self, new_figure=None):
         try:
             if new_figure is None:
                 figure = plt.figure(facecolor=settings.graphBackgroundColor)

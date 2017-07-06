@@ -140,7 +140,7 @@ class View(QMainWindow):
 
         else:
             if self.progress_dialog is not None:
-                if complete == True:
+                if complete is True:
                     self.progress_dialog.setValue(self.progress_dialog.maximum())
                     self.progress_dialog.reset()
                 else:
@@ -172,9 +172,9 @@ class View(QMainWindow):
     def resizeEvent(self, resizeEvent):
         self.centralWidget().resize()
 
-    def update_dp_dnlog_figures(self, adjustedFigure, diaFigure):
-        self.centralWidget().graphWidget.dpAndDnlogView.dpView.updateFigure(adjustedFigure)
-        self.centralWidget().graphWidget.dpAndDnlogView.dNlogView.updateFigure(diaFigure)
+    def update_dp_dnlog_figures(self, adjusted_figure, diameter_figure):
+        self.centralWidget().graphWidget.dpAndDnlogView.dpView.updateFigure(adjusted_figure)
+        self.centralWidget().graphWidget.dpAndDnlogView.dNlogView.updateFigure(diameter_figure)
 
     def update_temp_and_min_figure(self, aFigure):
         self.centralWidget().graphWidget.tempAndMinView.updateFigure(aFigure)
@@ -209,8 +209,8 @@ class View(QMainWindow):
     def update_kappa_graph(self):
         self.centralWidget().graphWidget.graphView.updateFigure(self.controller.kappaGraph)
 
-    def get_flow_rate(self):
-        return_value = self.controller.flow_rate
+    def get_concentration(self):
+        return_value = self.controller.concentration
         while True:
             input = QInputDialog.getDouble(self, self.tr("Get Flow Rate"),self.tr("Q(flow rate)"),0.3)
             if input[1] == True:

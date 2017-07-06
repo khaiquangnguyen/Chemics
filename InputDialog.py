@@ -38,7 +38,7 @@ class InputForm(QDialog):
             self.maxDpAsym = float(self.maxDpAsymLine.text())
             self.accept()
         except:
-            self.mainWindow.showError("Input data not valid.Please input again!")
+            self.mainWindow.show_error_dialog("Input processed_data not valid.Please input again!")
 
     def getData(self):
         return self.minDp,self.minDpAsym, self.maxDpAsym

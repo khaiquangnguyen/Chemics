@@ -1,7 +1,7 @@
 dpViewFileName = "dp.png"
 dnLogFileName = "dn.png"
 fullGraphFileName = "smps_ccnc.png"
-singlePeakFileName = "currPeak"
+singlePeakFileName = "current_scan"
 maxPeak = 14
 
 graphBackgroundColor = "#424242"

@@ -83,7 +83,7 @@ class PeakDataTable(QTableWidget):
             for i in range(self.rowCount() - 6):
                 self.removeRow(self.rowCount() - 1)
 
-        # Add basic information data
+        # Add basic information processed_data
         header = TableHeader("Basic Peak Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
@@ -95,7 +95,7 @@ class PeakDataTable(QTableWidget):
         self.addMessage("Current run", currPeak + 1)
         self.addMessage("Saturation", self.mainWindow.controller.superSaturation)
 
-        # Add advance information data
+        # Add advance information processed_data
         header = TableHeader("Advance Peak Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
@@ -206,31 +206,31 @@ class PeakControlTabWidget(QWidget):
         self.setPalette(palette)
 
     def IgnorePeakClicked(self):
-        self.mainWindow.controller.disablePeak()
+        self.mainWindow.controller.disable_scan()
 
     def updateSigVarsClicked(self):
         updateDialog = InputForm(self.mainWindow)
         if updateDialog.exec_() == QDialog.Accepted:
             (a,b,c) = updateDialog.getData()
-            self.mainWindow.controller.reOptimization(a,b,c)
+            self.mainWindow.controller.refitting_sigmoid_line(a, b, c)
 
     def addSecondClicked(self):
-        self.mainWindow.controller.shiftOneSecond()
+        self.mainWindow.controller.shift_ccnc_data_by_one_second()
 
     def subSecondClicked(self):
-        self.mainWindow.controller.shiftOneSecond(forward=False)
+        self.mainWindow.controller.shift_ccnc_data_by_one_second(forward=False)
 
     def nextButtonClicked(self):
         currPeak = self.mainWindow.controller.currPeak
         number_of_peak = self.mainWindow.controller.number_of_peak
-        self.mainWindow.controller.switchToPeak(min(currPeak + 1, number_of_peak - 1))
+        self.mainWindow.controller.switch_to_run_screen(min(currPeak + 1, number_of_peak - 1))
 
     def previousButtonClicked(self):
         currPeak = self.mainWindow.controller.currPeak
-        self.mainWindow.controller.switchToPeak(max(0, currPeak - 1))
+        self.mainWindow.controller.switch_to_run_screen(max(0, currPeak - 1))
 
     def optimizeButtonClicked(self):
-        self.mainWindow.controller.optimizationProcedure()
+        self.mainWindow.controller.correct_charges_and_fit_sigmoid_all_scans()
 
     def calKappaButtonClicked(self):
         controller = self.mainWindow.controller
@@ -245,8 +245,8 @@ class PeakControlTabWidget(QWidget):
         confirmVarDialog = KappaVarConfirmDialog(sig,temp,dd1,iKappa1,dd2,iKappa2,solu,self.mainWindow)
         if confirmVarDialog.exec_() == QDialog.Accepted:
             (sig,temp,dd1,iKappa1,dd2,iKappa2,solu) = confirmVarDialog.getData()
-            self.mainWindow.updateKappaVars(sig,temp,dd1,iKappa1,dd2,iKappa2,solu)
-            self.mainWindow.calKappa()
+            self.mainWindow.update_kappa_values(sig, temp, dd1, iKappa1, dd2, iKappa2, solu)
+            self.mainWindow.calculate_kappa_values()
 
 
 class PeakDpDnLogGraphWidget(QWidget):
