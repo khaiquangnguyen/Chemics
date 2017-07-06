@@ -11,7 +11,7 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 import time
 
 
-class KappaTextDataWidget(QWidget):
+class KappaInformationAndDataWidget(QWidget):
     def __init__(self, mainWindow=None):
         super(self.__class__,self).__init__(mainWindow)
         self.mainWindow = mainWindow
@@ -27,7 +27,7 @@ class KappaTextDataWidget(QWidget):
         self.setFixedHeight(parent_height)
         self.current_data_table.resize(self.width(), self.height())
 
-    def updateData(self):
+    def update_data(self):
         self.current_data_table.updateData()
         self.current_data_table.resize(self.width(), self.height())
 
@@ -35,19 +35,19 @@ class KappaTextDataWidget(QWidget):
         self.clearLayout(self.layout)
         self.current_data_table = KappaGraphDataTable(self.mainWindow)
         self.layout.addWidget(self.current_data_table)
-        self.updateData()
+        self.update_data()
 
     def changeToRawDataTable(self):
         self.clearLayout(self.layout)
         self.current_data_table = KappaRawDataTable(self.mainWindow)
         self.layout.addWidget(self.current_data_table)
-        self.updateData()
+        self.update_data()
 
     def changeToConstDataTable(self):
         self.clearLayout(self.layout)
         self.current_data_table = KappaConstDataTable(self.mainWindow)
         self.layout.addWidget(self.current_data_table)
-        self.updateData()
+        self.update_data()
 
     def clearLayout(self, layout):
         if layout is not None:

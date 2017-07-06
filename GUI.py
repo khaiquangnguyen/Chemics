@@ -39,8 +39,9 @@ VERSION = 101
 #
 ###############################
 
+
 class View(QMainWindow):
-    def __init__(self,controller):
+    def __init__(self, controller):
         global VERSION
         global width, height
         QMainWindow.__init__(self)
@@ -69,8 +70,6 @@ class View(QMainWindow):
         exit_button.setStatusTip('Exit application')
         exit_button.triggered.connect(self.close)
         file_button.addAction(exit_button)
-
-        #set central widget
         self.setCentralWidget(ControlPanel(self))
         self.showMaximized()
 
@@ -173,16 +172,16 @@ class View(QMainWindow):
         self.centralWidget().resize()
 
     def update_dp_dnlog_figures(self, adjusted_figure, diameter_figure):
-        self.centralWidget().graphWidget.dpAndDnlogView.dpView.updateFigure(adjusted_figure)
-        self.centralWidget().graphWidget.dpAndDnlogView.dNlogView.updateFigure(diameter_figure)
+        self.centralWidget().graphWidget.dpAndDnlogView.dpView.update_figure(adjusted_figure)
+        self.centralWidget().graphWidget.dpAndDnlogView.dNlogView.update_figure(diameter_figure)
 
     def update_temp_and_min_figure(self, aFigure):
-        self.centralWidget().graphWidget.tempAndMinView.updateFigure(aFigure)
+        self.centralWidget().graphWidget.tempAndMinView.update_figure(aFigure)
 
     def calculate_kappa_values(self):
         # if self.controller.completedStep >=2:
         self.controller.calculate_kappa_values()
-        self.centralWidget().switch_to_kappa_screen()
+        self.centralWidget().switch_to_kappa_widget()
         self.controller.create_kappa_graph()
 
     def update_general_information(self):
@@ -195,7 +194,7 @@ class View(QMainWindow):
         self.centralWidget().infoWidget.infoTable.update_information_after_sig_fit()
 
     def reset(self):
-        self.centralWidget().switch_to_run_screen()
+        self.centralWidget().switch_to_run_widget()
 
     def update_kappa_values(self, sigma, temp, dd1, i1, dd2, i2, solu):
         self.controller.sigma = sigma
@@ -207,34 +206,34 @@ class View(QMainWindow):
         self.controller.solubility = solu
 
     def update_kappa_graph(self):
-        self.centralWidget().graphWidget.graphView.updateFigure(self.controller.kappaGraph)
+        self.centralWidget().graphWidget.graphView.update_figure(self.controller.kappaGraph)
 
     def get_concentration(self):
         return_value = self.controller.concentration
         while True:
             input = QInputDialog.getDouble(self, self.tr("Get Flow Rate"),self.tr("Q(flow rate)"),0.3)
-            if input[1] == True:
+            if input[1] is True:
                 return_value = float(input[0])
                 break
         return return_value
 
 
-###############################
+#######################################################
 #
 # CONTROL PANEL CLASS. CONTAINS ALL THE CONTROL BUTTONS OF THE UI
 #
-###############################
+#######################################################
 
 class ControlPanel(QWidget):
-    def __init__(self, mainWindow = None):
+    def __init__(self, main_window = None):
         QWidget.__init__(self)
         # addSubWidget
-        self.mainWindow = mainWindow
+        self.mainWindow = main_window
         self.layout = QHBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.info_widget = PeakTextDataWidget(self.mainWindow)
-        self.graph_widget = PeakGraphWidget(self.mainWindow)
+        self.info_widget = ScanInformationWidget(self.mainWindow)
+        self.graph_widget = ScanGraphsWidget(self.mainWindow)
         self.layout.addWidget(self.info_widget)
         self.layout.addWidget(self.graph_widget)
         self.setLayout(self.layout)
@@ -243,21 +242,20 @@ class ControlPanel(QWidget):
         self.info_widget.resize(self.width(), self.height())
         self.graph_widget.resize(self.width(), self.height())
 
-    def switch_to_kappa_screen(self):
+    def switch_to_kappa_widget(self):
         self.clear_layout(self.layout)
-        self.info_widget = KappaTextDataWidget(self.mainWindow)
+        self.info_widget = KappaInformationAndDataWidget(self.mainWindow)
         self.graph_widget = KappaGraphWidget(self.mainWindow)
-        self.clear_layout(self.layout)
         self.layout.addWidget(self.info_widget)
         self.layout.addWidget(self.graph_widget)
         self.setLayout(self.layout)
-        self.info_widget.updateData()
+        self.info_widget.update_data()
         self.resize()
 
-    def switch_to_run_screen(self):
+    def switch_to_run_widget(self):
         self.clear_layout(self.layout)
-        self.info_widget = PeakTextDataWidget(self.mainWindow)
-        self.graph_widget = PeakGraphWidget(self.mainWindow)
+        self.info_widget = ScanInformationWidget(self.mainWindow)
+        self.graph_widget = ScanGraphsWidget(self.mainWindow)
         self.layout.addWidget(self.info_widget)
         self.layout.addWidget(self.graph_widget)
         self.setLayout(self.layout)
