@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="52680c79-2416-4816-9b69-b1aa9e4f4874" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AlignmentUI.py" afterPath="$PROJECT_DIR$/AlignmentUI.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chemics.py" afterPath="$PROJECT_DIR$/Chemics.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Exceptions.py" afterPath="$PROJECT_DIR$/Exceptions.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GUI.py" afterPath="$PROJECT_DIR$/GUI.py" />
     </list>
     <ignored path="Chemics.iws" />
@@ -17,7 +19,7 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/Chemics$testFunction.coverage" NAME="testFunction Coverage Results" MODIFIED="1465934603876" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Chemics$Chemics.coverage" NAME="Chemics Coverage Results" MODIFIED="1499348819235" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chemics$Chemics.coverage" NAME="Chemics Coverage Results" MODIFIED="1499353642838" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chemics$GUI.coverage" NAME="GUI Coverage Results" MODIFIED="1467044667222" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chemics$test.coverage" NAME="test Coverage Results" MODIFIED="1465372719716" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
@@ -38,17 +40,27 @@
     <favorites_list name="Chemics" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.66301167">
+    <splitter split-orientation="horizontal" split-proportion="0.5007508">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
           <file leaf-file-name="Chemics.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/Chemics.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="394">
-                  <caret line="771" column="12" lean-forward="true" selection-start-line="771" selection-start-column="12" selection-end-line="771" selection-end-column="12" />
+                <state relative-caret-position="486">
+                  <caret line="1547" column="4" lean-forward="true" selection-start-line="1547" selection-start-column="4" selection-end-line="1547" selection-end-column="4" />
                   <folding>
                     <element signature="e#0#9#0" expanded="true" />
                   </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="Exceptions.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/Exceptions.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="396">
+                  <caret line="11" column="20" lean-forward="false" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="20" />
+                  <folding />
                 </state>
               </provider>
             </entry>
@@ -66,32 +78,12 @@
           <file leaf-file-name="GUI.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/GUI.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="865">
-                  <caret line="256" column="45" lean-forward="true" selection-start-line="256" selection-start-column="45" selection-end-line="256" selection-end-column="45" />
+                <state relative-caret-position="674">
+                  <caret line="194" column="0" lean-forward="true" selection-start-line="194" selection-start-column="0" selection-end-line="194" selection-end-column="0" />
                   <folding>
                     <element signature="e#90#100#0" expanded="true" />
-                    <element signature="e#6814#7061#0" expanded="false" />
+                    <element signature="e#6870#7117#0" expanded="false" />
                   </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="KappaVarConfirmDialog.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/KappaVarConfirmDialog.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="576">
-                  <caret line="26" column="24" lean-forward="false" selection-start-line="26" selection-start-column="24" selection-end-line="26" selection-end-column="24" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="KappaUI.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/KappaUI.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="720">
-                  <caret line="30" column="30" lean-forward="false" selection-start-line="30" selection-start-column="30" selection-end-line="30" selection-end-column="30" />
-                  <folding />
                 </state>
               </provider>
             </entry>
@@ -99,8 +91,8 @@
           <file leaf-file-name="AlignmentUI.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/AlignmentUI.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="504">
-                  <caret line="14" column="4" lean-forward="false" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="4" />
+                <state relative-caret-position="297">
+                  <caret line="74" column="56" lean-forward="false" selection-start-line="74" selection-start-column="56" selection-end-line="74" selection-end-column="56" />
                   <folding>
                     <element signature="e#0#28#0" expanded="true" />
                   </folding>
@@ -126,7 +118,7 @@
             <entry file="file://$PROJECT_DIR$/Chemics.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="648">
-                  <caret line="1398" column="13" lean-forward="false" selection-start-line="1398" selection-start-column="13" selection-end-line="1398" selection-end-column="13" />
+                  <caret line="1390" column="13" lean-forward="false" selection-start-line="1390" selection-start-column="13" selection-end-line="1390" selection-end-column="13" />
                   <folding>
                     <element signature="e#0#9#0" expanded="true" />
                   </folding>
@@ -147,17 +139,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>create_ccn_graph</find>
-      <find>create_ccn_cn_ratio</find>
-      <find>prepare_scan_data</find>
-      <find>OptimizationE</find>
-      <find>ScanDataError</find>
-      <find>process_one_scan</find>
-      <find>correct_charges</find>
-      <find>correct_charges_of</find>
-      <find>self.current_phase</find>
-      <find>shift</find>
-      <find>prepare_scan</find>
       <find>new_figure</find>
       <find>self.new_figure</find>
       <find>create_optimized_graphs</find>
@@ -176,7 +157,18 @@
       <find>def move_</find>
       <find>def create_ccnc_c</find>
       <find>controlpanel</find>
+      <find>FileProcessingError</find>
+      <find>Exception</find>
+      <find>dnlogdata</find>
       <find>controlpanel`</find>
+      <find>view.show_u</find>
+      <find>def run</find>
+      <find>self.centralWidget</find>
+      <find>self.parse</find>
+      <find>parse_and</find>
+      <find>self.get_concen</find>
+      <find>show_ui</find>
+      <find>ScanInformation</find>
     </findStrings>
     <replaceStrings>
       <replace>preprocess_data</replace>
@@ -211,7 +203,6 @@
         <option value="$PROJECT_DIR$/CustomButton" />
         <option value="$PROJECT_DIR$/PeakAlignUI.py" />
         <option value="$PROJECT_DIR$/KappaTableStyle.py" />
-        <option value="$PROJECT_DIR$/Exceptions.py" />
         <option value="$PROJECT_DIR$/Backup.py" />
         <option value="$PROJECT_DIR$/InputDialog.py" />
         <option value="$PROJECT_DIR$/KappaVarConfirmDialog.py" />
@@ -220,6 +211,7 @@
         <option value="$PROJECT_DIR$/Changelog" />
         <option value="$PROJECT_DIR$/KappaUI.py" />
         <option value="$PROJECT_DIR$/HelperFunctions.py" />
+        <option value="$PROJECT_DIR$/Exceptions.py" />
         <option value="$PROJECT_DIR$/Chemics.py" />
         <option value="$PROJECT_DIR$/GUI.py" />
         <option value="$PROJECT_DIR$/AlignmentUI.py" />
@@ -982,14 +974,14 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3284625" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32844242" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3281148" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3281148" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16699283" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25906184" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32159165" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20415778" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39692983" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="-1792" y="40" width="1713" height="878" />
+      <window_info id="Debug" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39677176" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="-1792" y="40" width="1713" height="878" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -1092,7 +1084,7 @@
           <properties />
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="744" />
+      <option name="time" value="751" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
@@ -1206,13 +1198,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Exceptions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Changelog">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="324">
@@ -1245,10 +1230,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Exceptions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="396">
+          <caret line="11" column="20" lean-forward="false" selection-start-line="11" selection-start-column="6" selection-end-line="11" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Chemics.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="394">
-          <caret line="771" column="12" lean-forward="true" selection-start-line="771" selection-start-column="12" selection-end-line="771" selection-end-column="12" />
+        <state relative-caret-position="486">
+          <caret line="1547" column="4" lean-forward="true" selection-start-line="1547" selection-start-column="4" selection-end-line="1547" selection-end-column="4" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
@@ -1257,19 +1250,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/GUI.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="865">
-          <caret line="256" column="45" lean-forward="true" selection-start-line="256" selection-start-column="45" selection-end-line="256" selection-end-column="45" />
+        <state relative-caret-position="674">
+          <caret line="194" column="0" lean-forward="true" selection-start-line="194" selection-start-column="0" selection-end-line="194" selection-end-column="0" />
           <folding>
             <element signature="e#90#100#0" expanded="true" />
-            <element signature="e#6814#7061#0" expanded="false" />
+            <element signature="e#6870#7117#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/AlignmentUI.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="504">
-          <caret line="14" column="4" lean-forward="false" selection-start-line="14" selection-start-column="4" selection-end-line="14" selection-end-column="4" />
+        <state relative-caret-position="297">
+          <caret line="74" column="56" lean-forward="false" selection-start-line="74" selection-start-column="56" selection-end-line="74" selection-end-column="56" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
           </folding>

@@ -113,7 +113,7 @@ class View(QMainWindow):
             self.controller.files = files
             self.controller.run()
 
-    def make_progress(self, message = None, max_value = None, complete = False, value = 1):
+    def move_progress_bar_forward(self, message = None, max_value = None, complete = False, value = 1):
         """
         Activate the progress bar
         :param max_value: the maximum of the progress dialog. Used to signal reset progress dialog
@@ -172,8 +172,8 @@ class View(QMainWindow):
         self.centralWidget().resize()
 
     def update_dp_dnlog_figures(self, adjusted_figure, diameter_figure):
-        self.centralWidget().graphWidget.dpAndDnlogView.dpView.update_figure(adjusted_figure)
-        self.centralWidget().graphWidget.dpAndDnlogView.dNlogView.update_figure(diameter_figure)
+        self.centralWidget().graph_widget.dpAndDnlogView.dpView.update_figure(adjusted_figure)
+        self.centralWidget().graph_widget.dpAndDnlogView.dNlogView.update_figure(diameter_figure)
 
     def update_temp_and_min_figure(self, aFigure):
         self.centralWidget().graphWidget.tempAndMinView.update_figure(aFigure)
@@ -184,14 +184,14 @@ class View(QMainWindow):
         self.centralWidget().switch_to_kappa_widget()
         self.controller.create_kappa_graph()
 
-    def update_general_information(self):
-        self.centralWidget().infoWidget.infoTable.update_general_information()
+    def update_experiment_information(self):
+        self.centralWidget().info_widget.information_table.update_scan_information()
 
-    def update_information_of_run(self):
-        self.centralWidget().infoWidget.infoTable.update_information_of_run()
+    def update_scan_information(self):
+        self.centralWidget().info_windget.information_table.update_scan_information()
 
-    def update_information_after_sig_fit(self):
-        self.centralWidget().infoWidget.infoTable.update_information_after_sig_fit()
+    def update_scan_information_after_sigmoid_fit(self):
+        self.centralWidget().info_widget.information_table.update_scan_information_after_sigmoid_fit()
 
     def reset(self):
         self.centralWidget().switch_to_run_widget()

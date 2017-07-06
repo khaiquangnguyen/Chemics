@@ -33,6 +33,7 @@ class ScanDataError(Exception):
     def __init__(self):
         pass
 
+
 class InterruptError(Exception):
     def __init__(self):
         pass

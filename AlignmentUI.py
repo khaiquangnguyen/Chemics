@@ -19,14 +19,14 @@ class ScanInformationWidget(QWidget):
         self.layout = QVBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.infoTable = ScanInformationTable(main_window)
-        self.layout.addWidget(self.infoTable)
+        self.information_table = ScanInformationTable(main_window)
+        self.layout.addWidget(self.information_table)
         self.setLayout(self.layout)
 
     def resize(self, parent_width, parent_height):
         self.setFixedWidth(parent_width / 4)
         self.setFixedHeight(parent_height)
-        self.infoTable.resize(self.width(), self.height())
+        self.information_table.resize(self.width(), self.height())
 
 
 class ScanInformationTable(QTableWidget):
@@ -47,7 +47,7 @@ class ScanInformationTable(QTableWidget):
         self.setWordWrap(True)
         self.resizeRowsToContents()
         self.setFrameStyle(QFrame.NoFrame)
-        self.mainWindow = main_window
+        self.main_window = main_window
 
         self.setAutoFillBackground(True)
         palette = QPalette()
@@ -58,11 +58,11 @@ class ScanInformationTable(QTableWidget):
         header = TableHeader("Data Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
-        self.add_message("Date", self.mainWindow.controller.date)
-        self.add_message("Time frame", self.mainWindow.controller.start_time_list[0] + " to " + self.mainWindow.controller.end_time_list[-1])
-        self.add_message("Time per run", self.mainWindow.controller.scan_time)
-        self.add_message("Total run", self.mainWindow.controller.number_of_peak)
-        self.add_message("CPC", self.mainWindow.controller.flowRate)
+        self.add_message("Date", self.main_window.controller.date)
+        self.add_message("Time frame", self.main_window.controller.start_time_list[0] + " to " + self.main_window.controller.end_time_list[-1])
+        self.add_message("Time per run", self.main_window.controller.scan_time)
+        self.add_message("Total run", self.main_window.controller.number_of_peak)
+        self.add_message("CPC", self.main_window.controller.flowRate)
 
     def update_scan_information(self):
         if self.rowCount() > 6:
@@ -71,13 +71,13 @@ class ScanInformationTable(QTableWidget):
         header = TableHeader("Scan Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
-        currPeak = self.mainWindow.controller.currPeak
-        if self.mainWindow.controller.minPosCCNCList[currPeak] and self.mainWindow.controller.minPosCCNCList[currPeak]:
+        current_scan = self.main_window.controller.current_scan
+        if self.main_window.controller.min_pos_CCNC_list[current_scan] and self.main_window.controller.minPosCCNCList[current_scan]:
             self.add_message("Status", "Valid for curve fit")
         else:
             self.add_message("Status", "Invalid for curve fit", color='#EF5350')
-        self.add_message("Scan #", currPeak + 1)
-        self.add_message("Saturation", self.mainWindow.controller.superSaturation)
+        self.add_message("Scan #", current_scan + 1)
+        self.add_message("Saturation", self.main_window.controller.super_saturation_rate)
 
     def update_scan_information_after_sigmoid_fit(self):
         if self.rowCount() > 6:
@@ -88,29 +88,29 @@ class ScanInformationTable(QTableWidget):
         header = TableHeader("Scan Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
-        currPeak = self.mainWindow.controller.currPeak
-        if self.mainWindow.controller.minPosCCNCList[currPeak] and self.mainWindow.controller.minPosCCNCList[currPeak]:
+        current_scan = self.main_window.controller.current_scan
+        if self.main_window.controller.min_pos_CCNC_list[current_scan] and self.main_window.controller.minPosCCNCList[current_scan]:
             self.add_message("Status", "Valid for curve fit")
         else:
             self.add_message("Status", "Invalid for curve fit", color='#EF5350')
-        self.add_message("Scan #", currPeak + 1)
-        self.add_message("Saturation", self.mainWindow.controller.superSaturation)
+        self.add_message("Scan #", current_scan + 1)
+        self.add_message("Saturation", self.main_window.controller.super_saturation_rate)
 
         header = TableHeader("Sigmoid Fit Parameters")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
-        if self.mainWindow.controller.usableForKappaCalList[currPeak]:
+        if self.main_window.controller.usable_for_kappa_cal_list[current_scan]:
             self.add_message("Status", "Valid for Kappa Cal")
         else:
             self.add_message("Status", "Invalid for Kappa Cal", color='#EF5350')
-        self.add_message('minDp', self.mainWindow.controller.minDp)
-        self.add_message('minDpAsym', self.mainWindow.controller.minDpAsym)
-        self.add_message('maxDpAsym', self.mainWindow.controller.maxDpAsym)
-        self.add_message("dp50", self.mainWindow.controller.dp50)
-        self.add_message("<dp50 counts", self.mainWindow.controller.dp50LessCount)
-        self.add_message(">dp50 counts", self.mainWindow.controller.dp50MoreCount)
-        self.add_message("dp50(Wet)", self.mainWindow.controller.dp50Wet)
-        self.add_message("dp50+20", self.mainWindow.controller.dp50Plus20)
+        self.add_message('minDp', self.main_window.controller.min_dp)
+        self.add_message('minDpAsym', self.main_window.controller.min_dp_asym)
+        self.add_message('maxDpAsym', self.main_window.controller.max_dp_asym)
+        self.add_message("dp50", self.main_window.controller.dp50)
+        self.add_message("<dp50 counts", self.main_window.controller.dp50_less_count)
+        self.add_message(">dp50 counts", self.main_window.controller.dp50_more_count)
+        self.add_message("dp50(Wet)", self.main_window.controller.dp50_wet)
+        self.add_message("dp50+20", self.main_window.controller.dp50_plus_20)
 
     def add_message(self, field, message, color=None):
         message = str(message)

@@ -128,9 +128,6 @@ class Controller():
         self.usable_for_kappa_cal_list = []
         self.clone = None
 
-
-    # -------------General processed_data processing------------------
-
     def get_concentration(self):
         """
         """
@@ -1103,7 +1100,7 @@ class Controller():
                 self.create_temperature_graph()
             self.move_progress_bar_forward(complete=True)
             self.current_scan = -1
-            self.view.update_general_information()
+            self.view.update_experiment_information()
             self.create_all_scan_alignment_summary_graph()
             self.switch_to_scan(0)
         except FileNotFoundError:
@@ -1112,7 +1109,7 @@ class Controller():
         except FileProcessingError:
             self.view.show_error_dialog("Can't process the SMPS or CCNC files!")
             raise DataPreparationError()
-        except dnlogDataError:
+        except DNlogDataError:
             self.view.show_error_dialog("Can't process dnlog processed_data from the SMPS file!")
             raise DataPreparationError()
         except DataError:
@@ -1302,12 +1299,7 @@ class Controller():
             self.alpha_pinene_dict[aKey] = (meanDp, stdDp, meanApp, stdApp, meanAna, stdAna, meanDev, devMean, dp50List)
         self.move_progress_bar_forward(complete=True)
 
-    #--------------- UI interaction - Data interaction functions--------------------
-
-    def updateGUI(self):
-        """
-        Update the GUI with the newest processed_data of the current peak
-        """
+    def update_view(self):
         self.concentration_over_scan_time_graph = self.adjusted_graph_list[self.current_scan]
         self.complete_dry_diameter_graph = self.dry_diameter_graph_list[self.current_scan]
         self.view.update_dp_dnlog_figures(self.concentration_over_scan_time_graph, self.complete_dry_diameter_graph)
@@ -1332,13 +1324,13 @@ class Controller():
             self.current_point.set_xdata(numpy.asarray(self.min_pos_SMPS_list)[self.current_scan])
             self.current_point.set_ydata(numpy.asarray(self.min_pos_CCNC_list)[self.current_scan])
             self.view.update_temp_and_min_figure(self.min_compare_grpah)
-            self.view.update_information_after_sig_fit()
+            self.view.update_scan_information_after_sigmoid_fit()
 
         else:
             self.temperature_graph = self.temperature_graph_list[self.current_scan]
             self.super_saturation_rate = self.ss_list[self.current_scan]
             self.view.update_temp_and_min_figure(self.temperature_graph)
-            self.view.update_information_of_run()
+            self.view.update_scan_information()
 
     def shift_ccnc_data_by_one_second(self, forward=True):
         try:
@@ -1391,7 +1383,7 @@ class Controller():
             self.usable_for_kappa_cal_list[self.current_scan] = False
         else:
             self.usable_for_kappa_cal_list[self.current_scan] = False
-        self.updateGUI()
+        self.update_view()
 
     def switch_to_scan(self, peak):
         """
@@ -1400,7 +1392,7 @@ class Controller():
         """
         if peak != self.current_scan:
             self.current_scan = peak
-            self.updateGUI()
+            self.update_view()
 
     def refitting_sigmoid_line(self, min_dry_diameter, min_dry_diameter_asymptote, max_dry_diameter_asymptote):
         if not self.finish_sigmoid_fit_phase:
@@ -1436,7 +1428,7 @@ class Controller():
             self.d_list[self.current_scan] = self.d
             self.c_list[self.current_scan] = self.c
             self.dp50_list[self.current_scan] = (self.d, self.ss_list[self.current_scan])
-            self.updateGUI()
+            self.update_view()
             self.move_progress_bar_forward(complete=True)
         except:
             # Disable the peak
@@ -1448,13 +1440,10 @@ class Controller():
             self.d_list[self.current_scan] = 0
             self.c_list[self.current_scan] = 0
             self.dp50_list[self.current_scan] = (0, 0)
-            self.updateGUI()
+            self.update_view()
             self.move_progress_bar_forward(complete=True)
 
-    #----------------------Misc------------------------------------------
-
     def run(self):
-        """start to process the processed_data"""
         self.current_phase = 0
         self.parse_and_match_smps_ccnc_data()
 
@@ -1551,12 +1540,14 @@ class Controller():
 
 
 def main():
-    # controller
     controller = Controller(False)
-    #view
     view = View(controller)
     controller.view = view
+    files = [u'C:\\Users\\KKK\\OneDrive\\Researches\\Chemics\\Examples\\AS_Calibration_SMPS.txt', u'C:\\Users\\KKK\\OneDrive\\Researches\\Chemics\\Examples\\CCN data 100203092813.csv']
+    controller.files = files
+    controller.run()
     view.show_ui()
+
 
 if __name__ == '__main__':
     main()
