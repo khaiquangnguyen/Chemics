@@ -12,13 +12,13 @@ import time
 
 
 class KappaInformationAndDataWidget(QWidget):
-    def __init__(self, mainWindow=None):
-        super(self.__class__,self).__init__(mainWindow)
-        self.mainWindow = mainWindow
-        self.layout = QVBoxLayout()  #Vertical layout
+    def __init__(self, main_window=None):
+        super(self.__class__, self).__init__(main_window)
+        self.mainWindow = main_window
+        self.layout = QVBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.current_data_table = KappaConstDataTable(mainWindow)
+        self.current_data_table = KappaConstDataTable(main_window)
         self.layout.addWidget(self.current_data_table)
         self.setLayout(self.layout)
 
@@ -28,28 +28,28 @@ class KappaInformationAndDataWidget(QWidget):
         self.current_data_table.resize(self.width(), self.height())
 
     def update_data(self):
-        self.current_data_table.updateData()
+        self.current_data_table.update_data()
         self.current_data_table.resize(self.width(), self.height())
 
-    def changeToGraphDataTable(self):
-        self.clearLayout(self.layout)
+    def change_to_graph_data_table(self):
+        self.clear_layout(self.layout)
         self.current_data_table = KappaGraphDataTable(self.mainWindow)
         self.layout.addWidget(self.current_data_table)
         self.update_data()
 
-    def changeToRawDataTable(self):
-        self.clearLayout(self.layout)
+    def change_to_raw_data_table(self):
+        self.clear_layout(self.layout)
         self.current_data_table = KappaRawDataTable(self.mainWindow)
         self.layout.addWidget(self.current_data_table)
         self.update_data()
 
-    def changeToConstDataTable(self):
-        self.clearLayout(self.layout)
+    def change_to_parameters_data_table(self):
+        self.clear_layout(self.layout)
         self.current_data_table = KappaConstDataTable(self.mainWindow)
         self.layout.addWidget(self.current_data_table)
         self.update_data()
 
-    def clearLayout(self, layout):
+    def clear_layout(self, layout):
         if layout is not None:
             while layout.count():
                 item = layout.takeAt(0)
@@ -57,15 +57,16 @@ class KappaInformationAndDataWidget(QWidget):
                 if widget is not None:
                     widget.deleteLater()
                 else:
-                    self.clearLayout(item.layout())
+                    self.clear_layout(item.layout())
+
 
 class KappaRawDataTable(QTableWidget):
-    def resize(self, parentWidth, parentHeight):
-        self.setFixedHeight(parentHeight)
-        self.setFixedWidth(parentWidth)
+    def resize(self, parent_width, parent_height):
+        self.setFixedHeight(parent_height)
+        self.setFixedWidth(parent_width)
         self.verticalHeader().setDefaultSectionSize(self.height() / 25)
 
-    def __init__(self, mainWindow = None):
+    def __init__(self, main_window=None):
         QTableWidget.__init__(self)
         self.setColumnCount(5)
         self.setRowCount(0)
@@ -76,17 +77,15 @@ class KappaRawDataTable(QTableWidget):
         self.verticalHeader().setDefaultSectionSize(self.height() / 25)
         self.setWordWrap(True)
         self.setFrameStyle(QFrame.NoFrame)
-        self.mainWindow = mainWindow
-        #set background color
+        self.mainWindow = main_window
         self.setAutoFillBackground(True)
         palette = QPalette()
         palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
         self.setPalette(palette)
 
-    def updateData(self):
+    def update_data(self):
         for i in range(self.rowCount()):
             self.removeRow(self.rowCount()-1)
-
         self.insertRow(self.rowCount())
         ss = TableHeader('ss')
         self.setCellWidget(self.rowCount() - 1, 0, ss)
@@ -99,21 +98,21 @@ class KappaRawDataTable(QTableWidget):
         devi = TableHeader('% devi')
         self.setCellWidget(self.rowCount() - 1, 4, devi)
 
-        kappaDict = self.mainWindow.controller.kappaCalculatedDict
-        for aKey in kappaDict.keys():
-            if kappaDict[aKey]:
-                for aSS in kappaDict[aKey]:
-                    ss = aKey
+        kappa_dict = self.mainWindow.controller.kappa_calculate_dict
+        for a_key in kappa_dict.keys():
+            if kappa_dict[a_key]:
+                for aSS in kappa_dict[a_key]:
+                    ss = a_key
                     dp = aSS[0]
                     app = aSS[1]
                     ana = aSS[2]
                     devi = aSS[3]
-                    self.addMessage(ss,dp,app,ana,devi)
+                    self.add_message(ss, dp, app, ana, devi)
 
-    def addMessage(self, ss,dp,app,ana,devi):
+    def add_message(self, ss, dp, app, ana, devi):
         ss = ('% .2f' % ss)
         dp = ('% .4f' % dp)
-        app =('% .4f' % app)
+        app = ('% .4f' % app)
         ana = ('% .4f' % ana)
         devi = ('% .4f' % devi)
         self.insertRow(self.rowCount())
@@ -128,13 +127,14 @@ class KappaRawDataTable(QTableWidget):
         devi = SingleTableItem(devi)
         self.setCellWidget(self.rowCount() - 1, 4, devi)
 
+
 class KappaGraphDataTable(QTableWidget):
-    def resize(self, parentWidth, parentHeight):
-        self.setFixedHeight(parentHeight)
-        self.setFixedWidth(parentWidth)
+    def resize(self, parent_width, parent_height):
+        self.setFixedHeight(parent_height)
+        self.setFixedWidth(parent_width)
         self.verticalHeader().setDefaultSectionSize(self.height() / 25)
 
-    def __init__(self, mainWindow=None):
+    def __init__(self, main_window=None):
         QTableWidget.__init__(self)
         self.setRowCount(0)
         self.setShowGrid(False)
@@ -144,7 +144,7 @@ class KappaGraphDataTable(QTableWidget):
         self.setWordWrap(True)
         self.setFrameStyle(QFrame.NoFrame)
 
-        self.mainWindow = mainWindow
+        self.mainWindow = main_window
 
         # set background color
         self.setAutoFillBackground(True)
@@ -152,12 +152,12 @@ class KappaGraphDataTable(QTableWidget):
         palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
         self.setPalette(palette)
 
-    def updateData(self):
+    def update_data(self):
         for i in range(self.rowCount()):
             self.removeRow(self.rowCount() - 1)
 
-        dataDict = self.mainWindow.controller.alphaPineneDict
-        self.setColumnCount(len(dataDict.keys()) + 1)
+        data_dict = self.mainWindow.controller.alpha_pinene_dict
+        self.setColumnCount(len(data_dict.keys()) + 1)
         self.headerList = []
         ssHeader = SingleTableHeaderItem("SS(%)")
         meanDPHeader = SingleTableHeaderItem("MeanDP")
@@ -179,31 +179,31 @@ class KappaGraphDataTable(QTableWidget):
         self.headerList.append(deviMeanHeader)
 
         # Insert Header
-        for i in range(0,len(self.headerList)):
+        for i in range(0, len(self.headerList)):
             self.insertRow(self.rowCount())
             self.setCellWidget(self.rowCount() - 1, 0, self.headerList[i])
         # Insert processed_data
         count = 1
-        for aKey in dataDict.keys():
-            aList = [aKey]
-            aList.extend(dataDict[aKey])
-            self.addMessage(aList,count)
+        for a_key in data_dict.keys():
+            a_list = [a_key]
+            a_list.extend(data_dict[a_key])
+            self.add_message(a_list, count)
             count += 1
 
+    def add_message(self, data_list, column_pos):
+        for i in range(len(data_list)):
+            a_cell = ('% .2f' % data_list[i])
+            a_cell = SingleTableItem(a_cell)
+            self.setCellWidget(i, column_pos, a_cell)
 
-    def addMessage(self, dataList, columnPos):
-        for i in range(len(dataList)):
-            aCell =  ('% .2f' % dataList[i])
-            aCell = SingleTableItem(aCell)
-            self.setCellWidget(i, columnPos, aCell)
 
 class KappaConstDataTable(QTableWidget):
-    def resize(self, parentWidth, parentHeight):
-        self.setFixedHeight(parentHeight)
-        self.setFixedWidth(parentWidth)
+    def resize(self, parent_width, parent_height):
+        self.setFixedHeight(parent_height)
+        self.setFixedWidth(parent_width)
         self.verticalHeader().setDefaultSectionSize(self.height() / 25)
 
-    def __init__(self, mainWindow = None):
+    def __init__(self, main_window=None):
         QTableWidget.__init__(self)
         self.setColumnCount(1)
         self.setRowCount(0)
@@ -215,15 +215,14 @@ class KappaConstDataTable(QTableWidget):
         self.setWordWrap(True)
         self.resizeRowsToContents()
         self.setFrameStyle(QFrame.NoFrame)
-        self.mainWindow = mainWindow
+        self.mainWindow = main_window
 
-        #set background color
         self.setAutoFillBackground(True)
         palette = QPalette()
         palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
         self.setPalette(palette)
 
-    def updateData(self):
+    def update_data(self):
         for i in range(self.rowCount()):
             self.removeRow(self.rowCount() - 1)
 
@@ -231,7 +230,7 @@ class KappaConstDataTable(QTableWidget):
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         controller = self.mainWindow.controller
-        kappaVars = (controller.sigma, controller.temp, controller.dd, controller.iKappa, controller.dd2,controller.iKappa2, controller.solubility)
+        kappaVars = (controller.sigma, controller.temp, controller.dd, controller.iKappa, controller.dd2, controller.iKappa2, controller.solubility)
         s = kappaVars[0]
         t = kappaVars[1]
         d1 = kappaVars[2]
@@ -239,71 +238,72 @@ class KappaConstDataTable(QTableWidget):
         d2 = kappaVars[4]
         i2 = kappaVars[5]
         solu = kappaVars[6]
-        self.addMessage("Sigma",s)
-        self.addMessage("Temperature",t)
-        self.addMessage("dry diamater(1)",d1)
-        self.addMessage("iKppa(1)",i1)
-        self.addMessage("dry diamater(2)", d2)
-        self.addMessage("iKppa(2)", i2)
-        self.addMessage("Solubility",solu)
+        self.add_message("Sigma", s)
+        self.add_message("Temperature", t)
+        self.add_message("dry diamater(1)", d1)
+        self.add_message("iKppa(1)", i1)
+        self.add_message("dry diamater(2)", d2)
+        self.add_message("iKppa(2)", i2)
+        self.add_message("Solubility", solu)
 
-    def addMessage(self, field,message):
-        ##### add code here to process the message before printing
+    def add_message(self, field, message):
         message = str(message)
         item = TableItem(field, message)
         self.insertRow(self.rowCount())
-        self.setCellWidget(self.rowCount()-1,0,item)
+        self.setCellWidget(self.rowCount()-1, 0, item)
+
 
 class KappaGraphWidget(QWidget):
-    def resize(self, parentWidth, parentHeight):
-        self.setFixedWidth(parentWidth * 3 / 4)
-        self.setFixedHeight(parentHeight)
+    def resize(self, parent_width, parent_height):
+        self.setFixedWidth(parent_width * 3 / 4)
+        self.setFixedHeight(parent_height)
         self.graphView.resize(self.width(), self.height())
         self.controlWidget.resize(self.width(), self.height())
 
-    def __init__(self, mainWindow=None):
-        super(self.__class__, self).__init__(mainWindow)
+    def __init__(self, main_window=None):
+        super(self.__class__, self).__init__(main_window)
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.graphView = KappaFigureCanvas()
-        self.controlWidget = KappaControlTabWidget(mainWindow)
+        self.controlWidget = KappaControlTabWidget(main_window)
         self.layout.addWidget(self.graphView)
         self.layout.addWidget(self.controlWidget)
 
-class KappaControlTabWidget(QWidget):
-    def resize(self, parentWidth, parentHeight):
-        self.setFixedHeight(parentHeight * 1 / 10)
-        self.setFixedWidth(parentWidth)
-        self.graphDataButton.resize(self.width(),self.height())
-        self.rawDataButton.resize(self.width(), self.height())
-        self.variableButton.resize(self.width(), self.height())
-        self.fullGraphButton.resize(self.width(), self.height())
-        self.focusedGraphButton.resize(self.width(), self.height())
 
-    def __init__(self, mainWindow = None):
-        self.mainWindow = mainWindow
+class KappaControlTabWidget(QWidget):
+    def resize(self, parent_width, parent_height):
+        self.setFixedHeight(parent_height * 1 / 10)
+        self.setFixedWidth(parent_width)
+        self.show_graph_data_button.resize(self.width(), self.height())
+        self.show_raw_data_button.resize(self.width(), self.height())
+        self.show_parameters_button.resize(self.width(), self.height())
+        self.show_full_graph_buttons.resize(self.width(), self.height())
+        self.show_average_graph_button.resize(self.width(), self.height())
+
+    def __init__(self, main_window=None):
+        self.mainWindow = main_window
         QWidget.__init__(self)
         self.layout = QHBoxLayout()
         self.layout.setContentsMargins(0, 10, 60, 10)
 
-        self.rawDataButton = CustomButton("Raw Data", mainWindow)
-        self.graphDataButton = CustomButton("Graph Data", mainWindow)
-        self.variableButton = CustomButton("Variables", mainWindow)
-        self.fullGraphButton = CustomButton("Full Graph", mainWindow)
-        self.focusedGraphButton = CustomButton("Focused Graph", mainWindow)
-        self.rawDataButton.clicked.connect(self.rawDataButtonClicked)
-        self.graphDataButton.clicked.connect(self.graphButtonClicked)
-        self.variableButton.clicked.connect(self.variableButtonClicked)
-        self.fullGraphButton.clicked.connect(self.fullGraphClicked)
-        self.focusedGraphButton.clicked.connect(self.focusedGraphClicked)
+        self.show_raw_data_button = CustomButton("Raw Data", main_window)
+        self.show_graph_data_button = CustomButton("Graph Data", main_window)
+        self.show_parameters_button = CustomButton("Parameters", main_window)
+        self.show_full_graph_buttons = CustomButton("All K-Values Graph", main_window)
+        self.show_average_graph_button = CustomButton("Ave K-Values Graph", main_window)
+        self.show_raw_data_button.clicked.connect(self.on_click_show_raw_data)
+        self.show_graph_data_button.clicked.connect(self.on_click_show_graph)
+        self.show_parameters_button.clicked.connect(self.on_click_show_parameters)
+        self.show_full_graph_buttons.clicked.connect(self.on_click_full_graph)
+        self.show_average_graph_button.clicked.connect(self.on_click_average_graph)
 
-        self.layout.addWidget(self.rawDataButton)
-        self.layout.addWidget(self.graphDataButton)
-        self.layout.addWidget(self.variableButton)
-        self.layout.addWidget(self.focusedGraphButton)
-        self.layout.addWidget(self.fullGraphButton)
+        self.layout.addWidget(self.show_raw_data_button)
+        # self.layout.addWidget(self.show_graph_data_button)
+        self.layout.addWidget(self.show_parameters_button)
+        self.layout.addWidget(self.show_average_graph_button)
+        self.layout.addWidget(self.show_full_graph_buttons)
         self.setLayout(self.layout)
 
         self.setAutoFillBackground(True)
@@ -311,34 +311,34 @@ class KappaControlTabWidget(QWidget):
         palette.setColor(QPalette.Background, settings.controlAreaBackgroundColor)
         self.setPalette(palette)
 
-    def graphButtonClicked(self):
-        self.mainWindow.centralWidget().infoWidget.changeToGraphDataTable()
+    def on_click_show_graph(self):
+        self.mainWindow.centralWidget().info_widget.change_to_graph_data_table()
 
+    def on_click_show_raw_data(self):
+        self.mainWindow.centralWidget().info_widget.change_to_raw_data_table()
 
-    def rawDataButtonClicked(self):
-        self.mainWindow.centralWidget().infoWidget.changeToRawDataTable()
+    def on_click_show_parameters(self):
+        self.mainWindow.centralWidget().info_widget.change_to_parameters_data_table()
 
-    def variableButtonClicked(self):
-        self.mainWindow.centralWidget().infoWidget.changeToConstDataTable()
-
-    def fullGraphClicked(self):
-        self.mainWindow.controller.isFullKappaGraph = True
+    def on_click_full_graph(self):
+        self.mainWindow.controller.is_full_kappa_graph = True
         self.mainWindow.controller.create_kappa_graph()
 
-    def focusedGraphClicked(self):
-        self.mainWindow.controller.isFullKappaGraph = False
+    def on_click_average_graph(self):
+        self.mainWindow.controller.is_full_kappa_graph = False
         self.mainWindow.controller.create_kappa_graph()
+
 
 class KappaFigureCanvas(FigureCanvas):
-    def resize(self, parentWidth, parentHeight):
-        self.setFixedHeight(parentHeight * 9 / 10 + 5)
-        self.setFixedWidth(parentWidth)
+    def resize(self, parent_width, parent_height):
+        self.setFixedHeight(parent_height * 9 / 10 + 5)
+        self.setFixedWidth(parent_width)
 
-    def __init__(self, mainWindow=None):
+    def __init__(self, main_window=None):
         fig = Figure(facecolor=settings.graphBackgroundColor)
         super(self.__class__, self).__init__(fig)
 
-    def updateFigure(self, figure):
+    def update_figure(self, figure):
         self.figure = figure
         self.draw()
 
@@ -346,4 +346,3 @@ class KappaFigureCanvas(FigureCanvas):
         h = self.height()
         self.setFixedHeight(h / 2)
         self.setFixedHeight(h)
-

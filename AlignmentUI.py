@@ -30,11 +30,6 @@ class ScanInformationWidget(QWidget):
 
 
 class ScanInformationTable(QTableWidget):
-    def resize(self, parent_width, parent_height):
-        self.setFixedHeight(parent_height)
-        self.setFixedWidth(parent_width)
-        self.verticalHeader().setDefaultSectionSize(self.height() / 25)
-
     def __init__(self, main_window = None):
         QTableWidget.__init__(self)
         self.setColumnCount(1)
@@ -54,15 +49,20 @@ class ScanInformationTable(QTableWidget):
         palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
         self.setPalette(palette)
 
+    def resize(self, parent_width, parent_height):
+        self.setFixedHeight(parent_height)
+        self.setFixedWidth(parent_width)
+        self.verticalHeader().setDefaultSectionSize(self.height() / 25)
+
     def update_experiment_information(self):
-        header = TableHeader("Data Information")
+        header = TableHeader("Experiment Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
-        self.add_message("Date", self.main_window.controller.date)
-        self.add_message("Time frame", self.main_window.controller.start_time_list[0] + " to " + self.main_window.controller.end_time_list[-1])
-        self.add_message("Time per run", self.main_window.controller.scan_time)
-        self.add_message("Total run", self.main_window.controller.number_of_peak)
-        self.add_message("CPC", self.main_window.controller.flowRate)
+        self.add_message("Experiment Date", self.main_window.controller.experiment_date)
+        self.add_message("Experiment Start Time", self.main_window.controller.scan_start_time_list[0])
+        self.add_message("Time per scan (s)", self.main_window.controller.time_of_each_scan)
+        self.add_message("Total number of scan", self.main_window.controller.number_of_scan)
+        self.add_message("Concentration Rate", self.main_window.controller.concentration)
 
     def update_scan_information(self):
         if self.rowCount() > 6:
@@ -73,11 +73,11 @@ class ScanInformationTable(QTableWidget):
         self.setCellWidget(self.rowCount() - 1, 0, header)
         current_scan = self.main_window.controller.current_scan
         if self.main_window.controller.min_pos_CCNC_list[current_scan] and self.main_window.controller.min_pos_CCNC_list[current_scan]:
-            self.add_message("Status", "Valid for curve fit")
+            self.add_message("Usability for Sigmoid Fit", "Positive")
         else:
-            self.add_message("Status", "Invalid for curve fit", color='#EF5350')
+            self.add_message("Usability for Sigmoid Fit", "Negative", color='#EF5350')
         self.add_message("Scan #", current_scan + 1)
-        self.add_message("Saturation", self.main_window.controller.super_saturation_rate)
+        self.add_message("Saturation Rate", self.main_window.controller.super_saturation_rate)
 
     def update_scan_information_after_sigmoid_fit(self):
         if self.rowCount() > 6:
@@ -89,20 +89,20 @@ class ScanInformationTable(QTableWidget):
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         current_scan = self.main_window.controller.current_scan
-        if self.main_window.controller.min_pos_CCNC_list[current_scan] and self.main_window.controller.minPosCCNCList[current_scan]:
-            self.add_message("Status", "Valid for curve fit")
+        if self.main_window.controller.min_pos_CCNC_list[current_scan] and self.main_window.controller.min_pos_CCNC_list[current_scan]:
+            self.add_message("Usability for Sigmoid Fit", "Positive")
         else:
-            self.add_message("Status", "Invalid for curve fit", color='#EF5350')
+            self.add_message("Usability for Sigmoid Fit", "Negative", color='#EF5350')
         self.add_message("Scan #", current_scan + 1)
-        self.add_message("Saturation", self.main_window.controller.super_saturation_rate)
+        self.add_message("Saturation Rate", self.main_window.controller.super_saturation_rate)
 
         header = TableHeader("Sigmoid Fit Parameters")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         if self.main_window.controller.usable_for_kappa_cal_list[current_scan]:
-            self.add_message("Status", "Valid for Kappa Cal")
+            self.add_message("Usability for Calculating Kappa", "Positive")
         else:
-            self.add_message("Status", "Invalid for Kappa Cal", color='#EF5350')
+            self.add_message("Usability for Calculating Kappa", "Negative", color='#EF5350')
         self.add_message('minDp', self.main_window.controller.min_dp)
         self.add_message('minDpAsym', self.main_window.controller.min_dp_asym)
         self.add_message('maxDpAsym', self.main_window.controller.max_dp_asym)
@@ -113,6 +113,8 @@ class ScanInformationTable(QTableWidget):
         self.add_message("dp50+20", self.main_window.controller.dp50_plus_20)
 
     def add_message(self, field, message, color=None):
+        if type(message) is not str:
+            message = '{0:.2f}'.format(message)
         message = str(message)
         item = TableItem(field, message, color)
         self.insertRow(self.rowCount())
@@ -206,7 +208,7 @@ class ButtonsWidget(QWidget):
         self.move_forward_one_second_button.resize(self.width(), self.height())
 
     def on_click_disable_scan(self):
-        self.main_window.controller.disable_scan()
+        self.main_window.controller.invalidate_scan()
 
     def on_click_update_sigmoid_fit_parameters(self):
         updateDialog = InputForm(self.main_window)
@@ -215,19 +217,19 @@ class ButtonsWidget(QWidget):
             self.main_window.controller.refitting_sigmoid_line(a, b, c)
 
     def on_click_back_one_second(self):
-        self.main_window.controller.shift_ccnc_data_by_one_second()
+        self.main_window.controller.shift_data_by_one_second()
 
     def on_click_forward_one_second(self):
-        self.main_window.controller.shift_ccnc_data_by_one_second(forward=False)
+        self.main_window.controller.shift_data_by_one_second(forward=False)
 
     def on_click_next_scan(self):
-        currPeak = self.main_window.controller.current_scan
+        current_scan = self.main_window.controller.current_scan
         number_of_scan = self.main_window.controller.number_of_scan
-        self.main_window.controller.switch_to_scan_widget(min(currPeak + 1, number_of_scan - 1))
+        self.main_window.controller.switch_to_scan(min(current_scan + 1, number_of_scan - 1))
 
     def on_click_previous_scan(self):
-        currPeak = self.main_window.controller.currPeak
-        self.main_window.controller.switch_to_scan_widget(max(0, currPeak - 1))
+        current_scan = self.main_window.controller.current_scan
+        self.main_window.controller.switch_to_scan(max(0, current_scan - 1))
 
     def on_click_fit_sigmoid_line(self):
         self.main_window.controller.correct_charges_and_fit_sigmoid_all_scans()

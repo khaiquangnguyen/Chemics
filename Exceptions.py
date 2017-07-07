@@ -34,6 +34,11 @@ class ScanDataError(Exception):
         pass
 
 
-class InterruptError(Exception):
+class SigmoidFitError(Exception):
+    def __init__(self):
+        pass
+
+
+class ProgressBarInterruptException(Exception):
     def __init__(self):
         pass

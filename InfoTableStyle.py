@@ -19,6 +19,7 @@ class TableItem(QWidget):
         self.layout.addWidget(self.content)
         self.setLayout(self.layout)
 
+
 class InnerTableItem(QWidget):
     def __init__(self,field,message, color):
         QWidget.__init__(self)
@@ -27,8 +28,8 @@ class InnerTableItem(QWidget):
         self.fieldText = FieldText(field)
         self.infoText = InfoText(message, color)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.addWidget(self.fieldText,0,0,1,3)
-        self.layout.addWidget(self.infoText,0,3,1,7)
+        self.layout.addWidget(self.fieldText, 0, 0, 1, 7)
+        self.layout.addWidget(self.infoText, 0, 7, 1, 3)
         self.setLayout(self.layout)
 
         self.setAutoFillBackground(True)
@@ -82,16 +83,17 @@ class TableHeader(QWidget):
         self.setPalette(palette)
 
         font = QFont()
-        size = max(10, self.height() * 3 / 9)
+        size = max(10, self.height() * 1/4)
         font.setPointSize(size)
         self.setFont(font)
 
     def resizeEvent(self,event):
         font = self.font()
         font.setStyleStrategy(QFont.PreferAntialias or QFont.PreferQuality)
-        size = max(10, self.height() * 3 / 9)
+        size = max(10, self.height() * 1/4)
         font.setPointSize(size)
         self.setFont(font)
+
 
 class FieldText(QLabel):
     def __init__(self,message):
@@ -101,15 +103,15 @@ class FieldText(QLabel):
         palette.setColor(QPalette.Base, settings.infoAreaFieldColor)
         palette.setColor(QPalette.Text, settings.infoAreaFontColor)
         self.setPalette(palette)
-        self.setContentsMargins(5,0,0,0)
+        self.setContentsMargins(5, 0, 0, 0)
         font = QFont()
-        size = max(4, self.height() * 3 / 10)
+        size = max(4, self.height() * 2 / 10)
         font.setPointSize(size)
         self.setFont(font)
 
     def resizeEvent(self, event):
         font = self.font()
-        size = max(10, self.height() * 3 / 10)
+        size = max(10, self.height() * 2 / 10)
         font.setPointSize(size)
         self.setFont(font)
 
@@ -126,12 +128,12 @@ class InfoText(QLabel):
         self.setPalette(palette)
         self.setContentsMargins(10, 0, 0, 0)
         font = QFont()
-        size = max(4, self.height() * 3 / 10)
+        size = max(4, self.height() * 2 / 10)
         font.setPointSize(size)
         self.setFont(font)
 
     def resizeEvent(self, event):
         font = self.font()
-        size = max(10, self.height() * 3 / 10)
+        size = max(10, self.height() * 2 / 10)
         font.setPointSize(size)
         self.setFont(font)

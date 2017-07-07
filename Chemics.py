@@ -18,6 +18,7 @@ import FileDialog
 import Tkinter
 import copy
 import gc
+from timeit import default_timer as timer
 from HelperFunctions import *
 matplotlib.style.use('ggplot')
 
@@ -43,12 +44,12 @@ class Controller():
         self.smps_data = None
         self.particle_diameter_list = None
         self.dnlog_list = None
-        self.ss_list = []
+        self.super_saturation_list = []
         self.processed_data = None
         self.raw_data = None
         self.current_point = None
         self.finish_sigmoid_fit_phase = False
-        self.cancelling = False
+        self.cancelling_progress_bar = False
 
         self.concentration = 0.3
         self.ccn_list = None
@@ -91,7 +92,7 @@ class Controller():
 
         self.concentration_over_scan_time_graph = None
         self.complete_dry_diameter_graph = None
-        self.min_compare_grpah = None
+        self.min_compare_graph = None
         self.kappa_graph = None
         self.temperature_graph = None
         self.adjusted_graph_list = []
@@ -278,7 +279,7 @@ class Controller():
             sizeSum = 0
             countSum = 0
             previousTimeStamp = datetime.strptime(startTime[i], "%H:%M:%S").time()
-            maxSS = 0
+            super_saturation = -1
             # Get all processed_data within the time frame
             self.scan_position_in_data.append(len(smpsCcnList))
             for t in range(self.time_of_each_scan):
@@ -287,8 +288,10 @@ class Controller():
                 sizeSum = 0
                 countSum = 0
                 aLine.append(float(ccnc_data[k + t][-3]))
-                if ccnc_data[k + t][1] > maxSS:
-                    maxSS = ccnc_data[k + t][1]
+                if t == 0:
+                    super_saturation = ccnc_data[k + t][1]
+                elif ccnc_data[k + t][1] != super_saturation:
+                    super_saturation = -1
                 for m in range(0, 20):
                     sizeSum += sizeList[m] * float(ccnc_data[k + t][binPos + m])
                     size += 0.5
@@ -306,7 +309,7 @@ class Controller():
             k += self.time_of_each_scan
 
             # Update the lists
-            self.ss_list.append(maxSS)
+            self.super_saturation_list.append(super_saturation)
 
             # If reach the end of smps, collect the rest of ccnc for alignment
             timeGap = 0
@@ -331,8 +334,8 @@ class Controller():
                 sizeSum = 0
                 countSum = 0
                 aLine.append(float(ccnc_data[k + t][-3]))
-                if ccnc_data[k + t][1] > maxSS:
-                    maxSS = ccnc_data[k + t][1]
+                if ccnc_data[k + t][1] > super_saturation:
+                    super_saturation = ccnc_data[k + t][1]
                 for m in range(0, 20):
                     sizeSum += sizeList[m] * float(ccnc_data[k + t][binPos + m])
                     size += 0.5
@@ -436,10 +439,8 @@ class Controller():
         plt.gca().yaxis.label.set_color('0.6')
         plt.gca().xaxis.label.set_color('0.6')
         figure.canvas.mpl_connect('pick_event', self.on_pick)
-
         tempSMPSPeakList = []
         tempCCNPeakCList = []
-        # Plot only valid points
         for i in range(len(self.min_pos_CCNC_list)):
             if self.min_pos_CCNC_list[i] and self.min_pos_SMPS_list[i]:
                 tempSMPSPeakList.append(self.min_pos_SMPS_list[i])
@@ -461,10 +462,11 @@ class Controller():
         yIntercept = result[1]
 
         # Recalculate the position of the smps
-        plt.plot(x, x * slope + yIntercept, linewidth = 4, color = '#43A047', label = "Regression line")
-        plt.plot(x, y, "o", ms = 10, color = "#43A047",picker=5, mew = 0, label = "Minimum")
+        plt.plot(x, x * slope + yIntercept, linewidth=4, color='#43A047', label="Regression line")
+        plt.plot(x, y, "o", ms=10, color="#43A047", picker=5, mew=0, label="Minimum")
+        slope = ('{0:.4f}'.format(slope))
+        yIntercept = ('{0:.4f}'.format(yIntercept))
         textToShow = str(slope) + "* x" + " + " + str(yIntercept)
-        # plt.text(x[4], y[3], textToShow, color="#81C784")
         self.current_point, = plt.plot(x[0],y[0],'o', color = "#81C784", ms = 12, mew = 0)
         plt.xlabel("SMPS minumum point")
         plt.ylabel("CCNC minimum point")
@@ -472,11 +474,11 @@ class Controller():
         legend = plt.legend(handles, labels,loc="upper right", bbox_to_anchor=(1,0.7))
         legend.get_frame().set_facecolor('#9E9E9E')
 
-        if not self.min_compare_grpah:
-            self.min_compare_grpah = plt.gcf()
+        if not self.min_compare_graph:
+            self.min_compare_graph = plt.gcf()
         else:
-            plt.close(self.min_compare_grpah)
-            self.min_compare_grpah = plt.gcf()
+            plt.close(self.min_compare_graph)
+            self.min_compare_graph = plt.gcf()
 
     def on_pick(self, event):
         """
@@ -614,7 +616,7 @@ class Controller():
         except:
             raise ScanDataError()
 
-    def get_constants(self, min_dp = None, min_dp_asym = None, max_dp_asym = None):
+    def get_constants(self, min_dp=None, min_dp_asym=None, max_dp_asym=None):
         """
         Acquire the necessary constants from the processed_data to perform sigmodal fit
         """
@@ -693,7 +695,7 @@ class Controller():
         except:
             raise ScanDataError()
 
-    def fit_sigmoid_line_to_run(self):
+    def fit_sigmoid_line(self):
         """
         fit the sigmoid line to the the data points.
         """
@@ -731,7 +733,7 @@ class Controller():
                     self.ccn_cn_sim_list.append(self.ccn_cn_sim_list[i - 1])
             self.usable_for_kappa_cal_list[self.current_scan] = True
         except:
-            raise ScanDataError()
+            raise SigmoidFitError()
 
     def create_concentration_over_scan_time_graph(self, new_figure=None):
         try:
@@ -829,7 +831,7 @@ class Controller():
         finally:
             self.temperature_graph_list.append(plt.gcf())
 
-    def create_complete_sigmoid_graph(self, new_figure = None):
+    def create_complete_sigmoid_graph(self, new_figure=None):
         """
         Make complete graph of the dry diameter after optimization and sigmodal fit
         """
@@ -864,9 +866,9 @@ class Controller():
             handles, labels = plt.gca().get_legend_handles_labels()
             legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.7, 1.1))
             legend.get_frame().set_facecolor('#9E9E9E')
+            self.dry_diameter_graph_list.append(plt.gcf())
         except:
             figure = plt.figure(facecolor=settings.graphBackgroundColor)
-        finally:
             self.dry_diameter_graph_list.append(plt.gcf())
 
     def create_kappa_graph(self):
@@ -890,7 +892,6 @@ class Controller():
                 for i in self.alpha_pinene_dict[key][-1]:
                     self.kappa_points.append((i, key))
 
-        # Determine maximum and minimum kappas
         temp_kappa_list = []
         for i in range(len(kappaList)):
             temp_kappa_list.append(kappaList[i] + stdKappaList[i])
@@ -912,24 +913,17 @@ class Controller():
         for i in range(len(self.kappa_points)):
             fullKXList.append(self.kappa_points[i][0])
             fullKYList.append(self.kappa_points[i][1])
-        # Process which point is included and which point is excluded
-        # Include all excluded points to exclude list
         for i in self.kappa_exclude_list:
             excludedXList.append(self.kappa_points[i][0])
             excludedYList.append(self.kappa_points[i][1])
-        # Exclude all excluded points from kpx/y list
         for i in range(len(self.kappa_points)):
             if i not in self.kappa_exclude_list:
                 kpXList.append(self.kappa_points[i][0])
                 kpYList.append(self.kappa_points[i][1])
-        # convert list to array
         excludedXList = numpy.asarray(excludedXList)
         excludedYList = numpy.asarray(excludedYList)
         kpXList = numpy.asarray(kpXList)
         kpYList = numpy.asarray(kpYList)
-
-        # Get all kappa points - without average
-        # Prepare the figure
         if self.kappa_graph:
             figure = plt.figure(self.kappa_graph.number)
             figure.clf()
@@ -949,15 +943,6 @@ class Controller():
         plt.xlabel("Dry diameter(nm)")
         plt.ylabel("Super Saturation(%)")
         figure.canvas.mpl_connect('pick_event', self.on_kappa_pick)
-
-        # Graph the klines
-        # Full kappa lines
-        #if self.is_full_kappa_graph:
-         #   for i in range(2, len(header)):
-         #       y = self.klines[header[i]]
-        #        plt.loglog(diaList, y, label=str(header[i]), linewidth=4)
-        # Draw only the portion around the kappa
-       # else:
         i = 2
         kappa = 1
         step = 0.1
@@ -993,12 +978,12 @@ class Controller():
             plt.loglog(diaList, y, label=str(header[i]), linewidth=4)
 
         # Graph all the kappa points
-        plt.plot(fullKXList, fullKYList, 'o', picker=5, mew=0.5, ms=12, alpha = 0)
+        plt.plot(fullKXList, fullKYList, 'o', picker=5, mew=0.5, ms=12, alpha=0)
         # Graph the kappa points
         plt.plot(kpXList, kpYList, 'o', color="#81C784", mew=0.5, mec="#81C784", ms=12,
                  label=" Kappa Points")
         # Graph the excluded points
-        if len(excludedXList) >0 and len(excludedYList) > 0:
+        if len(excludedXList) > 0 and len(excludedYList) > 0:
             plt.plot(excludedXList, excludedYList, 'x', mec="#81C784", color="#81C784",mew=4,ms = 12, label="excluded kappa")
         handles, labels = plt.gca().get_legend_handles_labels()
         legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.1, 1))
@@ -1032,7 +1017,7 @@ class Controller():
             # If a peak is invalid, then do nothing
             if not self.min_pos_CCNC_list[self.current_scan] or not self.min_pos_SMPS_list[self.current_scan]:
                 self.prepare_scan_data()
-                raise ScanDataError()
+                raise SigmoidFitError()
             else:
                 self.ccnc_sig_list = []
                 self.prepare_scan_data()
@@ -1047,15 +1032,13 @@ class Controller():
                 self.move_progress_bar_forward()
                 self.get_constants()
                 self.move_progress_bar_forward()
-                self.fit_sigmoid_line_to_run()
+                self.fit_sigmoid_line()
                 self.move_progress_bar_forward()
                 plt.ioff()
                 self.create_complete_sigmoid_graph()
                 self.move_progress_bar_forward()
-        except ScanDataError:
-            # Disable the peak
+        except SigmoidFitError:
             self.usable_for_kappa_cal_list[self.current_scan] = False
-            # Add empty processed_data to the list
             self.b_list.append(0)
             self.d_list.append(0)
             self.c_list.append(0)
@@ -1076,7 +1059,7 @@ class Controller():
             self.c_list.append(self.c)
             self.dp50_wet_list.append(self.dp50_wet)
             self.dp50_plus_20_list.append(self.dp50_plus_20)
-            self.dp50_list.append((self.d, self.ss_list[self.current_scan]))
+            self.dp50_list.append((self.d, self.super_saturation_list[self.current_scan]))
 
     def parse_and_match_smps_ccnc_data(self):
         try:
@@ -1098,13 +1081,16 @@ class Controller():
                 self.create_concentration_over_scan_time_graph()
                 self.create_ccn_cn_ratio_over_diameter_graph()
                 self.create_temperature_graph()
+                if (self.super_saturation_list[i] == -1):
+                    self.min_pos_CCNC_list[i] = None
+                    self.min_pos_SMPS_list[i] = None
             self.move_progress_bar_forward(complete=True)
             self.current_scan = -1
             self.view.update_experiment_information()
             self.create_all_scan_alignment_summary_graph()
             self.switch_to_scan(0)
         except FileNotFoundError:
-            self.view.show_error_dialog("Can't find SMPS or CCNC processed_data in files: " + str(self.files))
+            self.view.show_error_dialog("Can't find SMPS or CCNC data in files: " + str(self.files))
             raise DataPreparationError()
         except FileProcessingError:
             self.view.show_error_dialog("Can't process the SMPS or CCNC files!")
@@ -1118,14 +1104,13 @@ class Controller():
         except DataMatchingError:
             self.view.show_error_dialog("Can't match SMPS and CCNC processed_data!")
             raise DataPreparationError()
-        except InterruptError:
+        except ProgressBarInterruptException:
             self.reset()
             self.view.reset()
             self.view.show_error_dialog("The preparation process is cancelled")
             raise DataPreparationError()
 
     def correct_charges_and_fit_sigmoid_all_scans(self):
-
         for aFigure in self.temperature_graph_list:
             aFigure.clf()
             plt.close(aFigure)
@@ -1134,7 +1119,6 @@ class Controller():
             aFigure.clf()
             plt.close(aFigure)
         self.dry_diameter_graph_list = []
-
         try:
             self.move_progress_bar_forward(max_value=self.number_of_scan * 12)
             self.finish_sigmoid_fit_phase = True
@@ -1145,16 +1129,13 @@ class Controller():
             self.current_scan = -1
             self.move_progress_bar_forward(complete=True)
             self.switch_to_scan(0)
-        except InterruptError:
+        except ProgressBarInterruptException:
             self.view.show_error_dialog("The sigmoid fitting process is cancelled!")
             self.finish_sigmoid_fit_phase = False
             # TODO: make a reroll mechanism to allow going back to previous step when there is an interruption
             self.parse_and_match_smps_ccnc_data()
 
-
-    #----------------Kappa Calculation--------------------------
-
-    def setConstantForCalKappa(self, sigma=None, temp=None, dd1=None, iKappa=None, dd2=None, iKappa2=None, solu=None):
+    def set_parameters_for_kappa_calculation(self, sigma=None, temp=None, dd1=None, i_kappa=None, dd2=None, i_kappa_2=None, solu=None):
         """
         Update the necessary constants to calculate Kappa
         """
@@ -1164,16 +1145,16 @@ class Controller():
             self.temp = temp
         if dd:
             self.dd = dd
-        if iKappa:
-            self.iKappa = iKappa
+        if i_kappa:
+            self.iKappa = i_kappa
         if dd2:
             self.dd2 = dd2
         if iKapp2:
-            self.iKappa2 = iKappa2
+            self.iKappa2 = i_kappa_2
         if solu:
             self.solubility = solu
 
-    def calKappa(self):
+    def calculate_kappa_value(self):
         """
         Calculate the kappa values - producing both raw processed_data kappa and graph processed_data kappa
         """
@@ -1323,16 +1304,16 @@ class Controller():
                     self.dp50_less_count += 1
             self.current_point.set_xdata(numpy.asarray(self.min_pos_SMPS_list)[self.current_scan])
             self.current_point.set_ydata(numpy.asarray(self.min_pos_CCNC_list)[self.current_scan])
-            self.view.update_temp_and_min_figure(self.min_compare_grpah)
+            self.view.update_temp_and_min_figure(self.min_compare_graph)
             self.view.update_scan_information_after_sigmoid_fit()
 
         else:
             self.temperature_graph = self.temperature_graph_list[self.current_scan]
-            self.super_saturation_rate = self.ss_list[self.current_scan]
+            self.super_saturation_rate = self.super_saturation_list[self.current_scan]
             self.view.update_temp_and_min_figure(self.temperature_graph)
             self.view.update_scan_information()
 
-    def shift_ccnc_data_by_one_second(self, forward=True):
+    def shift_data_by_one_second(self, forward=True):
         try:
             if not self.usable_for_kappa_cal_list[self.current_scan] or self.min_pos_SMPS_list[self.current_scan] is None or \
                             self.min_pos_CCNC_list[self.current_scan] is None:
@@ -1342,8 +1323,8 @@ class Controller():
                 shift_factor -= 1
             else:
                 shift_factor += 1
+
             self.shift_factor_list[self.current_scan] = shift_factor
-            # Get the new processed_data list from raw processed_data
             start_time = self.scan_position_in_data[self.current_scan] + shift_factor
             end_time = start_time + self.time_of_each_scan
             new_ccn = list(self.raw_data.iloc[start_time:end_time, 4])
@@ -1351,12 +1332,9 @@ class Controller():
             new_t1 = list(self.raw_data.iloc[start_time:end_time, 6])
             new_t2 = list(self.raw_data.iloc[start_time:end_time, 7])
             new_t3 = list(self.raw_data.iloc[start_time:end_time, 8])
-
-            # Get the location of the replacement in the processed_data
             data_start_time = self.time_of_each_scan * self.current_scan
             data_end_time = data_start_time + self.time_of_each_scan
 
-            # Replace the processed_data in the processed_data
             for i in range(self.time_of_each_scan):
                 self.processed_data.iat[data_start_time + i, 4] = new_ccn[i]
                 self.processed_data.iat[data_start_time + i, 5] = new_ave_size[i]
@@ -1371,12 +1349,13 @@ class Controller():
             self.create_ccn_cn_ratio_over_diameter_graph(figure)
             figure = self.temperature_graph
             self.create_temperature_graph(figure)
-            self.view.updateDpdnlogFigures(self.concentration_over_scan_time_graph, self.complete_dry_diameter_graph)
+            end = timer()
+            self.view.update_alignment_and_sigmoid_fit_figures(self.concentration_over_scan_time_graph, self.complete_dry_diameter_graph)
             self.view.update_temp_and_min_figure(self.temperature_graph)
         except:
             self.view.show_error_dialog("Can't shift processed_data. You should disable this peak!")
 
-    def disable_scan(self):
+    def invalidate_scan(self):
         if not self.finish_sigmoid_fit_phase:
             self.min_pos_SMPS_list[self.current_scan] = None
             self.min_pos_CCNC_list[self.current_scan] = None
@@ -1385,13 +1364,13 @@ class Controller():
             self.usable_for_kappa_cal_list[self.current_scan] = False
         self.update_view()
 
-    def switch_to_scan(self, peak):
+    def switch_to_scan(self, scan):
         """
         Switch to a new peak
-        :param peak: the new peak
+        :param scan: the new peak
         """
-        if peak != self.current_scan:
-            self.current_scan = peak
+        if scan != self.current_scan:
+            self.current_scan = scan
             self.update_view()
 
     def refitting_sigmoid_line(self, min_dry_diameter, min_dry_diameter_asymptote, max_dry_diameter_asymptote):
@@ -1411,27 +1390,23 @@ class Controller():
             for i in range(len(self.ccn_fixed_list)):
                 self.ccnc_sig_list.append(self.ccn_fixed_list[i] / self.cn_fixed_list[i])
             self.move_progress_bar_forward()
-            # Update the new constants and reoptimize
             self.get_constants(min_dry_diameter, min_dry_diameter_asymptote, max_dry_diameter_asymptote)
             self.move_progress_bar_forward()
-            self.fit_sigmoid_line_to_run()
+            self.fit_sigmoid_line()
             self.move_progress_bar_forward()
-            # Remake the graph
             figure = self.complete_dry_diameter_graph
             self.create_complete_sigmoid_graph(figure)
 
-            # Update the old processed_data
             self.min_dp_list[self.current_scan] = self.min_dp
             self.min_dp_asym_list[self.current_scan] = self.min_dp_asym
             self.max_dp_asym_list[self.current_scan] = self.max_dp_asym
             self.b_list[self.current_scan] = self.b
             self.d_list[self.current_scan] = self.d
             self.c_list[self.current_scan] = self.c
-            self.dp50_list[self.current_scan] = (self.d, self.ss_list[self.current_scan])
+            self.dp50_list[self.current_scan] = (self.d, self.super_saturation_list[self.current_scan])
             self.update_view()
             self.move_progress_bar_forward(complete=True)
         except:
-            # Disable the peak
             self.usable_for_kappa_cal_list[self.current_scan] = False
             self.min_dp_list[self.current_scan] = 0
             self.min_dp_asym_list[self.current_scan] = 0
@@ -1460,17 +1435,17 @@ class Controller():
         for aFigure in self.dry_diameter_graph_list:
             plt.close(aFigure)
         self.dry_diameter_graph_list = []
-        if self.min_compare_grpah:
-            self.min_compare_grpah.clf()
-            plt.close(self.min_compare_grpah)
-            self.min_compare_grpah = None
+        if self.min_compare_graph:
+            self.min_compare_graph.clf()
+            plt.close(self.min_compare_graph)
+            self.min_compare_graph = None
         if self.kappa_graph:
             self.kappa_graph.clf()
             plt.close(self.kappa_graph)
             self.kappa_graph = None
         self.current_point = None
         self.finish_sigmoid_fit_phase = False
-        self.cancelling = False
+        self.cancelling_progress_bar = False
         self.concentration = 0.3
         self.ccn_list = None
         self.cn_list = None
@@ -1531,12 +1506,12 @@ class Controller():
 
     def move_progress_bar_forward(self, message=None, max_value=None, complete=False, value=1):
         self.view.move_progress_bar_forward(message, max_value, complete, value)
-        if self.cancelling is True:
-            self.cancelling = False
-            raise InterruptError()
+        if self.cancelling_progress_bar is True:
+            self.cancelling_progress_bar = False
+            raise ProgressBarInterruptException()
 
-    def cancel_current_progress(self):
-        self.cancelling = True
+    def cancel_progress_bar(self):
+        self.cancelling_progress_bar = True
 
 
 def main():

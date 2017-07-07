@@ -8,8 +8,9 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 import time
 
+
 class CustomButton(QPushButton):
-    def __init__(self, text,parent=None,style = 0):
+    def __init__(self, text,parent=None,style=0):
         self.parent = parent
         QPushButton.__init__(self, text)
         font = QFont()
@@ -25,10 +26,10 @@ class CustomButton(QPushButton):
             palette.setColor(QPalette.ButtonText, settings.simpleButtonTextColor)
         self.setPalette(palette)
 
-    def resize(self,parentWidth, parentHeight):
-        self.setFixedHeight(parentHeight / 3 )
-        self.setFixedWidth(parentWidth / 12)
+    def resize(self, parent_width, parent_height):
+        self.setFixedHeight(parent_height / 3)
+        self.setFixedWidth(parent_width / 12)
         font = QFont()
-        size = max(1,self.height() * 3 / 10)
+        size = max(1,self.height() * 2 / 10)
         font.setPointSize(size)
         self.setFont(font)

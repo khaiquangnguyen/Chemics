@@ -113,7 +113,7 @@ class View(QMainWindow):
             self.controller.files = files
             self.controller.run()
 
-    def move_progress_bar_forward(self, message = None, max_value = None, complete = False, value = 1):
+    def move_progress_bar_forward(self, message=None, max_value=None, complete = False, value = 1):
         """
         Activate the progress bar
         :param max_value: the maximum of the progress dialog. Used to signal reset progress dialog
@@ -164,7 +164,7 @@ class View(QMainWindow):
 
     def cancel_progress_bar(self):
         """
-        Action when the cancelling button of the progress bar is clicked
+        Action when the cancelling_progress_bar button of the progress bar is clicked
         """
         self.controller.cancel_progress_bar()
 
@@ -184,7 +184,7 @@ class View(QMainWindow):
         self.controller.create_kappa_graph()
 
     def update_experiment_information(self):
-        self.centralWidget().info_widget.information_table.update_scan_information()
+        self.centralWidget().info_widget.information_table.update_experiment_information()
 
     def update_scan_information(self):
         self.centralWidget().info_widget.information_table.update_scan_information()
@@ -205,7 +205,7 @@ class View(QMainWindow):
         self.controller.solubility = solu
 
     def update_kappa_graph(self):
-        self.centralWidget().graph_widget.graphView.update_figure(self.controller.kappaGraph)
+        self.centralWidget().graph_widget.graphView.update_figure(self.controller.kappa_graph)
 
     def get_concentration(self):
         return_value = self.controller.concentration
