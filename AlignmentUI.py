@@ -60,7 +60,7 @@ class ScanInformationTable(QTableWidget):
         self.setCellWidget(self.rowCount() - 1, 0, header)
         self.add_message("Experiment Date", self.main_window.controller.experiment_date)
         self.add_message("Experiment Start Time", self.main_window.controller.scan_start_time_list[0])
-        self.add_message("Time per scan (s)", self.main_window.controller.time_of_each_scan)
+        self.add_message("Time per scan (s)", self.main_window.controller.scan_duration)
         self.add_message("Total number of scan", self.main_window.controller.number_of_scan)
         self.add_message("Concentration Rate", self.main_window.controller.concentration)
 

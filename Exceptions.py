@@ -4,22 +4,32 @@ class FileNotFoundError(Exception):
         pass
 
 
+class FileParseError(Exception):
+    def __init__(self):
+        pass
+
+
 class FileProcessingError(Exception):
     def __init__(self):
         pass
 
 
-class DNlogDataError(Exception):
+class SMPSCountError(Exception):
+    def __init__(self):
+        pass
+
+
+class CCNCCountError(Exception):
+    def __init__(self):
+        pass
+
+
+class NormalizedConcentrationError(Exception):
     def __init__(self):
         pass
 
 
 class DataError(Exception):
-    def __init__(self):
-        pass
-
-
-class DataMatchingError(Exception):
     def __init__(self):
         pass
 

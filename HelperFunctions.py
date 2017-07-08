@@ -18,6 +18,7 @@ def remove_small_ccn(ccn_list, min_value):
         if ccn_list[i] < min_value:
             ccn_list[i] = 0
 
+
 def get_ave_none_zero(a_list):
     sum = 0
     count = 0
@@ -29,6 +30,7 @@ def get_ave_none_zero(a_list):
         return sum / count
     else:
         return 0
+
 
 def f(x, d, c):
     """
@@ -101,6 +103,7 @@ def process_csv_files(file_path):
             else:
                 csv_content = csv[1]
     return date, csv_content
+
 
 def process_a_csv(file_path):
     """
@@ -188,18 +191,18 @@ def get_min_index(a_list, threshold=5):
     second_max_dis = 0
     second_max_pos = 0
     for i in range(max_pos + 2, len(a_list)):
-            max_dis = 0
-            if a_list[i] < first_max * 0.1:
-                continue
-            for j in range(1,i - max_pos):
-                if a_list[i] <= a_list[i-j]:
-                    break
-                else:
-                    max_dis += 1
-            if max_dis >= second_max_dis:
-                second_max = a_list[i]
-                second_max_pos = i
-                second_max_dis = max_dis
+        max_dis = 0
+        if a_list[i] < first_max * 0.1:
+            continue
+        for j in range(1, i - max_pos):
+            if a_list[i] <= a_list[i - j]:
+                break
+            else:
+                max_dis += 1
+        if max_dis >= second_max_dis:
+            second_max = a_list[i]
+            second_max_pos = i
+            second_max_dis = max_dis
 
     # Check if the two peaks are actually usable
     # Get the minimum between two peaks
@@ -277,8 +280,10 @@ def calculate_fraction(a_list, charge_number, coef_list=None):
 
     return new_list
 
+
 def cal_cc(dp, lambda_air):
     return 1 + 2 * lambda_air / dp * (1.257 + 0.4 * exp(-1.1 * dp / 2 / lambda_air))
+
 
 def find_dp(dp, lambda_air, n):
     dp_old = dp * 1 * n
@@ -322,6 +327,7 @@ def remove_zeros(a_list):
             a_list[i] = epsilon
     return a_list
 
+
 def get_correct_num(a_list, number, bigger=True):
     """
     Get aParam number approximately around number
@@ -341,13 +347,4 @@ def get_correct_num(a_list, number, bigger=True):
                 return (a_list[i], i)
         else:
             num = a_list[i]
-    return (a_list[-1], len(a_list) -1)
-
-
-
-
-
-
-
-
-
+    return (a_list[-1], len(a_list) - 1)

@@ -210,7 +210,7 @@ class View(QMainWindow):
     def get_concentration(self):
         return_value = self.controller.concentration
         while True:
-            input = QInputDialog.getDouble(self, self.tr("Get Flow Rate"),self.tr("Q(flow rate)"),0.3)
+            input = QInputDialog.getDouble(self, self.tr("Get Flow Rate"),self.tr("Q(flow rate)"), 0.2)
             if input[1] is True:
                 return_value = float(input[0])
                 break
