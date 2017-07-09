@@ -29,6 +29,34 @@ class Controller():
         """"
         The controller of the program. Also works doubly as the model.
         """
+
+        self.kappa_graph = None
+
+
+        self.temperature_graph = None
+        self.temperature_axis = None
+        self.t1_line = None
+        self.t2_line = None
+        self.t3_line = None
+
+        self.concentration_over_scan_time_graph = None
+        self.concentration_over_scan_time_axis = None
+        self.scan_time_figure_cn_line = None
+        self.scan_time_figure_ccn_line = None
+
+        self.ccn_cn_ratio_graph = None
+        self.ccn_cn_ratio_ax = None
+        self.ccn_cn_ratio_corrected_points = None
+        self.sigmoid_line = None
+
+        self.sigmoid_fit_graph = None
+        self.sigmoid_fit_ax = None
+        self.normalized_concentration_points = None
+        self.ccn_cn_points = None
+
+
+        self.min_compare_graph = None
+
         self.view = None
         self.files = None
         self.smps_txt_files = []
@@ -92,16 +120,8 @@ class Controller():
         self.dp50_wet_list = []
         self.dp50_plus_20_list = []
 
-        self.concentration_over_scan_time_graph = None
-        self.complete_dry_diameter_graph = None
-        self.min_compare_graph = None
-        self.kappa_graph = None
-        self.temperature_graph = None
-        self.adjusted_graph_list = []
-        self.dry_diameter_graph_list = []
         self.min_pos_SMPS_list = []
         self.min_pos_CCNC_list = []
-        self.temperature_graph_list = []
 
         self.sigma = 0.072
         self.temp = 298.15
@@ -493,9 +513,6 @@ class Controller():
                 plt.ioff()
                 self.current_scan = i
                 self.prepare_scan_data()
-                self.create_concentration_over_scan_time_graph()
-                self.create_ccn_cn_ratio_over_diameter_graph()
-                self.create_temperature_graph()
                 if (self.super_saturation_list[i] == -1):
                     self.min_pos_CCNC_list[i] = None
                     self.min_pos_SMPS_list[i] = None
@@ -503,7 +520,7 @@ class Controller():
             self.move_progress_bar_forward(complete=True)
             self.current_scan = -1
             self.view.update_experiment_information()
-            self.create_all_scan_alignment_summary_graph()
+            self.draw_all_scans_alignment_summary_graph()
             self.switch_to_scan(0)
         except FileNotFoundError:
             self.view.show_error_dialog("Fail to find SMPS or CCNC data in files: " + str(self.files))
@@ -523,104 +540,101 @@ class Controller():
             self.view.show_error_dialog("Cancelling parsing SMPS and CCNC files!")
 
     # ----------------------graphs------------------------
-
-    def create_temperature_graph(self, new_figure=None):
-        try:
-            if new_figure is None:
-                figure = plt.figure(facecolor=settings.graphBackgroundColor)
-            else:
-                figure = new_figure
-                figure.clf()
-                plt.figure(figure.number)
-            plt.axes(frameon=False)
-            plt.grid(color='0.5')
-            plt.axhline(0, color='0.6', linewidth=4)
-            plt.axvline(0, color='0.6', linewidth=4)
-            plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
-            plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
-            plt.gca().yaxis.label.set_color('0.6')
-            plt.gca().xaxis.label.set_color('0.6')
-
+    def draw_temperature_graph(self):
+        if self.temperature_axis is None:
+            figure, ax = plt.subplots(facecolor=settings.graphBackgroundColor)
+            ax.axes.set_frame_on(False)
+            ax.grid(color='0.5')
+            ax.axhline(0, color='0.6', linewidth=4)
+            ax.axvline(0, color='0.6', linewidth=4)
+            ax.tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+            ax.tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+            ax.yaxis.label.set_color('0.6')
+            ax.xaxis.label.set_color('0.6')
             x = range(self.scan_duration)
             minY = min(min(self.temp1), min(self.temp2), min(self.temp3)) - 3
             maxY = max(max(self.temp1), max(self.temp2), max(self.temp3)) + 3
-            plt.gca().axes.set_ylim([minY, maxY])
-            plt.plot(x, self.temp1, linewidth=5, color='#EF5350', label="T1")
-            plt.plot(x, self.temp2, linewidth=5, color='#2196F3', label="T2")
-            plt.plot(x, self.temp3, linewidth=5, color='#1565C0', label="T3")
-            plt.xlabel("Scan time(s)")
-            plt.ylabel("Temperature")
-            handles, labels = plt.gca().get_legend_handles_labels()
-            legend = plt.legend(handles, labels, loc="upper right", bbox_to_anchor=(1.1, 1.1))
+            ax.axes.set_ylim([minY, maxY])
+            self.t1_line, = ax.plot(x, self.temp1, linewidth=5, color='#EF5350', label="T1")
+            self.t2_line, = ax.plot(x, self.temp2, linewidth=5, color='#2196F3', label="T2")
+            self.t3_line, = ax.plot(x, self.temp3, linewidth=5, color='#1565C0', label="T3")
+            ax.set_xlabel("Scan time(s)")
+            ax.set_ylabel("Temperature")
+            handles, labels = ax.get_legend_handles_labels()
+            legend = ax.legend(handles, labels, loc="upper right", bbox_to_anchor=(1.1, 1.1))
             legend.get_frame().set_facecolor('#9E9E9E')
-        except:
-            figure = plt.figure(facecolor=settings.graphBackgroundColor)
-        finally:
-            self.temperature_graph_list.append(plt.gcf())
+            self.temperature_graph = figure
+            self.temperature_axis = ax
+        else:
+            minY = min(min(self.temp1), min(self.temp2), min(self.temp3)) - 3
+            maxY = max(max(self.temp1), max(self.temp2), max(self.temp3)) + 3
+            self.temperature_axis.axes.set_ylim([minY, maxY])
+            self.t1_line.set_ydata(self.temp1)
+            self.t2_line.set_ydata(self.temp2)
+            self.t3_line.set_ydata(self.temp3)
+        self.view.update_temp_and_min_figure(self.temperature_graph)
 
-    def create_concentration_over_scan_time_graph(self, new_figure=None):
-        try:
-            if len(self.cn_list) != len(self.ccn_list) or len(self.cn_list) == 0 or len(self.ccn_list) == 0:
-                return
-            if new_figure is None:
-                figure = plt.figure(facecolor=settings.graphBackgroundColor)
-            else:
-                figure = new_figure
-                figure.clf()
-                plt.figure(figure.number)
-            plt.axes(frameon=False)
-            plt.grid(color='0.5')
-            plt.axhline(0, color='0.6', linewidth=4)
-            plt.axvline(0, color='0.6', linewidth=4)
-            plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
-            plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
-            plt.gca().yaxis.label.set_color('0.6')
-            plt.gca().xaxis.label.set_color('0.6')
+    def draw_concentration_over_scan_time_graph(self):
+        if len(self.cn_list) != len(self.ccn_list) or len(self.cn_list) == 0 or len(self.ccn_list) == 0:
+            return
+        if self.concentration_over_scan_time_axis is None:
+            figure, ax = plt.subplots(facecolor=settings.graphBackgroundColor)
+            ax.axes.set_frame_on(False)
+            ax.grid(color='0.5')
+            ax.axhline(0, color='0.6', linewidth=4)
+            ax.axvline(0, color='0.6', linewidth=4)
+            ax.tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+            ax.tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+            ax.yaxis.label.set_color('0.6')
+            ax.xaxis.label.set_color('0.6')
             x = range(self.scan_duration)
-            plt.plot(x, self.cn_list, linewidth=4, color='#EF5350', label="CN")
-            plt.plot(x, self.ccn_list, linewidth=4, color='#2196F3', label="CCN")
-            handles, labels = plt.gca().get_legend_handles_labels()
-            legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0, 0.9))
+            self.scan_time_figure_cn_line, = ax.plot(x, self.cn_list, linewidth=4, color='#EF5350', label="CN")
+            self.scan_time_figure_ccn_line, = ax.plot(x, self.ccn_list, linewidth=4, color='#2196F3', label="CCN")
+            handles, labels = ax.get_legend_handles_labels()
+            legend = ax.legend(handles, labels, loc="upper left", bbox_to_anchor=(0, 0.9))
             legend.get_frame().set_facecolor('#9E9E9E')
+            ax.set_xlabel("Scan time(s)")
+            ax.set_ylabel("Concentration(cm3)")
+            self.concentration_over_scan_time_axis = ax
+            self.concentration_over_scan_time_graph = figure
+        else:
+            self.scan_time_figure_cn_line.set_ydata(self.cn_list)
+            self.scan_time_figure_ccn_line.set_ydata(self.ccn_list)
+        self.view.update_alignment_and_sigmoid_fit_figures(self.concentration_over_scan_time_graph,
+                                                           None)
 
-            plt.xlabel("Scan time(s)")
-            plt.ylabel("Concentration(cm3)")
-        except:
-            figure = plt.figure(facecolor=settings.graphBackgroundColor)
-        finally:
-            self.adjusted_graph_list.append(plt.gcf())
-
-    def create_ccn_cn_ratio_over_diameter_graph(self, new_figure=None):
-        try:
-            if new_figure is None:
-                figure = plt.figure(facecolor=settings.graphBackgroundColor)
-            else:
-                figure = new_figure
-                figure.clf()
-                plt.figure(figure.number)
-            plt.axes(frameon=False)
-            plt.grid(color='0.5')
-            plt.axhline(0, color='0.6', linewidth=2)
-            plt.axvline(0, color='0.6', linewidth=4)
-            plt.axhline(1, color='0.7', linewidth=2, linestyle='dashed')
-            plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
-            plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
-            plt.gca().yaxis.label.set_color('0.6')
-            plt.gca().xaxis.label.set_color('0.6')
-            plt.plot(self.particle_diameter_list, self.ccn_cn_ratio_list, 'o', color="#2196F3", mew=0.5,
-                     mec="#0D47A1",
-                     ms=9, label="CCN/CN")
+    def draw_ccn_cn_ratio_over_diameter_graph(self):
+        if self.ccn_cn_ratio_ax is None:
+            figure, ax = plt.subplots(facecolor=settings.graphBackgroundColor)
+            ax.axes.set_frame_on(False)
+            ax.grid(color='0.5')
+            ax.axhline(0, color='0.6', linewidth=2)
+            ax.axvline(0, color='0.6', linewidth=4)
+            ax.axhline(1, color='0.7', linewidth=2, linestyle='dashed')
+            ax.tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+            ax.tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+            ax.yaxis.label.set_color('0.6')
+            ax.xaxis.label.set_color('0.6')
+            self.ccn_cn_ratio_points, = ax.plot(self.particle_diameter_list, self.ccn_cn_ratio_list, 'o',
+                                                color="#2196F3", mew=0.5,
+                                                mec="#0D47A1",
+                                                ms=9, label="CCN/CN")
             yLim = min(2, max(self.ccn_cn_ratio_list)) + 0.2
-            plt.gca().axes.set_ylim([-0.1, yLim])
-            handles, labels = plt.gca().get_legend_handles_labels()
-            legend = plt.legend(handles, labels, loc="upper right", bbox_to_anchor=(1, 0.9))
+            ax.axes.set_ylim([-0.1, yLim])
+            handles, labels = ax.get_legend_handles_labels()
+            legend = ax.legend(handles, labels, loc="upper right", bbox_to_anchor=(1, 0.9))
             legend.get_frame().set_facecolor('#9E9E9E')
-            plt.xlabel("Diameter (nm)")
-            plt.ylabel("CCN/CN")
-        except:
-            figure = plt.figure(facecolor=settings.graphBackgroundColor)
-        finally:
-            self.dry_diameter_graph_list.append(plt.gcf())
+            ax.set_xlabel("Diameter (nm)")
+            ax.set_ylabel("CCN/CN")
+            self.ccn_cn_ratio_ax = ax
+            self.ccn_cn_ratio_graph = figure
+        else:
+            yLim = min(2, max(self.ccn_cn_ratio_list)) + 0.2
+            self.ccn_cn_ratio_ax.axes.set_ylim([-0.1, yLim])
+            self.ccn_cn_ratio_points.set_xdata(self.particle_diameter_list)
+            self.ccn_cn_ratio_points.set_ydata(self.ccn_cn_ratio_list)
+        self.view.update_alignment_and_sigmoid_fit_figures(None,
+                                                           self.ccn_cn_ratio_graph)
 
     ##############################################
     #
@@ -644,6 +658,7 @@ class Controller():
         """
         # TODO: find more information about the correct charges method
         try:
+            start = timer()
             asymp = 99999
             newList = []
             epsilon = 0.0000000001
@@ -658,14 +673,15 @@ class Controller():
             coeficientList = [[-0.0003, -0.1014, 0.3073, -0.3372, 0.1023, -0.0105],
                               [-2.3484, 0.6044, 0.48, 0.0013, -0.1553, 0.032],
                               [-44.4756, 79.3772, -62.89, 26.4492, -5.748, 0.5049]]
+
             # frac0List = calculate_fraction(self.diameterList,0,coeficientList[0])
             frac1List = calculate_fraction(self.particle_diameter_list, 1, coeficientList[1])
             frac2List = calculate_fraction(self.particle_diameter_list, 2, coeficientList[2])
             frac3List = calculate_fraction(self.particle_diameter_list, 3)
             chargeList = []
 
+            # TODO: the slow factor
             for i in self.particle_diameter_list:
-                QtGui.qApp.processEvents()
                 aDList = [0]
                 for k in range(1, 4):
                     c = cal_cc(i * 10 ** -9, lambdaAir)
@@ -678,9 +694,7 @@ class Controller():
             self.ccn_fixed_list = self.ccn_list[:]
             maxUpperBinBound = (self.particle_diameter_list[-1] + self.particle_diameter_list[-2]) / 2
             lenDpList = len(self.particle_diameter_list)
-
             for i in range(lenDpList):
-                QtGui.qApp.processEvents()
                 n = lenDpList - i - 1
                 moveDoubletCounts = frac2List[n] / (frac1List[n] + frac2List[n] + frac3List[n]) * self.cn_list[n]
                 moveTripletCounts = frac3List[n] / (frac1List[n] + frac2List[n] + frac3List[n]) * self.cn_list[n]
@@ -717,9 +731,7 @@ class Controller():
                                 self.ccn_fixed_list[j] = self.ccn_fixed_list[j] + moveTripletCounts
                             break
                         j -= 1
-
             for i in range(len(self.ccn_fixed_list)):
-                QtGui.qApp.processEvents()
                 if self.ccn_fixed_list[i] / self.cn_fixed_list[i] < -0.01:
                     self.ccn_fixed_list[i] = 0
 
@@ -869,9 +881,6 @@ class Controller():
             self.move_progress_bar_forward()
             self.fit_sigmoid_line()
             self.move_progress_bar_forward()
-            figure = self.complete_dry_diameter_graph
-            self.create_complete_sigmoid_graph(figure)
-
             self.min_dp_list[self.current_scan] = self.min_dp
             self.min_dp_asym_list[self.current_scan] = self.min_dp_asym
             self.max_dp_asym_list[self.current_scan] = self.max_dp_asym
@@ -899,10 +908,7 @@ class Controller():
         optimize a single run
         """
         try:
-            # If a peak is invalid, then do nothing
-            # TODO: test for UI. delete after test
             if not self.usable_for_sigmoid_fit_list[self.current_scan]:
-            # if (True):
                 self.prepare_scan_data()
                 raise SigmoidFitError()
             else:
@@ -916,8 +922,6 @@ class Controller():
                     self.ccnc_sig_list.append(self.ccn_fixed_list[i] / self.cn_fixed_list[i])
                 self.get_parameters_for_sigmoid_fit()
                 self.fit_sigmoid_line()
-                plt.ioff()
-                self.create_complete_sigmoid_graph()
         except:
             self.usable_for_kappa_cal_list[self.current_scan] = False
             self.usable_for_sigmoid_fit_list[self.current_scan] = False
@@ -930,7 +934,6 @@ class Controller():
             self.min_dp_list.append(0)
             self.min_dp_asym_list.append(0)
             self.max_dp_asym_list.append(0)
-            self.create_complete_sigmoid_graph()
         else:
             # Store processed_data
             self.min_dp_list.append(self.min_dp)
@@ -948,14 +951,6 @@ class Controller():
         Perform charge correction and sigmoid fit for all scans.
         :return:
         """
-        for aFigure in self.temperature_graph_list:
-            aFigure.clf()
-            plt.close(aFigure)
-        self.temperature_graph_list = []
-        for aFigure in self.dry_diameter_graph_list:
-            aFigure.clf()
-            plt.close(aFigure)
-        self.dry_diameter_graph_list = []
         try:
             self.move_progress_bar_forward(max_value=self.number_of_scan)
             for i in range(0, self.number_of_scan):
@@ -974,52 +969,63 @@ class Controller():
 
     # -------------------------graphs-----------------------------
 
-    def create_complete_sigmoid_graph(self, new_figure=None):
+    def draw_complete_sigmoid_graph(self, new_figure=None):
         """
         Make complete graph of the dry diameter after optimization and sigmodal fit
         """
-        try:
-            if not self.usable_for_sigmoid_fit_list[self.current_scan]:
-                self.create_ccn_cn_ratio_over_diameter_graph(new_figure)
-                return
-            if new_figure is None:
-                figure = plt.figure(facecolor=settings.graphBackgroundColor)
-            else:
-                figure = new_figure
-                figure.clf()
-                plt.figure(figure.number)
-            plt.axes(frameon=False)
-            plt.grid(color='0.5')
-            plt.axhline(0, color='0.6', linewidth=4)
-            plt.axvline(0, color='0.6', linewidth=4)
-            plt.axhline(1, color='0.7', linewidth=2, linestyle="--")
-            plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
-            plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
-            plt.gca().yaxis.label.set_color('0.6')
-            plt.gca().xaxis.label.set_color('0.6')
-            yLim = min(2, max(self.ccnc_sig_list)) + 0.2
-            plt.gca().axes.set_ylim([-0.1, yLim])
-            plt.plot(self.diameter_midpoint_list, self.ccn_normalized_list, linewidth=4, color='#43A047',
-                     label="dN/dLogDp")
-            if self.usable_for_kappa_cal_list[self.current_scan] and self.usable_for_sigmoid_fit_list[self.current_scan]:
-                plt.plot(self.particle_diameter_list, self.ccn_cn_sim_list, linewidth=5, color='#EF5350',
-                         label="Sigmodal Fit")
-            plt.plot(self.particle_diameter_list, self.ccn_cn_ratio_list, 'o', color="#2196F3", mew=0.5,
-                     mec="#1976D2",
-                     ms=9, label="CCN/CN")
-            plt.plot(self.particle_diameter_list, self.ccnc_sig_list, 'o', color="#1565C0", mew=0.5, mec="#0D47A1",
-                     ms=9, label="CCN/CN (Corrected)")
-            plt.xlabel("Dry diameter(nm)")
-            plt.ylabel("CCN/CN ratio and Normalized dN/dLogDp")
-            handles, labels = plt.gca().get_legend_handles_labels()
-            legend = plt.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.7, 1.1))
-            legend.get_frame().set_facecolor('#9E9E9E')
-            self.dry_diameter_graph_list.append(plt.gcf())
-        except:
-            figure = plt.figure(facecolor=settings.graphBackgroundColor)
-            self.dry_diameter_graph_list.append(plt.gcf())
 
-    def create_all_scan_alignment_summary_graph(self):
+        if self.sigmoid_fit_ax is None:
+            figure, ax = plt.subplots(facecolor=settings.graphBackgroundColor)
+            ax.axes.set_frame_on(False)
+            ax.grid(color='0.5')
+            ax.axhline(0, color='0.6', linewidth=2)
+            ax.axvline(0, color='0.6', linewidth=4)
+            ax.axhline(1, color='0.7', linewidth=2, linestyle='dashed')
+            ax.tick_params(axis='x', color='1', which='both', labelcolor="0.6")
+            ax.tick_params(axis='y', color='1', which='both', labelcolor="0.6")
+            ax.yaxis.label.set_color('0.6')
+            ax.xaxis.label.set_color('0.6')
+            yLim = min(2, max(self.ccnc_sig_list)) + 0.2
+            ax.axes.set_ylim([-0.1, yLim])
+            self.normalized_concentration_points, = plt.plot(self.diameter_midpoint_list, self.ccn_normalized_list,
+                                                             linewidth=4, color='#43A047', label="dN/dLogDp")
+            self.ccn_cn_ratio_points, = ax.plot(self.particle_diameter_list, self.ccn_cn_ratio_list, 'o', color="#2196F3",
+                                           mew=0.5, mec="#1976D2", ms=9, label="CCN/CN")
+            self.ccn_cn_ratio_corrected_points, = ax.plot(self.particle_diameter_list, self.ccnc_sig_list, 'o',
+                                                    color="#1565C0", mew=0.5, mec="#0D47A1",
+                                                    ms=9, label="CCN/CN (Corrected)")
+            if self.usable_for_kappa_cal_list[self.current_scan] and self.usable_for_sigmoid_fit_list[self.current_scan]:
+                self.sigmoid_line, = ax.plot(self.particle_diameter_list, self.ccn_cn_sim_list, linewidth=5,
+                                             color='#EF5350', label="Sigmodal Fit")
+            ax.set_xlabel("Dry diameter(nm)")
+            ax.set_ylabel("CCN/CN ratio and Normalized dN/dLogDp")
+            handles, labels = ax.get_legend_handles_labels()
+            legend = ax.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.7, 1.1))
+            legend.get_frame().set_facecolor('#9E9E9E')
+            self.sigmoid_fit_graph = figure
+            self.sigmoid_fit_ax = ax
+        else:
+            yLim = min(2, max(self.ccnc_sig_list)) + 0.2
+            self.sigmoid_fit_ax.axes.set_ylim([-0.1, yLim])
+            self.ccn_cn_ratio_points.set_xdata(self.particle_diameter_list)
+            self.ccn_cn_ratio_points.set_ydata(self.ccn_cn_ratio_list)
+            self.ccn_cn_ratio_corrected_points.set_xdata(self.particle_diameter_list)
+            self.ccn_cn_ratio_corrected_points.set_ydata(self.ccnc_sig_list)
+            if self.usable_for_kappa_cal_list[self.current_scan] and self.usable_for_sigmoid_fit_list[self.current_scan]:
+                if self.sigmoid_line is not None:
+                    self.sigmoid_line.set_xdata(self.particle_diameter_list)
+                    self.sigmoid_line.set_ydata(self.ccn_cn_sim_list)
+                else:
+                    self.sigmoid_line, = self.sigmoid_fit_ax.plot([], [], linewidth=5,
+                                                 color='#EF5350', label="Sigmodal Fit")
+
+            else:
+                self.sigmoid_line.set_xdata([])
+                self.sigmoid_line.set_ydata([])
+
+        self.view.update_alignment_and_sigmoid_fit_figures(None, self.sigmoid_fit_graph)
+
+    def draw_all_scans_alignment_summary_graph(self):
         """
         A graph of peak alignment, and also allow interaction to select peak to process
         """
@@ -1415,7 +1421,8 @@ class Controller():
 
     def shift_data_by_one_second(self, forward=True):
         try:
-            if not self.usable_for_kappa_cal_list[self.current_scan] or not self.usable_for_sigmoid_fit_list[self.current_scan] or self.min_pos_SMPS_list[
+            if not self.usable_for_kappa_cal_list[self.current_scan] or not self.usable_for_sigmoid_fit_list[
+                self.current_scan] or self.min_pos_SMPS_list[
                 self.current_scan] is None or \
                             self.min_pos_CCNC_list[self.current_scan] is None:
                 return
@@ -1435,25 +1442,16 @@ class Controller():
             new_t3 = list(self.raw_data.iloc[start_time:end_time, 8])
             data_start_time = self.scan_duration * self.current_scan
             data_end_time = data_start_time + self.scan_duration
-
             for i in range(self.scan_duration):
                 self.processed_data.iat[data_start_time + i, 4] = new_ccn[i]
                 self.processed_data.iat[data_start_time + i, 5] = new_ave_size[i]
                 self.processed_data.iat[data_start_time + i, 6] = new_t1[i]
                 self.processed_data.iat[data_start_time + i, 7] = new_t2[i]
                 self.processed_data.iat[data_start_time + i, 8] = new_t3[i]
-
             self.prepare_scan_data()
-            figure = self.concentration_over_scan_time_graph
-            self.create_concentration_over_scan_time_graph(new_figure=figure)
-            figure = self.complete_dry_diameter_graph
-            self.create_ccn_cn_ratio_over_diameter_graph(figure)
-            figure = self.temperature_graph
-            self.create_temperature_graph(figure)
-            end = timer()
-            self.view.update_alignment_and_sigmoid_fit_figures(self.concentration_over_scan_time_graph,
-                                                               self.complete_dry_diameter_graph)
-            self.view.update_temp_and_min_figure(self.temperature_graph)
+            self.draw_concentration_over_scan_time_graph()
+            self.draw_ccn_cn_ratio_over_diameter_graph()
+            self.draw_temperature_graph()
         except:
             self.view.show_error_dialog("Can't shift processed_data. You should disable this peak!")
 
@@ -1467,9 +1465,11 @@ class Controller():
                 self.view.show_error_dialog("You can't enable this scan! This scan is not usable!")
             self.update_view()
         else:
-            if self.usable_for_sigmoid_fit_list[self.current_scan] is True and self.usable_for_kappa_cal_list[self.current_scan]:
+            if self.usable_for_sigmoid_fit_list[self.current_scan] is True and self.usable_for_kappa_cal_list[
+                self.current_scan]:
                 self.usable_for_sigmoid_fit_list[self.current_scan] = False
-            elif self.min_pos_CCNC_list[self.current_scan] and self.min_pos_CCNC_list[self.current_scan] and self.usable_for_kappa_cal_list[self.current_scan]:
+            elif self.min_pos_CCNC_list[self.current_scan] and self.min_pos_CCNC_list[self.current_scan] and \
+                    self.usable_for_kappa_cal_list[self.current_scan]:
                 self.usable_for_sigmoid_fit_list[self.current_scan] = True
             else:
                 self.view.show_error_dialog("You can't enable this scan! This scan is not usable!")
@@ -1485,10 +1485,9 @@ class Controller():
             self.update_view()
 
     def update_view(self):
-        self.concentration_over_scan_time_graph = self.adjusted_graph_list[self.current_scan]
-        self.complete_dry_diameter_graph = self.dry_diameter_graph_list[self.current_scan]
-        self.view.update_alignment_and_sigmoid_fit_figures(self.concentration_over_scan_time_graph,
-                                                           self.complete_dry_diameter_graph)
+        self.prepare_scan_data()
+        self.draw_concentration_over_scan_time_graph()
+        self.draw_ccn_cn_ratio_over_diameter_graph()
         if self.finish_sigmoid_fit_phase:
             self.b = self.b_list[self.current_scan]
             self.d = self.d_list[self.current_scan]
@@ -1509,27 +1508,17 @@ class Controller():
                     self.dp50_less_count += 1
             self.current_point.set_xdata(numpy.asarray(self.min_pos_SMPS_list)[self.current_scan])
             self.current_point.set_ydata(numpy.asarray(self.min_pos_CCNC_list)[self.current_scan])
-            self.view.update_temp_and_min_figure(self.min_compare_graph)
+            self.draw_complete_sigmoid_graph()
+            self.draw_all_scans_alignment_summary_graph()
             self.view.update_scan_information_after_sigmoid_fit()
         else:
-            self.temperature_graph = self.temperature_graph_list[self.current_scan]
             self.super_saturation_rate = self.super_saturation_list[self.current_scan]
-            self.view.update_temp_and_min_figure(self.temperature_graph)
+            self.draw_temperature_graph()
             self.view.update_scan_information()
 
     def reset(self):
         i = 1
         gc.collect()
-        for aFigure in self.temperature_graph_list:
-            aFigure.clf()
-            plt.close(aFigure)
-        self.temperature_graph_list = []
-        for aFigure in self.adjusted_graph_list:
-            plt.close(aFigure)
-        self.adjusted_graph_list = []
-        for aFigure in self.dry_diameter_graph_list:
-            plt.close(aFigure)
-        self.dry_diameter_graph_list = []
         if self.min_compare_graph:
             self.min_compare_graph.clf()
             plt.close(self.min_compare_graph)

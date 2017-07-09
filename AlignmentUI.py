@@ -295,11 +295,15 @@ class RectFigureCanvas(FigureCanvas):
         self.setFixedWidth(parent_width)
 
     def update_figure(self, new_figure):
-        self.figure = new_figure
-        self.draw()
-        h = self.height()
-        self.setFixedHeight(h / 2)
-        self.setFixedHeight(h)
+        if new_figure is None:
+            return
+        if self.figure != new_figure:
+            self.figure = new_figure
+            h = self.height()
+            self.setFixedHeight(h / 2)
+            self.setFixedHeight(h)
+        else:
+            self.draw()
 
 
 class SquareFigureCanvas(FigureCanvas):
@@ -312,8 +316,12 @@ class SquareFigureCanvas(FigureCanvas):
         self.setFixedWidth(parent_width / 2)
 
     def update_figure(self, new_figure):
-        self.figure = new_figure
-        self.draw()
-        h = self.height()
-        self.setFixedHeight(h / 2)
-        self.setFixedHeight(h)
+        if new_figure is None:
+            return
+        if self.figure != new_figure:
+            self.figure = new_figure
+            h = self.height()
+            self.setFixedHeight(h / 2)
+            self.setFixedHeight(h)
+        else:
+            self.draw()
