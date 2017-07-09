@@ -20,7 +20,7 @@ import copy
 import gc
 from timeit import default_timer as timer
 from HelperFunctions import *
-
+import FastDpCalculator
 matplotlib.style.use('ggplot')
 
 
@@ -31,7 +31,6 @@ class Controller():
         """
 
         self.kappa_graph = None
-
 
         self.temperature_graph = None
         self.temperature_axis = None
@@ -685,7 +684,7 @@ class Controller():
                 aDList = [0]
                 for k in range(1, 4):
                     c = cal_cc(i * 10 ** -9, lambdaAir)
-                    dp = 10 ** 9 * find_dp(i * 10 ** -9 / c, lambdaAir, k)
+                    dp = 10 ** 9 * FastDpCalculator.find_dp(i * 10 ** -9 / c, lambdaAir, k)
                     aDList.append(dp)
                 chargeList.append(aDList)
 

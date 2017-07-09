@@ -2,9 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="52680c79-2416-4816-9b69-b1aa9e4f4874" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/OldFunctions.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/FastDpCalculator.pyx" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/setup.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test.pyx" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/vfastexp.h" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AlignmentUI.py" afterPath="$PROJECT_DIR$/AlignmentUI.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chemics.py" afterPath="$PROJECT_DIR$/Chemics.py" />
     </list>
     <ignored path="Chemics.iws" />
@@ -19,7 +22,7 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/Chemics$testFunction.coverage" NAME="testFunction Coverage Results" MODIFIED="1465934603876" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Chemics$Chemics.coverage" NAME="Chemics Coverage Results" MODIFIED="1499610125171" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chemics$Chemics.coverage" NAME="Chemics Coverage Results" MODIFIED="1499621924058" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chemics$GUI.coverage" NAME="GUI Coverage Results" MODIFIED="1467044667222" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chemics$test.coverage" NAME="test Coverage Results" MODIFIED="1465372719716" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
@@ -41,121 +44,104 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="Chemics.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Chemics.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Chemics.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="362">
-              <caret line="686" column="0" lean-forward="false" selection-start-line="686" selection-start-column="0" selection-end-line="686" selection-end-column="0" />
+            <state relative-caret-position="267">
+              <caret line="680" column="0" lean-forward="true" selection-start-line="680" selection-start-column="0" selection-end-line="680" selection-end-column="0" />
               <folding>
-                <element signature="e#4443#4671#0" expanded="false" />
-                <element signature="e#4709#7736#0" expanded="false" />
-                <element signature="e#7790#8820#0" expanded="false" />
-                <element signature="e#8875#16589#0" expanded="false" />
-                <element signature="e#16635#20521#0" expanded="false" />
-                <element signature="e#20577#23040#0" expanded="false" />
-                <element signature="e#23141#25017#0" expanded="false" />
-                <element signature="e#26820#28648#0" expanded="false" />
-                <element signature="e#28847#29096#0" expanded="false" />
-                <element signature="e#34238#37697#0" expanded="false" />
-                <element signature="e#37739#39550#0" expanded="false" />
-                <element signature="e#39672#42021#0" expanded="false" />
-                <element signature="e#42087#43880#0" expanded="false" />
-                <element signature="e#43947#44869#0" expanded="false" />
-                <element signature="e#45001#48427#0" expanded="false" />
-                <element signature="e#48491#51089#0" expanded="false" />
-                <element signature="e#51129#51303#0" expanded="false" />
-                <element signature="e#51627#52040#0" expanded="false" />
-                <element signature="e#52087#57888#0" expanded="false" />
-                <element signature="e#57932#62683#0" expanded="false" />
-                <element signature="e#62729#63349#0" expanded="false" />
-                <element signature="e#63525#65488#0" expanded="false" />
-                <element signature="e#67558#68725#0" expanded="false" />
-                <element signature="e#68771#68955#0" expanded="false" />
-                <element signature="e#68771#68849#1" expanded="false" />
-                <element signature="e#68992#70640#0" expanded="false" />
-                <element signature="e#73007#73227#0" expanded="false" />
-                <element signature="e#73272#73307#0" expanded="false" />
-                <element signature="e#73336#73373#0" expanded="false" />
-                <marker date="1499610166488" expanded="false" signature="25073:26592" ph="..." />
+                <element signature="e#0#9#0" expanded="true" />
+                <element signature="e#4465#4693#0" expanded="false" />
+                <element signature="e#4731#7758#0" expanded="false" />
+                <element signature="e#7812#8842#0" expanded="false" />
+                <element signature="e#8897#16611#0" expanded="false" />
+                <element signature="e#16657#20543#0" expanded="false" />
+                <element signature="e#20599#23062#0" expanded="false" />
+                <element signature="e#23163#25039#0" expanded="false" />
+                <element signature="e#26842#28670#0" expanded="false" />
+                <element signature="e#28869#29118#0" expanded="false" />
+                <element signature="e#34277#37736#0" expanded="false" />
+                <element signature="e#37778#39589#0" expanded="false" />
+                <element signature="e#42126#43919#0" expanded="false" />
+                <element signature="e#43986#44908#0" expanded="false" />
+                <element signature="e#48530#51128#0" expanded="false" />
+                <element signature="e#51168#51342#0" expanded="false" />
+                <element signature="e#51666#52079#0" expanded="false" />
+                <element signature="e#57971#62722#0" expanded="false" />
+                <element signature="e#62768#63388#0" expanded="false" />
+                <element signature="e#63564#65527#0" expanded="false" />
+                <element signature="e#67597#68764#0" expanded="false" />
+                <element signature="e#68810#68994#0" expanded="false" />
+                <element signature="e#68810#68888#1" expanded="false" />
+                <element signature="e#73046#73266#0" expanded="false" />
+                <element signature="e#73311#73346#0" expanded="false" />
+                <element signature="e#73375#73412#0" expanded="false" />
+                <marker date="1499620681088" expanded="false" signature="25095:26614" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="KappaUI.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/KappaUI.py">
+      <file leaf-file-name="vfastexp.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/vfastexp.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="67">
-              <caret line="288" column="28" lean-forward="false" selection-start-line="288" selection-start-column="28" selection-end-line="288" selection-end-column="28" />
-              <folding>
-                <element signature="e#0#28#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Exceptions.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Exceptions.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1254">
-              <caret line="38" column="8" lean-forward="false" selection-start-line="38" selection-start-column="8" selection-end-line="38" selection-end-column="8" />
+            <state relative-caret-position="594">
+              <caret line="18" column="68" lean-forward="false" selection-start-line="18" selection-start-column="68" selection-end-line="18" selection-end-column="68" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GUI.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/GUI.py">
+      <file leaf-file-name="test.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="397">
-              <caret line="180" column="36" lean-forward="true" selection-start-line="180" selection-start-column="36" selection-end-line="180" selection-end-column="36" />
-              <folding>
-                <element signature="e#90#100#0" expanded="true" />
-                <element signature="e#8181#8428#0" expanded="false" />
-              </folding>
+            <state relative-caret-position="198">
+              <caret line="6" column="7" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="14" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Changelog" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Changelog">
+      <file leaf-file-name="test.pyx" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test.pyx">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="297">
-              <caret line="9" column="31" lean-forward="false" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
+              <caret line="9" column="14" lean-forward="false" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AlignmentUI.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/AlignmentUI.py">
+      <file leaf-file-name="HelperFunctions.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/HelperFunctions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="529">
-              <caret line="318" column="30" lean-forward="true" selection-start-line="318" selection-start-column="30" selection-end-line="318" selection-end-column="30" />
+            <state relative-caret-position="33">
+              <caret line="21" column="30" lean-forward="false" selection-start-line="21" selection-start-column="30" selection-end-line="21" selection-end-column="30" />
               <folding>
-                <element signature="e#0#28#0" expanded="true" />
-                <element signature="e#12279#13095#0" expanded="false" />
+                <element signature="e#0#10#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CustomButton.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/CustomButton.py">
+      <file leaf-file-name="FastDpCalculator.pyx" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/FastDpCalculator.pyx">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="792">
-              <caret line="32" column="43" lean-forward="false" selection-start-line="32" selection-start-column="43" selection-end-line="32" selection-end-column="43" />
+            <state relative-caret-position="297">
+              <caret line="9" column="0" lean-forward="true" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="InfoTableStyle.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/InfoTableStyle.py">
+      <file leaf-file-name="setup.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/setup.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="583">
-              <caret line="89" column="30" lean-forward="true" selection-start-line="89" selection-start-column="30" selection-end-line="89" selection-end-column="30" />
-              <folding />
+            <state relative-caret-position="528">
+              <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+              <folding>
+                <element signature="e#143#171#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -171,36 +157,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>def update_view</find>
-      <find>self.temp</find>
-      <find>self.update_view</find>
-      <find>self.temp1</find>
-      <find>self.temp2</find>
-      <find>self.prepare_scan</find>
-      <find>def update</find>
-      <find>self.temperature_graph</find>
-      <find>create_temper</find>
-      <find>self.temperature_graph_list</find>
-      <find>def create_concen</find>
-      <find>create_ccn_cn</find>
-      <find>self.draw_concen</find>
-      <find>self.create_ccn</find>
-      <find>def create_ccn</find>
-      <find>update_FIGURE</find>
-      <find>draw</find>
-      <find>self.create</find>
-      <find>shift</find>
-      <find>temp_and</find>
-      <find>self.view.update</find>
-      <find>self.ccn_c</find>
-      <find>correct</find>
-      <find>on_pick</find>
-      <find>def update_</find>
-      <find>correct_charge</find>
-      <find>update_alignment</find>
-      <find>update_te</find>
-      <find>alignment_and</find>
       <find>self.draw_com</find>
+      <find>correct_charge</find>
+      <find>remove_small</find>
+      <find>get_ave</find>
+      <find>f</find>
+      <find>f(</find>
+      <find>f(x</find>
+      <find>get_asym</find>
+      <find>normalize_list</find>
+      <find>process_csv</find>
+      <find>process_a_csv</find>
+      <find>process_text_file</find>
+      <find>get_min</find>
+      <find>convert_date</find>
+      <find>print_list</find>
+      <find>calculate_frac</find>
+      <find>calc_cc</find>
+      <find>calculate_av</find>
+      <find>calculate_ave</find>
+      <find>calculate_mo</find>
+      <find>calculate_m</find>
+      <find>calculate_moving</find>
+      <find>remove_zeroes</find>
+      <find>remove_z</find>
+      <find>get_cor</find>
+      <find>correct_chare</find>
+      <find>HelperFun</find>
+      <find>HelperFunctions.</find>
+      <find>find_dp</find>
+      <find>cal_cc</find>
     </findStrings>
     <replaceStrings>
       <replace>preprocess_data</replace>
@@ -225,7 +211,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/test.py" />
         <option value="$PROJECT_DIR$/testFunction.py" />
         <option value="$PROJECT_DIR$/Controller.py" />
         <option value="$PROJECT_DIR$/settings.py" />
@@ -240,7 +225,6 @@
         <option value="$PROJECT_DIR$/KappaVarConfirmDialog.py" />
         <option value="$PROJECT_DIR$/webbrowser.py" />
         <option value="$PROJECT_DIR$/Changelog" />
-        <option value="$PROJECT_DIR$/HelperFunctions.py" />
         <option value="$PROJECT_DIR$/Exceptions.py" />
         <option value="$PROJECT_DIR$/GUI.py" />
         <option value="$PROJECT_DIR$/CustomButton.py" />
@@ -248,7 +232,15 @@
         <option value="$PROJECT_DIR$/InfoTableStyle.py" />
         <option value="$PROJECT_DIR$/AlignmentUI.py" />
         <option value="$PROJECT_DIR$/OldFunctions.py" />
+        <option value="$PROJECT_DIR$/HelperFunctions.py" />
+        <option value="$PROJECT_DIR$/fast_dp_cal.py" />
+        <option value="$PROJECT_DIR$/test.py" />
+        <option value="$PROJECT_DIR$/test.pyx" />
+        <option value="$PROJECT_DIR$/../FastDpCalculator.pyx" />
         <option value="$PROJECT_DIR$/Chemics.py" />
+        <option value="$PROJECT_DIR$/setup.py" />
+        <option value="$PROJECT_DIR$/vfastexp.h" />
+        <option value="$PROJECT_DIR$/FastDpCalculator.pyx" />
       </list>
     </option>
   </component>
@@ -310,7 +302,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Font" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/.." />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/FastDpCalculator.pyx" />
     <property name="ignore_missing_gitignore" value="true" />
     <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file://C:/Users/KKK/PycharmProjects/Chemics/HelperFunctions.py" />
     <property name="js.eslint.eslintPackage" value="" />
@@ -321,6 +313,7 @@
       <recent name="C:\Users\quang\PycharmProjects\Chemics" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\KKK\PycharmProjects\Chemics" />
       <recent name="C:\Users\quang\PycharmProjects\Chemics" />
     </key>
   </component>
@@ -1005,16 +998,15 @@
     <frame x="-13" y="-13" width="2762" height="1770" extended-state="6" />
     <editor active="true" />
     <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.259009" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32919955" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3284625" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32844242" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3281148" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16699283" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.259009" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32159165" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20382883" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16699283" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3843844" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="-1792" y="40" width="1713" height="878" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -1023,8 +1015,30 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32159165" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
+    <layout-to-restore>
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32919955" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3284625" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32844242" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3281148" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16699283" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.259009" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32159165" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20382883" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3843844" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="-1792" y="40" width="1713" height="878" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+    </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="processedProjectFiles" value="true" />
@@ -1079,7 +1093,7 @@
         </breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Chemics.py</url>
-          <line>1595</line>
+          <line>1594</line>
           <option name="timeStamp" value="768" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1122,34 +1136,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/average.csv" />
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/os.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="205">
-          <caret line="296" column="0" lean-forward="false" selection-start-line="296" selection-start-column="0" selection-end-line="296" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/re.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="298">
-          <caret line="145" column="0" lean-forward="false" selection-start-line="145" selection-start-column="0" selection-end-line="145" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/numpy/lib/function_base.py" />
-    <entry file="file://C:/Python27/Lib/site-packages/scipy/optimize/minpack.py" />
-    <entry file="file://C:/Python27/Lib/site-packages/numpy/core/shape_base.py" />
-    <entry file="file://C:/Python27/Lib/site-packages/scipy/optimize/_lsq/least_squares.py" />
-    <entry file="file://C:/Python27/Lib/site-packages/numpy/core/numeric.py" />
-    <entry file="file://C:/Python27/Lib/site-packages/numpy/core/fromnumeric.py" />
     <entry file="file://C:/Python27/Lib/site-packages/scipy/optimize/_lsq/common.py" />
     <entry file="file://C:/Python27/Lib/site-packages/matplotlib/cbook.py" />
     <entry file="file://C:/Python27/Lib/site-packages/pandas/types/dtypes.py" />
@@ -1203,7 +1189,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="297">
           <caret line="9" column="31" lean-forward="false" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1251,19 +1236,50 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/HelperFunctions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-56">
-          <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Exceptions.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1254">
           <caret line="38" column="8" lean-forward="false" selection-start-line="38" selection-start-column="8" selection-end-line="38" selection-end-column="8" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/KappaUI.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="9174">
+          <caret line="288" column="28" lean-forward="false" selection-start-line="288" selection-start-column="28" selection-end-line="288" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/OldFunctions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="194">
+          <caret line="68" column="9" lean-forward="false" selection-start-line="68" selection-start-column="9" selection-end-line="68" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/GUI.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5544">
+          <caret line="180" column="36" lean-forward="false" selection-start-line="180" selection-start-column="36" selection-end-line="180" selection-end-column="36" />
+          <folding>
+            <element signature="e#90#100#0" expanded="true" />
+            <element signature="e#8181#8428#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AlignmentUI.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="9966">
+          <caret line="318" column="30" lean-forward="false" selection-start-line="318" selection-start-column="30" selection-end-line="318" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#12279#13095#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1277,92 +1293,108 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/InfoTableStyle.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="583">
-          <caret line="89" column="30" lean-forward="true" selection-start-line="89" selection-start-column="30" selection-end-line="89" selection-end-column="30" />
+        <state relative-caret-position="2673">
+          <caret line="89" column="30" lean-forward="false" selection-start-line="89" selection-start-column="30" selection-end-line="89" selection-end-column="30" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/KappaUI.py">
+    <entry file="file://$PROJECT_DIR$/HelperFunctions.c" />
+    <entry file="file://$PROJECT_DIR$/HelperFunctions.pyx" />
+    <entry file="file://$PROJECT_DIR$/fast_dp_cal.py" />
+    <entry file="file://$PROJECT_DIR$/FastDpCalculator.py" />
+    <entry file="file://$PROJECT_DIR$/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="67">
-          <caret line="288" column="28" lean-forward="false" selection-start-line="288" selection-start-column="28" selection-end-line="288" selection-end-column="28" />
+        <state relative-caret-position="198">
+          <caret line="6" column="7" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test.pyx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="297">
+          <caret line="9" column="14" lean-forward="false" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../FastDpCalculator.pyx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="132">
+          <caret line="4" column="0" lean-forward="true" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/HelperFunctions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="33">
+          <caret line="21" column="30" lean-forward="false" selection-start-line="21" selection-start-column="30" selection-end-line="21" selection-end-column="30" />
           <folding>
-            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/OldFunctions.py">
+    <entry file="file://$PROJECT_DIR$/setup.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="194">
-          <caret line="68" column="9" lean-forward="false" selection-start-line="68" selection-start-column="9" selection-end-line="68" selection-end-column="9" />
+        <state relative-caret-position="528">
+          <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
           <folding>
-            <element signature="e#1654#3145#0" expanded="false" />
-            <element signature="e#3224#4740#0" expanded="false" />
-            <element signature="e#4807#7277#0" expanded="false" />
+            <element signature="e#143#171#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/GUI.py">
+    <entry file="file://$PROJECT_DIR$/vfastexp.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="397">
-          <caret line="180" column="36" lean-forward="true" selection-start-line="180" selection-start-column="36" selection-end-line="180" selection-end-column="36" />
-          <folding>
-            <element signature="e#90#100#0" expanded="true" />
-            <element signature="e#8181#8428#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlignmentUI.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="529">
-          <caret line="318" column="30" lean-forward="true" selection-start-line="318" selection-start-column="30" selection-end-line="318" selection-end-column="30" />
-          <folding>
-            <element signature="e#0#28#0" expanded="true" />
-            <element signature="e#12279#13095#0" expanded="false" />
-          </folding>
+        <state relative-caret-position="594">
+          <caret line="18" column="68" lean-forward="false" selection-start-line="18" selection-start-column="68" selection-end-line="18" selection-end-column="68" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Chemics.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="362">
-          <caret line="686" column="0" lean-forward="false" selection-start-line="686" selection-start-column="0" selection-end-line="686" selection-end-column="0" />
+        <state relative-caret-position="267">
+          <caret line="680" column="0" lean-forward="true" selection-start-line="680" selection-start-column="0" selection-end-line="680" selection-end-column="0" />
           <folding>
-            <element signature="e#4443#4671#0" expanded="false" />
-            <element signature="e#4709#7736#0" expanded="false" />
-            <element signature="e#7790#8820#0" expanded="false" />
-            <element signature="e#8875#16589#0" expanded="false" />
-            <element signature="e#16635#20521#0" expanded="false" />
-            <element signature="e#20577#23040#0" expanded="false" />
-            <element signature="e#23141#25017#0" expanded="false" />
-            <element signature="e#26820#28648#0" expanded="false" />
-            <element signature="e#28847#29096#0" expanded="false" />
-            <element signature="e#34238#37697#0" expanded="false" />
-            <element signature="e#37739#39550#0" expanded="false" />
-            <element signature="e#39672#42021#0" expanded="false" />
-            <element signature="e#42087#43880#0" expanded="false" />
-            <element signature="e#43947#44869#0" expanded="false" />
-            <element signature="e#45001#48427#0" expanded="false" />
-            <element signature="e#48491#51089#0" expanded="false" />
-            <element signature="e#51129#51303#0" expanded="false" />
-            <element signature="e#51627#52040#0" expanded="false" />
-            <element signature="e#52087#57888#0" expanded="false" />
-            <element signature="e#57932#62683#0" expanded="false" />
-            <element signature="e#62729#63349#0" expanded="false" />
-            <element signature="e#63525#65488#0" expanded="false" />
-            <element signature="e#67558#68725#0" expanded="false" />
-            <element signature="e#68771#68955#0" expanded="false" />
-            <element signature="e#68771#68849#1" expanded="false" />
-            <element signature="e#68992#70640#0" expanded="false" />
-            <element signature="e#73007#73227#0" expanded="false" />
-            <element signature="e#73272#73307#0" expanded="false" />
-            <element signature="e#73336#73373#0" expanded="false" />
-            <marker date="1499610166488" expanded="false" signature="25073:26592" ph="..." />
+            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#4465#4693#0" expanded="false" />
+            <element signature="e#4731#7758#0" expanded="false" />
+            <element signature="e#7812#8842#0" expanded="false" />
+            <element signature="e#8897#16611#0" expanded="false" />
+            <element signature="e#16657#20543#0" expanded="false" />
+            <element signature="e#20599#23062#0" expanded="false" />
+            <element signature="e#23163#25039#0" expanded="false" />
+            <element signature="e#26842#28670#0" expanded="false" />
+            <element signature="e#28869#29118#0" expanded="false" />
+            <element signature="e#34277#37736#0" expanded="false" />
+            <element signature="e#37778#39589#0" expanded="false" />
+            <element signature="e#42126#43919#0" expanded="false" />
+            <element signature="e#43986#44908#0" expanded="false" />
+            <element signature="e#48530#51128#0" expanded="false" />
+            <element signature="e#51168#51342#0" expanded="false" />
+            <element signature="e#51666#52079#0" expanded="false" />
+            <element signature="e#57971#62722#0" expanded="false" />
+            <element signature="e#62768#63388#0" expanded="false" />
+            <element signature="e#63564#65527#0" expanded="false" />
+            <element signature="e#67597#68764#0" expanded="false" />
+            <element signature="e#68810#68994#0" expanded="false" />
+            <element signature="e#68810#68888#1" expanded="false" />
+            <element signature="e#73046#73266#0" expanded="false" />
+            <element signature="e#73311#73346#0" expanded="false" />
+            <element signature="e#73375#73412#0" expanded="false" />
+            <marker date="1499620681088" expanded="false" signature="25095:26614" ph="..." />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FastDpCalculator.pyx">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="297">
+          <caret line="9" column="0" lean-forward="true" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
