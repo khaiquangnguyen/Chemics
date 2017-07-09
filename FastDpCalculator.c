@@ -761,7 +761,6 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 
 
 /* Module declarations from 'FastDpCalculator' */
-static double __pyx_f_16FastDpCalculator_cal_cc(double, double); /*proto*/
 #define __Pyx_MODULE_NAME "FastDpCalculator"
 int __pyx_module_is_main_FastDpCalculator = 0;
 
@@ -770,6 +769,7 @@ static PyObject *__pyx_builtin_range;
 static const char __pyx_k_c[] = "c";
 static const char __pyx_k_i[] = "i";
 static const char __pyx_k_n[] = "n";
+static const char __pyx_k_t[] = "t";
 static const char __pyx_k_dp[] = "dp";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_test[] = "__test__";
@@ -792,84 +792,14 @@ static PyObject *__pyx_n_s_lambda_air;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_n;
 static PyObject *__pyx_n_s_range;
+static PyObject *__pyx_n_s_t;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_pf_16FastDpCalculator_find_dp(CYTHON_UNUSED PyObject *__pyx_self, double __pyx_v_dp, double __pyx_v_lambda_air, int __pyx_v_n); /* proto */
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_codeobj__2;
 
-/* "FastDpCalculator.pyx":6
- * 
- * 
- * cdef double cal_cc(double dp, double lambda_air)except? -2:             # <<<<<<<<<<<<<<
- *     cdef double t =  exp_approx(-1.1 * dp / 2 / lambda_air)
- *     cdef double m =  1 + 2 * lambda_air / dp * (1.257 + 0.4 * t)
- */
-
-static double __pyx_f_16FastDpCalculator_cal_cc(double __pyx_v_dp, double __pyx_v_lambda_air) {
-  double __pyx_v_t;
-  double __pyx_v_m;
-  double __pyx_r;
-  __Pyx_RefNannyDeclarations
-  double __pyx_t_1;
-  __Pyx_RefNannySetupContext("cal_cc", 0);
-
-  /* "FastDpCalculator.pyx":7
- * 
- * cdef double cal_cc(double dp, double lambda_air)except? -2:
- *     cdef double t =  exp_approx(-1.1 * dp / 2 / lambda_air)             # <<<<<<<<<<<<<<
- *     cdef double m =  1 + 2 * lambda_air / dp * (1.257 + 0.4 * t)
- *     return m
- */
-  __pyx_t_1 = ((-1.1 * __pyx_v_dp) / 2.0);
-  if (unlikely(__pyx_v_lambda_air == 0)) {
-    PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-    __PYX_ERR(0, 7, __pyx_L1_error)
-  }
-  __pyx_v_t = EXP((__pyx_t_1 / __pyx_v_lambda_air));
-
-  /* "FastDpCalculator.pyx":8
- * cdef double cal_cc(double dp, double lambda_air)except? -2:
- *     cdef double t =  exp_approx(-1.1 * dp / 2 / lambda_air)
- *     cdef double m =  1 + 2 * lambda_air / dp * (1.257 + 0.4 * t)             # <<<<<<<<<<<<<<
- *     return m
- * 
- */
-  __pyx_t_1 = (2.0 * __pyx_v_lambda_air);
-  if (unlikely(__pyx_v_dp == 0)) {
-    PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-    __PYX_ERR(0, 8, __pyx_L1_error)
-  }
-  __pyx_v_m = (1.0 + ((__pyx_t_1 / __pyx_v_dp) * (1.257 + (0.4 * __pyx_v_t))));
-
-  /* "FastDpCalculator.pyx":9
- *     cdef double t =  exp_approx(-1.1 * dp / 2 / lambda_air)
- *     cdef double m =  1 + 2 * lambda_air / dp * (1.257 + 0.4 * t)
- *     return m             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_r = __pyx_v_m;
-  goto __pyx_L0;
-
-  /* "FastDpCalculator.pyx":6
- * 
- * 
- * cdef double cal_cc(double dp, double lambda_air)except? -2:             # <<<<<<<<<<<<<<
- *     cdef double t =  exp_approx(-1.1 * dp / 2 / lambda_air)
- *     cdef double m =  1 + 2 * lambda_air / dp * (1.257 + 0.4 * t)
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_AddTraceback("FastDpCalculator.cal_cc", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = -2.0;
-  __pyx_L0:;
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
-/* "FastDpCalculator.pyx":13
- * 
+/* "FastDpCalculator.pyx":5
+ *     double exp_approx "EXP" (double)
  * 
  * def find_dp(double dp, double lambda_air, int n):             # <<<<<<<<<<<<<<
  *     cdef double dp_old = dp * 1 * n
@@ -907,16 +837,16 @@ static PyObject *__pyx_pw_16FastDpCalculator_1find_dp(PyObject *__pyx_self, PyOb
         case  1:
         if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_lambda_air)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("find_dp", 1, 3, 3, 1); __PYX_ERR(0, 13, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("find_dp", 1, 3, 3, 1); __PYX_ERR(0, 5, __pyx_L3_error)
         }
         case  2:
         if (likely((values[2] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_n)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("find_dp", 1, 3, 3, 2); __PYX_ERR(0, 13, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("find_dp", 1, 3, 3, 2); __PYX_ERR(0, 5, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "find_dp") < 0)) __PYX_ERR(0, 13, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "find_dp") < 0)) __PYX_ERR(0, 5, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -925,13 +855,13 @@ static PyObject *__pyx_pw_16FastDpCalculator_1find_dp(PyObject *__pyx_self, PyOb
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
     }
-    __pyx_v_dp = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_dp == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 13, __pyx_L3_error)
-    __pyx_v_lambda_air = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_lambda_air == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 13, __pyx_L3_error)
-    __pyx_v_n = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_n == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 13, __pyx_L3_error)
+    __pyx_v_dp = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_dp == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 5, __pyx_L3_error)
+    __pyx_v_lambda_air = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_lambda_air == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 5, __pyx_L3_error)
+    __pyx_v_n = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_n == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 5, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("find_dp", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 13, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("find_dp", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 5, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("FastDpCalculator.find_dp", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -949,6 +879,7 @@ static PyObject *__pyx_pf_16FastDpCalculator_find_dp(CYTHON_UNUSED PyObject *__p
   double __pyx_v_c;
   double __pyx_v_dp_new;
   CYTHON_UNUSED int __pyx_v_i;
+  double __pyx_v_t;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -957,7 +888,7 @@ static PyObject *__pyx_pf_16FastDpCalculator_find_dp(CYTHON_UNUSED PyObject *__p
   PyObject *__pyx_t_4 = NULL;
   __Pyx_RefNannySetupContext("find_dp", 0);
 
-  /* "FastDpCalculator.pyx":14
+  /* "FastDpCalculator.pyx":6
  * 
  * def find_dp(double dp, double lambda_air, int n):
  *     cdef double dp_old = dp * 1 * n             # <<<<<<<<<<<<<<
@@ -966,37 +897,55 @@ static PyObject *__pyx_pf_16FastDpCalculator_find_dp(CYTHON_UNUSED PyObject *__p
  */
   __pyx_v_dp_old = ((__pyx_v_dp * 1.0) * __pyx_v_n);
 
-  /* "FastDpCalculator.pyx":18
- *     cdef double dp_new
+  /* "FastDpCalculator.pyx":11
  *     cdef int i
+ *     cdef double t
  *     for i in range(1000):             # <<<<<<<<<<<<<<
- *         c = cal_cc(dp_old, lambda_air)
- *         dp_new = dp * c * n
+ *         t =  exp_approx(-1.1 * dp_old / 2 / lambda_air)
+ *         c =  1 + 2 * lambda_air / dp * (1.257 + 0.4 * t)
  */
   for (__pyx_t_1 = 0; __pyx_t_1 < 0x3E8; __pyx_t_1+=1) {
     __pyx_v_i = __pyx_t_1;
 
-    /* "FastDpCalculator.pyx":19
- *     cdef int i
+    /* "FastDpCalculator.pyx":12
+ *     cdef double t
  *     for i in range(1000):
- *         c = cal_cc(dp_old, lambda_air)             # <<<<<<<<<<<<<<
+ *         t =  exp_approx(-1.1 * dp_old / 2 / lambda_air)             # <<<<<<<<<<<<<<
+ *         c =  1 + 2 * lambda_air / dp * (1.257 + 0.4 * t)
+ *         dp_new = dp * c * n
+ */
+    __pyx_t_2 = ((-1.1 * __pyx_v_dp_old) / 2.0);
+    if (unlikely(__pyx_v_lambda_air == 0)) {
+      PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+      __PYX_ERR(0, 12, __pyx_L1_error)
+    }
+    __pyx_v_t = EXP((__pyx_t_2 / __pyx_v_lambda_air));
+
+    /* "FastDpCalculator.pyx":13
+ *     for i in range(1000):
+ *         t =  exp_approx(-1.1 * dp_old / 2 / lambda_air)
+ *         c =  1 + 2 * lambda_air / dp * (1.257 + 0.4 * t)             # <<<<<<<<<<<<<<
  *         dp_new = dp * c * n
  *         if abs(dp_new - dp_old) / dp_old < 0.000001:
  */
-    __pyx_t_2 = __pyx_f_16FastDpCalculator_cal_cc(__pyx_v_dp_old, __pyx_v_lambda_air); if (unlikely(__pyx_t_2 == -2.0 && PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L1_error)
-    __pyx_v_c = __pyx_t_2;
+    __pyx_t_2 = (2.0 * __pyx_v_lambda_air);
+    if (unlikely(__pyx_v_dp == 0)) {
+      PyErr_SetString(PyExc_ZeroDivisionError, "float division");
+      __PYX_ERR(0, 13, __pyx_L1_error)
+    }
+    __pyx_v_c = (1.0 + ((__pyx_t_2 / __pyx_v_dp) * (1.257 + (0.4 * __pyx_v_t))));
 
-    /* "FastDpCalculator.pyx":20
- *     for i in range(1000):
- *         c = cal_cc(dp_old, lambda_air)
+    /* "FastDpCalculator.pyx":14
+ *         t =  exp_approx(-1.1 * dp_old / 2 / lambda_air)
+ *         c =  1 + 2 * lambda_air / dp * (1.257 + 0.4 * t)
  *         dp_new = dp * c * n             # <<<<<<<<<<<<<<
  *         if abs(dp_new - dp_old) / dp_old < 0.000001:
  *             break
  */
     __pyx_v_dp_new = ((__pyx_v_dp * __pyx_v_c) * __pyx_v_n);
 
-    /* "FastDpCalculator.pyx":21
- *         c = cal_cc(dp_old, lambda_air)
+    /* "FastDpCalculator.pyx":15
+ *         c =  1 + 2 * lambda_air / dp * (1.257 + 0.4 * t)
  *         dp_new = dp * c * n
  *         if abs(dp_new - dp_old) / dp_old < 0.000001:             # <<<<<<<<<<<<<<
  *             break
@@ -1005,12 +954,12 @@ static PyObject *__pyx_pf_16FastDpCalculator_find_dp(CYTHON_UNUSED PyObject *__p
     __pyx_t_2 = fabs((__pyx_v_dp_new - __pyx_v_dp_old));
     if (unlikely(__pyx_v_dp_old == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 21, __pyx_L1_error)
+      __PYX_ERR(0, 15, __pyx_L1_error)
     }
     __pyx_t_3 = (((__pyx_t_2 / __pyx_v_dp_old) < 0.000001) != 0);
     if (__pyx_t_3) {
 
-      /* "FastDpCalculator.pyx":22
+      /* "FastDpCalculator.pyx":16
  *         dp_new = dp * c * n
  *         if abs(dp_new - dp_old) / dp_old < 0.000001:
  *             break             # <<<<<<<<<<<<<<
@@ -1019,8 +968,8 @@ static PyObject *__pyx_pf_16FastDpCalculator_find_dp(CYTHON_UNUSED PyObject *__p
  */
       goto __pyx_L4_break;
 
-      /* "FastDpCalculator.pyx":21
- *         c = cal_cc(dp_old, lambda_air)
+      /* "FastDpCalculator.pyx":15
+ *         c =  1 + 2 * lambda_air / dp * (1.257 + 0.4 * t)
  *         dp_new = dp * c * n
  *         if abs(dp_new - dp_old) / dp_old < 0.000001:             # <<<<<<<<<<<<<<
  *             break
@@ -1028,7 +977,7 @@ static PyObject *__pyx_pf_16FastDpCalculator_find_dp(CYTHON_UNUSED PyObject *__p
  */
     }
 
-    /* "FastDpCalculator.pyx":24
+    /* "FastDpCalculator.pyx":18
  *             break
  *         else:
  *             dp_old = dp_new             # <<<<<<<<<<<<<<
@@ -1040,20 +989,20 @@ static PyObject *__pyx_pf_16FastDpCalculator_find_dp(CYTHON_UNUSED PyObject *__p
   }
   __pyx_L4_break:;
 
-  /* "FastDpCalculator.pyx":25
+  /* "FastDpCalculator.pyx":19
  *         else:
  *             dp_old = dp_new
  *     return dp_new             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_dp_new); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_dp_new); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 19, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "FastDpCalculator.pyx":13
- * 
+  /* "FastDpCalculator.pyx":5
+ *     double exp_approx "EXP" (double)
  * 
  * def find_dp(double dp, double lambda_air, int n):             # <<<<<<<<<<<<<<
  *     cdef double dp_old = dp * 1 * n
@@ -1106,11 +1055,12 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_n, __pyx_k_n, sizeof(__pyx_k_n), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
+  {&__pyx_n_s_t, __pyx_k_t, sizeof(__pyx_k_t), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 18, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 11, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
   return -1;
@@ -1120,17 +1070,17 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "FastDpCalculator.pyx":13
- * 
+  /* "FastDpCalculator.pyx":5
+ *     double exp_approx "EXP" (double)
  * 
  * def find_dp(double dp, double lambda_air, int n):             # <<<<<<<<<<<<<<
  *     cdef double dp_old = dp * 1 * n
  *     cdef double c
  */
-  __pyx_tuple_ = PyTuple_Pack(7, __pyx_n_s_dp, __pyx_n_s_lambda_air, __pyx_n_s_n, __pyx_n_s_dp_old, __pyx_n_s_c, __pyx_n_s_dp_new, __pyx_n_s_i); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(8, __pyx_n_s_dp, __pyx_n_s_lambda_air, __pyx_n_s_n, __pyx_n_s_dp_old, __pyx_n_s_c, __pyx_n_s_dp_new, __pyx_n_s_i, __pyx_n_s_t); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
-  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(3, 0, 7, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_C_Users_KKK_PycharmProjects_Chem, __pyx_n_s_find_dp, 13, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __pyx_codeobj__2 = (PyObject*)__Pyx_PyCode_New(3, 0, 8, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple_, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_C_Users_KKK_PycharmProjects_Chem, __pyx_n_s_find_dp, 5, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__2)) __PYX_ERR(0, 5, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -1237,16 +1187,16 @@ PyMODINIT_FUNC PyInit_FastDpCalculator(void)
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 2, __pyx_L1_error)
   #endif
 
-  /* "FastDpCalculator.pyx":13
- * 
+  /* "FastDpCalculator.pyx":5
+ *     double exp_approx "EXP" (double)
  * 
  * def find_dp(double dp, double lambda_air, int n):             # <<<<<<<<<<<<<<
  *     cdef double dp_old = dp * 1 * n
  *     cdef double c
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16FastDpCalculator_1find_dp, NULL, __pyx_n_s_FastDpCalculator); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_16FastDpCalculator_1find_dp, NULL, __pyx_n_s_FastDpCalculator); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 5, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_find_dp, __pyx_t_1) < 0) __PYX_ERR(0, 13, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_find_dp, __pyx_t_1) < 0) __PYX_ERR(0, 5, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "FastDpCalculator.pyx":2
