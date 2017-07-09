@@ -188,9 +188,25 @@ class View(QMainWindow):
 
     def update_scan_information(self):
         self.centralWidget().info_widget.information_table.update_scan_information()
+        curr_scan = self.controller.current_scan
+        if self.controller.min_pos_SMPS_list[curr_scan] is None or self.controller.min_pos_CCNC_list[curr_scan] is None:
+            self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable")
+        else:
+            if (self.controller.usable_for_sigmoid_fit_list[curr_scan]):
+                self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Disable Scan")
+            else:
+                self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
 
     def update_scan_information_after_sigmoid_fit(self):
         self.centralWidget().info_widget.information_table.update_scan_information_after_sigmoid_fit()
+        curr_scan = self.controller.current_scan
+        if self.controller.min_pos_SMPS_list[curr_scan] is None or self.controller.min_pos_CCNC_list[curr_scan] is None:
+            self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
+        else:
+            if self.controller.usable_for_kappa_cal_list[curr_scan] and self.controller.usable_for_sigmoid_fit_list[curr_scan]:
+                self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Disable Scan")
+            else:
+                self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
 
     def reset(self):
         self.centralWidget().switch_to_scan_widget()

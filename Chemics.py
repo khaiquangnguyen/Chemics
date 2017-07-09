@@ -51,6 +51,7 @@ class Controller():
         self.current_point = None
         self.finish_sigmoid_fit_phase = False
         self.cancelling_progress_bar = False
+        self.usable_for_sigmoid_fit_list = []
 
         self.concentration = 0.3
         self.ccn_list = None
@@ -404,6 +405,7 @@ class Controller():
         :return:
         """
         self.usable_for_kappa_cal_list = []
+        self.usable_for_sigmoid_fit_list = []
         self.min_pos_CCNC_list = []
         self.min_pos_SMPS_list = []
         num_additional_data_point = int(self.scan_duration / 2)
@@ -421,6 +423,7 @@ class Controller():
             if min_pos_smps == -1:
                 self.min_pos_SMPS_list.append(None)
                 self.min_pos_CCNC_list.append(None)
+                self.usable_for_sigmoid_fit_list.append(False)
                 self.usable_for_kappa_cal_list.append(False)
                 min_pos_smps = 0
                 min_pos_ccnc = 0
@@ -432,11 +435,13 @@ class Controller():
                 if min_pos_ccnc == -1:
                     self.min_pos_SMPS_list[-1] = None
                     self.min_pos_CCNC_list.append(None)
+                    self.usable_for_sigmoid_fit_list.append(False)
                     self.usable_for_kappa_cal_list.append(False)
                     min_pos_smps = 0
                     min_pos_ccnc = 0
                 else:
                     self.usable_for_kappa_cal_list.append(True)
+                    self.usable_for_sigmoid_fit_list.append(True)
                     shift_factor = shift_factor + min_pos_ccnc - min_pos_smps
                     if current_scan == 0:
                         self.min_pos_CCNC_list.append(min_pos_smps)
@@ -494,6 +499,7 @@ class Controller():
                 if (self.super_saturation_list[i] == -1):
                     self.min_pos_CCNC_list[i] = None
                     self.min_pos_SMPS_list[i] = None
+                    self.usable_for_sigmoid_fit_list[i] = False
             self.move_progress_bar_forward(complete=True)
             self.current_scan = -1
             self.view.update_experiment_information()
@@ -845,6 +851,7 @@ class Controller():
         self.move_progress_bar_forward("Updating sigmoid line fitting of current scan..." + str(self.current_scan + 1),
                                        max_value=6)
         self.usable_for_kappa_cal_list[self.current_scan] = True
+        self.usable_for_sigmoid_fit_list[self.current_scan] = True
         self.ccnc_sig_list = []
         try:
             self.prepare_scan_data()
@@ -876,6 +883,7 @@ class Controller():
             self.move_progress_bar_forward(complete=True)
         except:
             self.usable_for_kappa_cal_list[self.current_scan] = False
+            self.usable_for_sigmoid_fit_list[self.current_scan] = False
             self.min_dp_list[self.current_scan] = 0
             self.min_dp_asym_list[self.current_scan] = 0
             self.max_dp_asym_list[self.current_scan] = 0
@@ -892,7 +900,9 @@ class Controller():
         """
         try:
             # If a peak is invalid, then do nothing
-            if not self.min_pos_CCNC_list[self.current_scan] or not self.min_pos_SMPS_list[self.current_scan]:
+            # TODO: test for UI. delete after test
+            if not self.usable_for_sigmoid_fit_list[self.current_scan]:
+            # if (True):
                 self.prepare_scan_data()
                 raise SigmoidFitError()
             else:
@@ -910,6 +920,7 @@ class Controller():
                 self.create_complete_sigmoid_graph()
         except:
             self.usable_for_kappa_cal_list[self.current_scan] = False
+            self.usable_for_sigmoid_fit_list[self.current_scan] = False
             self.b_list.append(0)
             self.d_list.append(0)
             self.c_list.append(0)
@@ -968,7 +979,7 @@ class Controller():
         Make complete graph of the dry diameter after optimization and sigmodal fit
         """
         try:
-            if not self.min_pos_CCNC_list[self.current_scan] or not self.min_pos_SMPS_list[self.current_scan]:
+            if not self.usable_for_sigmoid_fit_list[self.current_scan]:
                 self.create_ccn_cn_ratio_over_diameter_graph(new_figure)
                 return
             if new_figure is None:
@@ -990,7 +1001,7 @@ class Controller():
             plt.gca().axes.set_ylim([-0.1, yLim])
             plt.plot(self.diameter_midpoint_list, self.ccn_normalized_list, linewidth=4, color='#43A047',
                      label="dN/dLogDp")
-            if self.usable_for_kappa_cal_list[self.current_scan]:
+            if self.usable_for_kappa_cal_list[self.current_scan] and self.usable_for_sigmoid_fit_list[self.current_scan]:
                 plt.plot(self.particle_diameter_list, self.ccn_cn_sim_list, linewidth=5, color='#EF5350',
                          label="Sigmodal Fit")
             plt.plot(self.particle_diameter_list, self.ccn_cn_ratio_list, 'o', color="#2196F3", mew=0.5,
@@ -1026,7 +1037,7 @@ class Controller():
         tempSMPSPeakList = []
         tempCCNPeakCList = []
         for i in range(len(self.min_pos_CCNC_list)):
-            if self.min_pos_CCNC_list[i] and self.min_pos_SMPS_list[i]:
+            if self.min_pos_CCNC_list[i] and self.min_pos_SMPS_list[i] and self.usable_for_sigmoid_fit_list[i]:
                 tempSMPSPeakList.append(self.min_pos_SMPS_list[i])
                 tempCCNPeakCList.append(self.min_pos_CCNC_list[i])
             else:
@@ -1116,7 +1127,7 @@ class Controller():
         firstAKappa = 0
         scCalcs = False
         for i in range(len(self.dp50_list)):
-            if not self.usable_for_kappa_cal_list[i]:
+            if not self.usable_for_kappa_cal_list[i] or not self.usable_for_sigmoid_fit_list[i]:
                 continue
             ss = float(self.dp50_list[i][1])
             dp50 = float(self.dp50_list[i][0])
@@ -1295,7 +1306,7 @@ class Controller():
         plt.grid(True, which='both', color="0.85")
         plt.xlabel("Dry diameter(nm)")
         plt.ylabel("Super Saturation(%)")
-        figure.canvas.mpl_connect('pick_event', self.on_kappa_pick)
+        # figure.canvas.mpl_connect('pick_event', self.on_kappa_pick)
         i = 2
         kappa = 1
         step = 0.1
@@ -1395,14 +1406,16 @@ class Controller():
                 normalized_concentration_list.append(self.normalized_concentration_list[i][self.current_scan + 1])
             self.ccn_normalized_list = normalize_list(normalized_concentration_list)
             self.usable_for_kappa_cal_list[self.current_scan] = True
+            self.usable_for_sigmoid_fit_list[self.current_scan] = True
         except:
             self.min_pos_CCNC_list[self.current_scan] = None
             self.min_pos_SMPS_list[self.current_scan] = None
+            self.usable_for_sigmoid_fit_list[self.current_scan] = False
             self.usable_for_kappa_cal_list[self.current_scan] = False
 
     def shift_data_by_one_second(self, forward=True):
         try:
-            if not self.usable_for_kappa_cal_list[self.current_scan] or self.min_pos_SMPS_list[
+            if not self.usable_for_kappa_cal_list[self.current_scan] or not self.usable_for_sigmoid_fit_list[self.current_scan] or self.min_pos_SMPS_list[
                 self.current_scan] is None or \
                             self.min_pos_CCNC_list[self.current_scan] is None:
                 return
@@ -1444,14 +1457,23 @@ class Controller():
         except:
             self.view.show_error_dialog("Can't shift processed_data. You should disable this peak!")
 
-    def invalidate_scan(self):
-        if not self.finish_sigmoid_fit_phase:
-            self.min_pos_SMPS_list[self.current_scan] = None
-            self.min_pos_CCNC_list[self.current_scan] = None
-            self.usable_for_kappa_cal_list[self.current_scan] = False
+    def change_scan_status(self):
+        if self.finish_sigmoid_fit_phase is False:
+            if self.usable_for_sigmoid_fit_list[self.current_scan] is True:
+                self.usable_for_sigmoid_fit_list[self.current_scan] = False
+            elif self.min_pos_CCNC_list[self.current_scan] and self.min_pos_CCNC_list[self.current_scan]:
+                self.usable_for_sigmoid_fit_list[self.current_scan] = True
+            else:
+                self.view.show_error_dialog("You can't enable this scan! This scan is not usable!")
+            self.update_view()
         else:
-            self.usable_for_kappa_cal_list[self.current_scan] = False
-        self.update_view()
+            if self.usable_for_sigmoid_fit_list[self.current_scan] is True and self.usable_for_kappa_cal_list[self.current_scan]:
+                self.usable_for_sigmoid_fit_list[self.current_scan] = False
+            elif self.min_pos_CCNC_list[self.current_scan] and self.min_pos_CCNC_list[self.current_scan] and self.usable_for_kappa_cal_list[self.current_scan]:
+                self.usable_for_sigmoid_fit_list[self.current_scan] = True
+            else:
+                self.view.show_error_dialog("You can't enable this scan! This scan is not usable!")
+            self.update_view()
 
     def switch_to_scan(self, scan):
         """
@@ -1489,7 +1511,6 @@ class Controller():
             self.current_point.set_ydata(numpy.asarray(self.min_pos_CCNC_list)[self.current_scan])
             self.view.update_temp_and_min_figure(self.min_compare_graph)
             self.view.update_scan_information_after_sigmoid_fit()
-
         else:
             self.temperature_graph = self.temperature_graph_list[self.current_scan]
             self.super_saturation_rate = self.super_saturation_list[self.current_scan]

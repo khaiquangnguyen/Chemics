@@ -28,8 +28,8 @@ class InnerTableItem(QWidget):
         self.fieldText = FieldText(field)
         self.infoText = InfoText(message, color)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.addWidget(self.fieldText, 0, 0, 1, 7)
-        self.layout.addWidget(self.infoText, 0, 7, 1, 3)
+        self.layout.addWidget(self.fieldText, 0, 0, 1, 6)
+        self.layout.addWidget(self.infoText, 0, 7, 1, 4)
         self.setLayout(self.layout)
 
         self.setAutoFillBackground(True)
@@ -83,14 +83,14 @@ class TableHeader(QWidget):
         self.setPalette(palette)
 
         font = QFont()
-        size = max(10, self.height() * 1/4)
+        size = max(10, self.height() * 2/9)
         font.setPointSize(size)
         self.setFont(font)
 
     def resizeEvent(self,event):
         font = self.font()
         font.setStyleStrategy(QFont.PreferAntialias or QFont.PreferQuality)
-        size = max(10, self.height() * 1/4)
+        size = max(10, self.height() * 2/9)
         font.setPointSize(size)
         self.setFont(font)
 

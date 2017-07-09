@@ -15,7 +15,7 @@ from KappaVarConfirmDialog import *
 
 class ScanInformationWidget(QWidget):
     def __init__(self, main_window=None):
-        super(self.__class__,self).__init__(main_window)
+        super(self.__class__, self).__init__(main_window)
         self.layout = QVBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
@@ -30,7 +30,7 @@ class ScanInformationWidget(QWidget):
 
 
 class ScanInformationTable(QTableWidget):
-    def __init__(self, main_window = None):
+    def __init__(self, main_window=None):
         QTableWidget.__init__(self)
         self.setColumnCount(1)
         self.setRowCount(0)
@@ -67,12 +67,12 @@ class ScanInformationTable(QTableWidget):
     def update_scan_information(self):
         if self.rowCount() > 6:
             for i in range(self.rowCount() - 6):
-                self.removeRow(self.rowCount()-1)
+                self.removeRow(self.rowCount() - 1)
         header = TableHeader("Scan Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         current_scan = self.main_window.controller.current_scan
-        if self.main_window.controller.min_pos_CCNC_list[current_scan] and self.main_window.controller.min_pos_CCNC_list[current_scan]:
+        if self.main_window.controller.usable_for_sigmoid_fit_list[current_scan]:
             self.add_message("Usability for Sigmoid Fit", "Positive")
         else:
             self.add_message("Usability for Sigmoid Fit", "Negative", color='#EF5350')
@@ -89,7 +89,7 @@ class ScanInformationTable(QTableWidget):
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         current_scan = self.main_window.controller.current_scan
-        if self.main_window.controller.min_pos_CCNC_list[current_scan] and self.main_window.controller.min_pos_CCNC_list[current_scan]:
+        if self.main_window.controller.usable_for_sigmoid_fit_list[current_scan]:
             self.add_message("Usability for Sigmoid Fit", "Positive")
         else:
             self.add_message("Usability for Sigmoid Fit", "Negative", color='#EF5350')
@@ -99,10 +99,11 @@ class ScanInformationTable(QTableWidget):
         header = TableHeader("Sigmoid Fit Parameters")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
-        if self.main_window.controller.usable_for_kappa_cal_list[current_scan]:
-            self.add_message("Usability for Calculating Kappa", "Positive")
+        if self.main_window.controller.usable_for_kappa_cal_list[current_scan] and \
+                self.main_window.controller.usable_for_sigmoid_fit_list[current_scan]:
+            self.add_message("Usability for Kappa", "Positive")
         else:
-            self.add_message("Usability for Calculating Kappa", "Negative", color='#EF5350')
+            self.add_message("Usability for Kappa", "Negative", color='#EF5350')
         self.add_message('minDp', self.main_window.controller.min_dp)
         self.add_message('minDpAsym', self.main_window.controller.min_dp_asym)
         self.add_message('maxDpAsym', self.main_window.controller.max_dp_asym)
@@ -118,7 +119,7 @@ class ScanInformationTable(QTableWidget):
         message = str(message)
         item = TableItem(field, message, color)
         self.insertRow(self.rowCount())
-        self.setCellWidget(self.rowCount()-1,0,item)
+        self.setCellWidget(self.rowCount() - 1, 0, item)
 
 
 class ScanGraphsWidget(QWidget):
@@ -150,19 +151,19 @@ class ButtonsWidget(QWidget):
         QWidget.__init__(self)
         self.layout = QGridLayout()
         self.layout.setVerticalSpacing(10)
-        self.layout.setHorizontalSpacing(5)
+        self.layout.setHorizontalSpacing(10)
         self.layout.setContentsMargins(0, 10, 60, 10)
 
-        self.previous_scan_button = CustomButton("Previous Run", main_window)
-        self.next_scan_button = CustomButton("Next Run", main_window)
-        self.invalid_scan_button = CustomButton("Disable Scan", main_window, 1)
-        self.update_sigmoid_fit_parameters = CustomButton("Update Sig Pars", main_window, 1)
+        self.previous_scan_button = CustomButton("Prev Scan", main_window)
+        self.next_scan_button = CustomButton("Next Scan", main_window)
+        self.change_scan_status_button = CustomButton("Disable Scan", main_window, 1)
+        self.update_sigmoid_fit_parameters = CustomButton("Manual Fit", main_window, 1)
         self.sigmoid_fit_button = CustomButton("Fit Sigmoid", main_window, 1)
         self.calc_kappa_button = CustomButton("Calculate Kappa", main_window, 1)
         self.move_backward_one_second_button = CustomButton("-1 second", main_window)
         self.move_forward_one_second_button = CustomButton("+1 second", main_window)
 
-        self.invalid_scan_button.clicked.connect(self.on_click_disable_scan)
+        self.change_scan_status_button.clicked.connect(self.on_click_change_scan_status)
         self.update_sigmoid_fit_parameters.clicked.connect(self.on_click_update_sigmoid_fit_parameters)
         self.previous_scan_button.clicked.connect(self.on_click_previous_scan)
         self.next_scan_button.clicked.connect(self.on_click_next_scan)
@@ -170,26 +171,34 @@ class ButtonsWidget(QWidget):
         self.calc_kappa_button.clicked.connect(self.on_click_calculate_kappa)
         self.move_backward_one_second_button.clicked.connect(self.on_click_back_one_second)
         self.move_forward_one_second_button.clicked.connect(self.on_click_forward_one_second)
-
-        self.layout.setColumnStretch(0,0)
-        self.layout.addWidget(self.invalid_scan_button, 2, 1, 3, 1, alignment = 2)
-        self.layout.addWidget(self.update_sigmoid_fit_parameters, 2, 2, 3, 1, alignment = 1)
-        self.layout.addWidget(self.previous_scan_button, 4, 3, 4, 1)
-        self.layout.addWidget(self.next_scan_button, 4, 4, 4, 1)
+        self.layout.addWidget(self.change_scan_status_button, 2, 2, 3, 1)
+        self.layout.addWidget(self.previous_scan_button, 4, 3, 3, 1)
+        self.layout.addWidget(self.next_scan_button, 4, 4, 3, 1)
         self.layout.addWidget(self.move_forward_one_second_button, 0, 3, 3, 1)
         self.layout.addWidget(self.move_backward_one_second_button, 0, 4, 3, 1)
-        self.layout.addWidget(self.sigmoid_fit_button, 2, 5, 3, 1, alignment = 2)
-        self.layout.addWidget(self.calc_kappa_button, 2, 6, 3, 1, alignment = 0)
-        self.layout.addWidget(QWidget(),2,7,3,1)
+        self.layout.addWidget(self.sigmoid_fit_button, 2, 5, 3, 1)
 
-        for i in range(self.layout.columnCount()):
-            self.layout.setColumnStretch(i,1)
-            self.layout.setColumnMinimumWidth(i,self.width() / 8)
         for i in range(self.layout.rowCount()):
-            self.layout.setRowStretch(i, 1)
-            self.layout.setRowMinimumHeight(i,self.height()/7)
-        self.setLayout(self.layout)
+            self.layout.setRowStretch(i, 0)
+            self.layout.setRowMinimumHeight(i, self.height() / 7)
+        self.layout.setColumnStretch(0, 1)
+        self.layout.setColumnStretch(1, 0)
+        self.layout.setColumnStretch(2, 0)
+        self.layout.setColumnStretch(3, 0)
+        self.layout.setColumnStretch(4, 0)
+        self.layout.setColumnStretch(5, 0)
+        self.layout.setColumnStretch(6, 0)
+        self.layout.setColumnStretch(7, 1)
+        self.layout.setColumnMinimumWidth(0, self.width() / 8)
+        self.layout.setColumnMinimumWidth(1, self.width() / 8)
+        self.layout.setColumnMinimumWidth(2, self.width() / 8)
+        self.layout.setColumnMinimumWidth(3, self.width() / 8)
+        self.layout.setColumnMinimumWidth(4, self.width() / 8)
+        self.layout.setColumnMinimumWidth(5, self.width() / 8)
+        self.layout.setColumnMinimumWidth(6, self.width() / 8)
+        self.layout.setColumnMinimumWidth(7, self.width() / 8)
 
+        self.setLayout(self.layout)
         self.setAutoFillBackground(True)
         palette = QPalette()
         palette.setColor(QPalette.Background, settings.controlAreaBackgroundColor)
@@ -200,20 +209,20 @@ class ButtonsWidget(QWidget):
         self.setFixedWidth(parent_width)
         self.next_scan_button.resize(self.width(), self.height())
         self.previous_scan_button.resize(self.width(), self.height())
-        self.invalid_scan_button.resize(self.width(), self.height())
+        self.change_scan_status_button.resize(self.width(), self.height())
         self.sigmoid_fit_button.resize(self.width(), self.height())
         self.update_sigmoid_fit_parameters.resize(self.width(), self.height())
         self.calc_kappa_button.resize(self.width(), self.height())
         self.move_backward_one_second_button.resize(self.width(), self.height())
         self.move_forward_one_second_button.resize(self.width(), self.height())
 
-    def on_click_disable_scan(self):
-        self.main_window.controller.invalidate_scan()
+    def on_click_change_scan_status(self):
+        self.main_window.controller.change_scan_status()
 
     def on_click_update_sigmoid_fit_parameters(self):
         updateDialog = InputForm(self.main_window)
         if updateDialog.exec_() == QDialog.Accepted:
-            (a,b,c) = updateDialog.getData()
+            (a, b, c) = updateDialog.getData()
             self.main_window.controller.refitting_sigmoid_line(a, b, c)
 
     def on_click_back_one_second(self):
@@ -233,10 +242,16 @@ class ButtonsWidget(QWidget):
 
     def on_click_fit_sigmoid_line(self):
         self.main_window.controller.correct_charges_and_fit_sigmoid_all_scans()
+        if self.main_window.controller.finish_sigmoid_fit_phase:
+            self.sigmoid_fit_button.hide()
+            self.layout.addWidget(self.update_sigmoid_fit_parameters, 2, 1, 3, 1)
+            self.layout.addWidget(self.calc_kappa_button, 2, 5, 3, 1)
 
     def on_click_calculate_kappa(self):
         controller = self.main_window.controller
-        kappaVars = (controller.sigma, controller.temp, controller.dd, controller.iKappa, controller.dd2, controller.iKappa2,controller.solubility)
+        kappaVars = (
+            controller.sigma, controller.temp, controller.dd, controller.iKappa, controller.dd2, controller.iKappa2,
+            controller.solubility)
         sig = kappaVars[0]
         temp = kappaVars[1]
         dd1 = kappaVars[2]
@@ -246,7 +261,7 @@ class ButtonsWidget(QWidget):
         solu = kappaVars[6]
         confirmVarDialog = KappaVarConfirmDialog(sig, temp, dd1, iKappa1, dd2, iKappa2, solu, self.main_window)
         if confirmVarDialog.exec_() == QDialog.Accepted:
-            (sig,temp,dd1,iKappa1,dd2,iKappa2,solu) = confirmVarDialog.getData()
+            (sig, temp, dd1, iKappa1, dd2, iKappa2, solu) = confirmVarDialog.getData()
             self.main_window.update_kappa_values(sig, temp, dd1, iKappa1, dd2, iKappa2, solu)
             self.main_window.calculate_kappa_value()
 
@@ -302,5 +317,3 @@ class SquareFigureCanvas(FigureCanvas):
         h = self.height()
         self.setFixedHeight(h / 2)
         self.setFixedHeight(h)
-
-
