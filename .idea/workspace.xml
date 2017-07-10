@@ -7,6 +7,7 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/FastDpCalculator.c" afterPath="$PROJECT_DIR$/FastDpCalculator.c" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/FastDpCalculator.html" afterPath="$PROJECT_DIR$/FastDpCalculator.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/FastDpCalculator.pyx" afterPath="$PROJECT_DIR$/FastDpCalculator.pyx" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/setup.py" afterPath="$PROJECT_DIR$/setup.py" />
     </list>
     <ignored path="Chemics.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -20,7 +21,7 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/Chemics$testFunction.coverage" NAME="testFunction Coverage Results" MODIFIED="1465934603876" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Chemics$Chemics.coverage" NAME="Chemics Coverage Results" MODIFIED="1499707641572" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chemics$Chemics.coverage" NAME="Chemics Coverage Results" MODIFIED="1499713788622" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chemics$GUI.coverage" NAME="GUI Coverage Results" MODIFIED="1467044667222" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Chemics$test.coverage" NAME="test Coverage Results" MODIFIED="1465372719716" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
@@ -45,33 +46,33 @@
       <file leaf-file-name="Chemics.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Chemics.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="430">
-              <caret line="901" column="44" lean-forward="false" selection-start-line="901" selection-start-column="0" selection-end-line="902" selection-end-column="0" />
+            <state relative-caret-position="449">
+              <caret line="1473" column="76" lean-forward="true" selection-start-line="1473" selection-start-column="76" selection-end-line="1473" selection-end-column="76" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
-                <element signature="e#4502#4730#0" expanded="false" />
-                <element signature="e#4768#7795#0" expanded="false" />
-                <element signature="e#7849#8879#0" expanded="false" />
-                <element signature="e#8934#16666#0" expanded="false" />
-                <element signature="e#16712#20598#0" expanded="false" />
-                <element signature="e#20654#23110#0" expanded="false" />
-                <element signature="e#23211#25087#0" expanded="false" />
-                <element signature="e#26890#28718#0" expanded="false" />
-                <element signature="e#28917#29166#0" expanded="false" />
-                <element signature="e#29207#34043#0" expanded="false" />
-                <element signature="e#37221#38646#0" expanded="false" />
-                <element signature="e#38768#41149#0" expanded="false" />
-                <element signature="e#48434#51222#0" expanded="false" />
-                <element signature="e#51262#51436#0" expanded="false" />
-                <element signature="e#51760#52173#0" expanded="false" />
-                <element signature="e#52220#58021#0" expanded="false" />
-                <element signature="e#58065#62816#0" expanded="false" />
-                <element signature="e#62862#63482#0" expanded="false" />
-                <element signature="e#69198#70370#0" expanded="false" />
-                <element signature="e#70416#70494#1" expanded="false" />
-                <element signature="e#71123#73287#0" expanded="false" />
-                <element signature="e#73724#73759#0" expanded="false" />
-                <marker date="1499707627400" expanded="true" signature="25143:26662" ph="..." />
+                <element signature="e#4503#4731#0" expanded="false" />
+                <element signature="e#4769#7796#0" expanded="false" />
+                <element signature="e#7850#8880#0" expanded="false" />
+                <element signature="e#8935#16667#0" expanded="false" />
+                <element signature="e#16713#20599#0" expanded="false" />
+                <element signature="e#20655#23111#0" expanded="false" />
+                <element signature="e#23212#25088#0" expanded="false" />
+                <element signature="e#26891#28719#0" expanded="false" />
+                <element signature="e#28918#29167#0" expanded="false" />
+                <element signature="e#29208#34044#0" expanded="false" />
+                <element signature="e#37222#38647#0" expanded="false" />
+                <element signature="e#38769#41150#0" expanded="false" />
+                <element signature="e#48957#51745#0" expanded="false" />
+                <element signature="e#51785#51959#0" expanded="false" />
+                <element signature="e#52283#52696#0" expanded="false" />
+                <element signature="e#52743#58544#0" expanded="false" />
+                <element signature="e#58588#63339#0" expanded="false" />
+                <element signature="e#63385#64005#0" expanded="false" />
+                <element signature="e#69721#70893#0" expanded="false" />
+                <element signature="e#70939#71017#1" expanded="false" />
+                <element signature="e#71646#73810#0" expanded="false" />
+                <element signature="e#74247#74282#0" expanded="false" />
+                <marker date="1499713664247" expanded="true" signature="25144:26663" ph="..." />
               </folding>
             </state>
           </provider>
@@ -122,22 +123,19 @@
       <file leaf-file-name="FastDpCalculator.pyx" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/FastDpCalculator.pyx">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="581">
-              <caret line="45" column="43" lean-forward="true" selection-start-line="45" selection-start-column="43" selection-end-line="45" selection-end-column="43" />
+            <state relative-caret-position="1043">
+              <caret line="162" column="37" lean-forward="false" selection-start-line="162" selection-start-column="37" selection-end-line="162" selection-end-column="37" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GUI.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/GUI.py">
+      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
+        <entry file="file://C:/Python27/Lib/site-packages/numpy/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="189" column="0" lean-forward="false" selection-start-line="189" selection-start-column="0" selection-end-line="189" selection-end-column="0" />
-              <folding>
-                <element signature="e#90#100#0" expanded="true" />
-                <element signature="e#8181#8428#0" expanded="false" />
-              </folding>
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -168,8 +166,8 @@
       <file leaf-file-name="setup.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/setup.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="6" column="0" lean-forward="true" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+            <state relative-caret-position="396">
+              <caret line="12" column="12" lean-forward="false" selection-start-line="12" selection-start-column="12" selection-end-line="12" selection-end-column="12" />
               <folding>
                 <element signature="e#143#171#0" expanded="true" />
               </folding>
@@ -188,13 +186,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>def switch_to_scan</find>
-      <find>def update_view</find>
-      <find>draw_com</find>
-      <find>prepare_scan</find>
-      <find>def prepare</find>
-      <find>self.ccn_fixed</find>
-      <find>def prepare_scan</find>
       <find>self.ccnc_sig_list.app</find>
       <find>draw_complete</find>
       <find>self.ccn_cn_sim</find>
@@ -214,10 +205,17 @@
       <find>correct_charges(</find>
       <find>correct_charges(self</find>
       <find>calculate_fra</find>
-      <find>**</find>
       <find>self.ccn_cn_sim_list</find>
       <find>self.ccnc_sig_list_list</find>
+      <find>**</find>
       <find>self.ccnc_sig_list</find>
+      <find>numpy.asarray</find>
+      <find>numpy.asarray(self.</find>
+      <find>cal_cc</find>
+      <find>ccn_list</find>
+      <find>newList</find>
+      <find>shift</find>
+      <find>charge_</find>
     </findStrings>
     <replaceStrings>
       <replace>preprocess_data</replace>
@@ -268,8 +266,8 @@
         <option value="$PROJECT_DIR$/test.py" />
         <option value="$PROJECT_DIR$/test.pyx" />
         <option value="$PROJECT_DIR$/../FastDpCalculator.pyx" />
-        <option value="$PROJECT_DIR$/setup.py" />
         <option value="$PROJECT_DIR$/vfastexp.h" />
+        <option value="$PROJECT_DIR$/setup.py" />
         <option value="$PROJECT_DIR$/FastDpCalculator.pyx" />
         <option value="$PROJECT_DIR$/Chemics.py" />
       </list>
@@ -1039,9 +1037,9 @@
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3284625" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32844242" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3281148" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3281148" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20382883" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16634052" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16634052" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995495" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="-1792" y="40" width="1713" height="878" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -1120,11 +1118,6 @@
           </properties>
           <option name="timeStamp" value="689" />
         </breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Chemics.py</url>
-          <line>946</line>
-          <option name="timeStamp" value="843" />
-        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
@@ -1147,16 +1140,17 @@
           <properties />
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="851" />
+      <option name="time" value="860" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
-        <watch expression="self.ccnc_sig_list_list" language="Python" />
+        <watch expression="self.ccn_list" language="Python" />
+        <watch expression="self.ccn_fixed_list" language="Python" />
+        <watch expression="self.cn_fixed_list" language="Python" />
       </configuration>
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://C:/Python27/Lib/site-packages/scipy/optimize/_lsq/common.py" />
     <entry file="file://C:/Python27/Lib/site-packages/matplotlib/cbook.py" />
     <entry file="file://C:/Python27/Lib/site-packages/pandas/types/dtypes.py" />
     <entry file="file://C:/Python27/Lib/site-packages/pandas/types/generic.py" />
@@ -1348,16 +1342,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/setup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="6" column="0" lean-forward="true" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
-          <folding>
-            <element signature="e#143#171#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/OldFunctions.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-3707">
@@ -1376,43 +1360,61 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/setup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="396">
+          <caret line="12" column="12" lean-forward="false" selection-start-line="12" selection-start-column="12" selection-end-line="12" selection-end-column="12" />
+          <folding>
+            <element signature="e#143#171#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python27/Lib/site-packages/numpy/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/FastDpCalculator.pyx">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="581">
-          <caret line="45" column="43" lean-forward="true" selection-start-line="45" selection-start-column="43" selection-end-line="45" selection-end-column="43" />
+        <state relative-caret-position="1043">
+          <caret line="162" column="37" lean-forward="false" selection-start-line="162" selection-start-column="37" selection-end-line="162" selection-end-column="37" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Chemics.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="430">
-          <caret line="901" column="44" lean-forward="false" selection-start-line="901" selection-start-column="0" selection-end-line="902" selection-end-column="0" />
+        <state relative-caret-position="449">
+          <caret line="1473" column="76" lean-forward="true" selection-start-line="1473" selection-start-column="76" selection-end-line="1473" selection-end-column="76" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
-            <element signature="e#4502#4730#0" expanded="false" />
-            <element signature="e#4768#7795#0" expanded="false" />
-            <element signature="e#7849#8879#0" expanded="false" />
-            <element signature="e#8934#16666#0" expanded="false" />
-            <element signature="e#16712#20598#0" expanded="false" />
-            <element signature="e#20654#23110#0" expanded="false" />
-            <element signature="e#23211#25087#0" expanded="false" />
-            <element signature="e#26890#28718#0" expanded="false" />
-            <element signature="e#28917#29166#0" expanded="false" />
-            <element signature="e#29207#34043#0" expanded="false" />
-            <element signature="e#37221#38646#0" expanded="false" />
-            <element signature="e#38768#41149#0" expanded="false" />
-            <element signature="e#48434#51222#0" expanded="false" />
-            <element signature="e#51262#51436#0" expanded="false" />
-            <element signature="e#51760#52173#0" expanded="false" />
-            <element signature="e#52220#58021#0" expanded="false" />
-            <element signature="e#58065#62816#0" expanded="false" />
-            <element signature="e#62862#63482#0" expanded="false" />
-            <element signature="e#69198#70370#0" expanded="false" />
-            <element signature="e#70416#70494#1" expanded="false" />
-            <element signature="e#71123#73287#0" expanded="false" />
-            <element signature="e#73724#73759#0" expanded="false" />
-            <marker date="1499707627400" expanded="true" signature="25143:26662" ph="..." />
+            <element signature="e#4503#4731#0" expanded="false" />
+            <element signature="e#4769#7796#0" expanded="false" />
+            <element signature="e#7850#8880#0" expanded="false" />
+            <element signature="e#8935#16667#0" expanded="false" />
+            <element signature="e#16713#20599#0" expanded="false" />
+            <element signature="e#20655#23111#0" expanded="false" />
+            <element signature="e#23212#25088#0" expanded="false" />
+            <element signature="e#26891#28719#0" expanded="false" />
+            <element signature="e#28918#29167#0" expanded="false" />
+            <element signature="e#29208#34044#0" expanded="false" />
+            <element signature="e#37222#38647#0" expanded="false" />
+            <element signature="e#38769#41150#0" expanded="false" />
+            <element signature="e#48957#51745#0" expanded="false" />
+            <element signature="e#51785#51959#0" expanded="false" />
+            <element signature="e#52283#52696#0" expanded="false" />
+            <element signature="e#52743#58544#0" expanded="false" />
+            <element signature="e#58588#63339#0" expanded="false" />
+            <element signature="e#63385#64005#0" expanded="false" />
+            <element signature="e#69721#70893#0" expanded="false" />
+            <element signature="e#70939#71017#1" expanded="false" />
+            <element signature="e#71646#73810#0" expanded="false" />
+            <element signature="e#74247#74282#0" expanded="false" />
+            <marker date="1499713664247" expanded="true" signature="25144:26663" ph="..." />
           </folding>
         </state>
       </provider>

@@ -24,6 +24,7 @@ import FastDpCalculator
 
 matplotlib.style.use('ggplot')
 
+
 class Controller():
     def __init__(self, mode=True):
         """"
@@ -898,11 +899,20 @@ class Controller():
                 self.prepare_scan_data()
                 remove_small_ccn(self.ccn_list, self.min_ccn)
                 self.init_correct_charges()
+                start = timer()
+                self.particle_diameter_list = numpy.asarray(self.particle_diameter_list)
+                self.cn_list = numpy.asarray(self.cn_list)
+                self.ccn_list = numpy.asarray(self.ccn_list)
+                self.cn_fixed_list = numpy.asarray(self.cn_fixed_list)
+                self.ccn_fixed_list = numpy.asarray(self.ccn_fixed_list)
+                self.g_cn_list = numpy.asarray(self.g_cn_list)
+                self.g_ccn_list = numpy.asarray(self.g_ccn_list)
                 for i in range(5):
-                    # self.correct_charges()
-                    self.particle_diameter_list, self.cn_list, self.ccn_list, self.cn_fixed_list, self.ccn_fixed_list, self.g_cn_list, self.g_ccn_list = FastDpCalculator.correct_charges(
-                    self.particle_diameter_list, self.cn_list, self.ccn_list, self.cn_fixed_list, self.ccn_fixed_list,
-                    self.g_cn_list, self.g_ccn_list)
+                    self.particle_diameter_list, self.cn_list, self.ccn_list, self.cn_fixed_list, \
+                    self.ccn_fixed_list, self.g_cn_list, self.g_ccn_list = FastDpCalculator.correct_charges(
+                        self.particle_diameter_list, self.cn_list, self.ccn_list, self.cn_fixed_list,
+                        self.ccn_fixed_list,
+                        self.g_cn_list, self.g_ccn_list)
                 for i in range(len(self.ccn_fixed_list)):
                     self.ccnc_sig_list.append(self.ccn_fixed_list[i] / self.cn_fixed_list[i])
                 self.ccnc_sig_list_list.append(self.ccnc_sig_list)
@@ -995,7 +1005,6 @@ class Controller():
         else:
             yLim = min(2, max(self.ccnc_sig_list)) + 0.2
             self.sigmoid_fit_ax.axes.set_ylim([-0.1, yLim])
-
             self.normalized_concentration_points.set_xdata(self.diameter_midpoint_list)
             self.normalized_concentration_points.set_ydata(self.ccn_normalized_list)
             self.ccn_cn_ratio_points.set_xdata(self.particle_diameter_list)
@@ -1009,7 +1018,7 @@ class Controller():
                     self.sigmoid_line.set_ydata(self.ccn_cn_sim_list)
                 else:
                     self.sigmoid_line, = self.sigmoid_fit_ax.plot(self.particle_diameter_list, self.ccn_cn_sim_list,
-                                                                  linewidth=5,color='#EF5350', label="Sigmodal Fit")
+                                                                  linewidth=5, color='#EF5350', label="Sigmodal Fit")
             else:
                 if self.sigmoid_line:
                     self.sigmoid_line.set_xdata([])
@@ -1611,6 +1620,7 @@ def main():
     controller.files = files
     controller.run()
     view.show_ui()
+
 
 if __name__ == '__main__':
     main()

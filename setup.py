@@ -10,6 +10,7 @@ from setuptools import setup
 from setuptools import Extension
 from Cython.Build import cythonize
 from Cython.Distutils import build_ext
+import numpy
 
 
 ext_modules=[ Extension("FastDpCalculator",
@@ -19,4 +20,6 @@ ext_modules=[ Extension("FastDpCalculator",
 setup(
   name = "FastDpCalculator",
   cmdclass = {"build_ext": build_ext},
-  ext_modules = ext_modules)
+  ext_modules = ext_modules,
+  include_dirs = [numpy.get_include()]
+)
