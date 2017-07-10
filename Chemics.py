@@ -21,8 +21,8 @@ import gc
 from timeit import default_timer as timer
 from HelperFunctions import *
 import FastDpCalculator
-matplotlib.style.use('ggplot')
 
+matplotlib.style.use('ggplot')
 
 class Controller():
     def __init__(self, mode=True):
@@ -53,8 +53,9 @@ class Controller():
         self.normalized_concentration_points = None
         self.ccn_cn_points = None
 
-
         self.min_compare_graph = None
+
+        self.ccnc_sig_list_list = []
 
         self.view = None
         self.files = None
@@ -362,7 +363,8 @@ class Controller():
                 # Update the lists
                 self.super_saturation_list.append(super_saturation)
 
-                # If reach the end of smps, collect the rest of ccnc count so that we can use them latter for scan alignment
+                # If reach the end of smps, collect the rest of ccnc count
+                # so that we can use them latter for scan alignment
                 timeGap = 0
                 if i == len(startTime) - 1:
                     timeGap = (datetime.strptime(ccnc_data[-1][0], "%H:%M:%S") - timeStamp).seconds
@@ -516,10 +518,10 @@ class Controller():
                     self.min_pos_CCNC_list[i] = None
                     self.min_pos_SMPS_list[i] = None
                     self.usable_for_sigmoid_fit_list[i] = False
+            print self.usable_for_sigmoid_fit_list
             self.move_progress_bar_forward(complete=True)
             self.current_scan = -1
             self.view.update_experiment_information()
-            self.draw_all_scans_alignment_summary_graph()
             self.switch_to_scan(0)
         except FileNotFoundError:
             self.view.show_error_dialog("Fail to find SMPS or CCNC data in files: " + str(self.files))
@@ -651,11 +653,6 @@ class Controller():
         self.g_cn_list = self.cn_fixed_list[:]
 
     def correct_charges(self):
-        """
-        Correct the charges.
-        :return:
-        """
-        # TODO: find more information about the correct charges method
         try:
             start = timer()
             asymp = 99999
@@ -679,7 +676,6 @@ class Controller():
             frac3List = calculate_fraction(self.particle_diameter_list, 3)
             chargeList = []
 
-            # TODO: the slow factor
             for i in self.particle_diameter_list:
                 aDList = [0]
                 for k in range(1, 4):
@@ -687,7 +683,6 @@ class Controller():
                     dp = 10 ** 9 * FastDpCalculator.find_dp(i * 10 ** -9 / c, lambdaAir, k)
                     aDList.append(dp)
                 chargeList.append(aDList)
-
             # second part of correct charges
             self.cn_fixed_list = self.cn_list[:]
             self.ccn_fixed_list = self.ccn_list[:]
@@ -724,8 +719,8 @@ class Controller():
                         if upperBinBound > chargeList[n][3] >= lowerBinBound:
                             self.cn_fixed_list[j] = self.cn_fixed_list[j] + moveTripletCounts
                             if chargeList[n][3] < asymp:
-                                self.ccn_fixed_list[j] = self.ccn_fixed_list[j] + moveTripletCounts * self.ccn_list[j] / \
-                                                                                  self.cn_list[j]
+                                self.ccn_fixed_list[j] = self.ccn_fixed_list[j] + moveTripletCounts * \
+                                                                                  self.ccn_list[j] / self.cn_list[j]
                             else:
                                 self.ccn_fixed_list[j] = self.ccn_fixed_list[j] + moveTripletCounts
                             break
@@ -737,6 +732,7 @@ class Controller():
             self.g_ccn_list = self.ccn_fixed_list[:]
             self.g_cn_list = self.cn_fixed_list[:]
             self.usable_for_kappa_cal_list[self.current_scan] = True
+
         except:
             raise ScanDataError()
 
@@ -805,13 +801,6 @@ class Controller():
                     asymsList.append(0)
             # Calcualte constants
             self.b = get_ave_none_zero(asymsList)
-            self.ccn_cn_sim_list.append(0)
-            for i in range(1, len(self.particle_diameter_list)):
-                if self.min_dp < self.particle_diameter_list[i] < self.max_dp:
-                    n = self.b / (1 + (self.particle_diameter_list[i] / self.d) ** self.c)
-                    self.ccn_cn_sim_list.append(n)
-                else:
-                    self.ccn_cn_sim_list.append(self.ccn_cn_sim_list[i - 1])
             self.usable_for_kappa_cal_list[self.current_scan] = True
         except:
             raise ScanDataError()
@@ -845,13 +834,6 @@ class Controller():
                 if self.particle_diameter_list[i] > (self.d + 20):
                     self.dp50_plus_20 = self.drop_size_list[i - 1]
                     break
-
-            for i in range(1, len(self.particle_diameter_list)):
-                if self.min_dp < self.particle_diameter_list[i] < self.max_dp:
-                    n = self.b / (1 + (self.particle_diameter_list[i] / self.d) ** self.c)
-                    self.ccn_cn_sim_list.append(n)
-                else:
-                    self.ccn_cn_sim_list.append(self.ccn_cn_sim_list[i - 1])
             self.usable_for_kappa_cal_list[self.current_scan] = True
         except:
             raise SigmoidFitError()
@@ -872,12 +854,13 @@ class Controller():
             self.init_correct_charges()
             for i in range(5):
                 self.correct_charges()
+
             for i in range(len(self.ccn_fixed_list)):
                 self.ccnc_sig_list.append(self.ccn_fixed_list[i] / self.cn_fixed_list[i])
+            self.ccnc_sig_list_list[self.current_scan] = self.ccnc_sig_list
             self.move_progress_bar_forward()
             self.get_parameters_for_sigmoid_fit(min_dry_diameter, min_dry_diameter_asymptote,
                                                 max_dry_diameter_asymptote)
-            self.move_progress_bar_forward()
             self.fit_sigmoid_line()
             self.move_progress_bar_forward()
             self.min_dp_list[self.current_scan] = self.min_dp
@@ -916,9 +899,13 @@ class Controller():
                 remove_small_ccn(self.ccn_list, self.min_ccn)
                 self.init_correct_charges()
                 for i in range(5):
-                    self.correct_charges()
+                    # self.correct_charges()
+                    self.particle_diameter_list, self.cn_list, self.ccn_list, self.cn_fixed_list, self.ccn_fixed_list, self.g_cn_list, self.g_ccn_list = FastDpCalculator.correct_charges(
+                    self.particle_diameter_list, self.cn_list, self.ccn_list, self.cn_fixed_list, self.ccn_fixed_list,
+                    self.g_cn_list, self.g_ccn_list)
                 for i in range(len(self.ccn_fixed_list)):
                     self.ccnc_sig_list.append(self.ccn_fixed_list[i] / self.cn_fixed_list[i])
+                self.ccnc_sig_list_list.append(self.ccnc_sig_list)
                 self.get_parameters_for_sigmoid_fit()
                 self.fit_sigmoid_line()
         except:
@@ -988,12 +975,14 @@ class Controller():
             ax.axes.set_ylim([-0.1, yLim])
             self.normalized_concentration_points, = plt.plot(self.diameter_midpoint_list, self.ccn_normalized_list,
                                                              linewidth=4, color='#43A047', label="dN/dLogDp")
-            self.ccn_cn_ratio_points, = ax.plot(self.particle_diameter_list, self.ccn_cn_ratio_list, 'o', color="#2196F3",
-                                           mew=0.5, mec="#1976D2", ms=9, label="CCN/CN")
+            self.ccn_cn_ratio_points, = ax.plot(self.particle_diameter_list, self.ccn_cn_ratio_list, 'o',
+                                                color="#2196F3",
+                                                mew=0.5, mec="#1976D2", ms=9, label="CCN/CN")
             self.ccn_cn_ratio_corrected_points, = ax.plot(self.particle_diameter_list, self.ccnc_sig_list, 'o',
-                                                    color="#1565C0", mew=0.5, mec="#0D47A1",
-                                                    ms=9, label="CCN/CN (Corrected)")
-            if self.usable_for_kappa_cal_list[self.current_scan] and self.usable_for_sigmoid_fit_list[self.current_scan]:
+                                                          color="#1565C0", mew=0.5, mec="#0D47A1",
+                                                          ms=9, label="CCN/CN (Corrected)")
+            if self.usable_for_kappa_cal_list[self.current_scan] and \
+                    self.usable_for_sigmoid_fit_list[self.current_scan]:
                 self.sigmoid_line, = ax.plot(self.particle_diameter_list, self.ccn_cn_sim_list, linewidth=5,
                                              color='#EF5350', label="Sigmodal Fit")
             ax.set_xlabel("Dry diameter(nm)")
@@ -1006,21 +995,25 @@ class Controller():
         else:
             yLim = min(2, max(self.ccnc_sig_list)) + 0.2
             self.sigmoid_fit_ax.axes.set_ylim([-0.1, yLim])
+
+            self.normalized_concentration_points.set_xdata(self.diameter_midpoint_list)
+            self.normalized_concentration_points.set_ydata(self.ccn_normalized_list)
             self.ccn_cn_ratio_points.set_xdata(self.particle_diameter_list)
             self.ccn_cn_ratio_points.set_ydata(self.ccn_cn_ratio_list)
             self.ccn_cn_ratio_corrected_points.set_xdata(self.particle_diameter_list)
             self.ccn_cn_ratio_corrected_points.set_ydata(self.ccnc_sig_list)
-            if self.usable_for_kappa_cal_list[self.current_scan] and self.usable_for_sigmoid_fit_list[self.current_scan]:
+            if self.usable_for_kappa_cal_list[self.current_scan] and \
+                    self.usable_for_sigmoid_fit_list[self.current_scan]:
                 if self.sigmoid_line is not None:
                     self.sigmoid_line.set_xdata(self.particle_diameter_list)
                     self.sigmoid_line.set_ydata(self.ccn_cn_sim_list)
                 else:
-                    self.sigmoid_line, = self.sigmoid_fit_ax.plot([], [], linewidth=5,
-                                                 color='#EF5350', label="Sigmodal Fit")
-
+                    self.sigmoid_line, = self.sigmoid_fit_ax.plot(self.particle_diameter_list, self.ccn_cn_sim_list,
+                                                                  linewidth=5,color='#EF5350', label="Sigmodal Fit")
             else:
-                self.sigmoid_line.set_xdata([])
-                self.sigmoid_line.set_ydata([])
+                if self.sigmoid_line:
+                    self.sigmoid_line.set_xdata([])
+                    self.sigmoid_line.set_ydata([])
 
         self.view.update_alignment_and_sigmoid_fit_figures(None, self.sigmoid_fit_graph)
 
@@ -1079,6 +1072,8 @@ class Controller():
         else:
             plt.close(self.min_compare_graph)
             self.min_compare_graph = plt.gcf()
+        self.current_point.set_xdata(numpy.asarray(self.min_pos_SMPS_list)[self.current_scan])
+        self.current_point.set_ydata(numpy.asarray(self.min_pos_CCNC_list)[self.current_scan])
 
     def on_pick(self, event):
         """
@@ -1410,8 +1405,33 @@ class Controller():
                 self.diameter_midpoint_list.append(self.normalized_concentration_list[i][0])
                 normalized_concentration_list.append(self.normalized_concentration_list[i][self.current_scan + 1])
             self.ccn_normalized_list = normalize_list(normalized_concentration_list)
-            self.usable_for_kappa_cal_list[self.current_scan] = True
-            self.usable_for_sigmoid_fit_list[self.current_scan] = True
+            self.super_saturation_rate = self.super_saturation_list[self.current_scan]
+            if self.finish_sigmoid_fit_phase:
+                self.ccnc_sig_list = self.ccnc_sig_list_list[self.current_scan]
+                self.b = self.b_list[self.current_scan]
+                self.d = self.d_list[self.current_scan]
+                self.c = self.c_list[self.current_scan]
+                self.min_dp_asym = self.min_dp_asym_list[self.current_scan]
+                self.min_dp = self.min_dp_list[self.current_scan]
+                self.max_dp_asym = self.max_dp_asym_list[self.current_scan]
+                self.super_saturation_rate = self.dp50_list[self.current_scan][1]
+                self.dp50 = self.dp50_list[self.current_scan][0]
+                self.dp50_wet = self.dp50_wet_list[self.current_scan]
+                self.dp50_plus_20 = self.dp50_plus_20_list[self.current_scan]
+                self.dp50_less_count = 0
+                self.dp50_more_count = 0
+                for i in self.particle_diameter_list:
+                    if i >= self.dp50:
+                        self.dp50_more_count += 1
+                    else:
+                        self.dp50_less_count += 1
+                self.ccn_cn_sim_list = [0]
+                for i in range(1, len(self.particle_diameter_list)):
+                    if self.min_dp < self.particle_diameter_list[i] < self.max_dp:
+                        n = self.b / (1 + (self.particle_diameter_list[i] / self.d) ** self.c)
+                        self.ccn_cn_sim_list.append(n)
+                    else:
+                        self.ccn_cn_sim_list.append(self.ccn_cn_sim_list[i - 1])
         except:
             self.min_pos_CCNC_list[self.current_scan] = None
             self.min_pos_SMPS_list[self.current_scan] = None
@@ -1464,8 +1484,8 @@ class Controller():
                 self.view.show_error_dialog("You can't enable this scan! This scan is not usable!")
             self.update_view()
         else:
-            if self.usable_for_sigmoid_fit_list[self.current_scan] is True and self.usable_for_kappa_cal_list[
-                self.current_scan]:
+            if self.usable_for_sigmoid_fit_list[self.current_scan] is True and \
+                    self.usable_for_kappa_cal_list[self.current_scan]:
                 self.usable_for_sigmoid_fit_list[self.current_scan] = False
             elif self.min_pos_CCNC_list[self.current_scan] and self.min_pos_CCNC_list[self.current_scan] and \
                     self.usable_for_kappa_cal_list[self.current_scan]:
@@ -1486,32 +1506,12 @@ class Controller():
     def update_view(self):
         self.prepare_scan_data()
         self.draw_concentration_over_scan_time_graph()
-        self.draw_ccn_cn_ratio_over_diameter_graph()
         if self.finish_sigmoid_fit_phase:
-            self.b = self.b_list[self.current_scan]
-            self.d = self.d_list[self.current_scan]
-            self.c = self.c_list[self.current_scan]
-            self.min_dp_asym = self.min_dp_asym_list[self.current_scan]
-            self.min_dp = self.min_dp_list[self.current_scan]
-            self.max_dp_asym = self.max_dp_asym_list[self.current_scan]
-            self.super_saturation_rate = self.dp50_list[self.current_scan][1]
-            self.dp50 = self.dp50_list[self.current_scan][0]
-            self.dp50_wet = self.dp50_wet_list[self.current_scan]
-            self.dp50_plus_20 = self.dp50_plus_20_list[self.current_scan]
-            self.dp50_less_count = 0
-            self.dp50_more_count = 0
-            for i in self.particle_diameter_list:
-                if i >= self.dp50:
-                    self.dp50_more_count += 1
-                else:
-                    self.dp50_less_count += 1
-            self.current_point.set_xdata(numpy.asarray(self.min_pos_SMPS_list)[self.current_scan])
-            self.current_point.set_ydata(numpy.asarray(self.min_pos_CCNC_list)[self.current_scan])
             self.draw_complete_sigmoid_graph()
-            self.draw_all_scans_alignment_summary_graph()
+            # self.draw_all_scans_alignment_summary_graph()
             self.view.update_scan_information_after_sigmoid_fit()
         else:
-            self.super_saturation_rate = self.super_saturation_list[self.current_scan]
+            self.draw_ccn_cn_ratio_over_diameter_graph()
             self.draw_temperature_graph()
             self.view.update_scan_information()
 
@@ -1611,7 +1611,6 @@ def main():
     controller.files = files
     controller.run()
     view.show_ui()
-
 
 if __name__ == '__main__':
     main()
