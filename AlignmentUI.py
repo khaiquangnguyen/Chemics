@@ -62,6 +62,7 @@ class ScanInformationTable(QTableWidget):
         self.add_message("Experiment Start Time", self.main_window.controller.scan_start_time_list[0])
         self.add_message("Time per scan (s)", self.main_window.controller.scan_duration)
         self.add_message("Total number of scan", self.main_window.controller.number_of_scan)
+        # TODO: Change to flow rate (liter/min (lpm))
         self.add_message("Concentration Rate", self.main_window.controller.concentration)
 
     def update_scan_information(self):
@@ -77,6 +78,7 @@ class ScanInformationTable(QTableWidget):
         else:
             self.add_message("Usability for Sigmoid Fit", "Negative", color='#EF5350')
         self.add_message("Scan #", current_scan + 1)
+        # TODO: Saturation percentage
         self.add_message("Saturation Rate", self.main_window.controller.super_saturation_rate)
 
     def update_scan_information_after_sigmoid_fit(self):
@@ -104,6 +106,7 @@ class ScanInformationTable(QTableWidget):
             self.add_message("Usability for Kappa", "Positive")
         else:
             self.add_message("Usability for Kappa", "Negative", color='#EF5350')
+        #     TODO: all units are nm
         self.add_message('minDp', self.main_window.controller.min_dp)
         self.add_message('minDpAsym', self.main_window.controller.min_dp_asym)
         self.add_message('maxDpAsym', self.main_window.controller.max_dp_asym)

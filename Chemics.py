@@ -151,6 +151,10 @@ class Controller():
         self.scan_position_in_data = []
         self.usable_for_kappa_cal_list = []
         self.clone = None
+        self.all_scans_alignment_graph = None
+        self.all_scans_alignment_ax = None
+        self.all_scans_alignment_bars = []
+        self.all_scans_alignment_visited = []
 
     ##############################################
     #
@@ -596,6 +600,7 @@ class Controller():
             legend = ax.legend(handles, labels, loc="upper left", bbox_to_anchor=(0, 0.9))
             legend.get_frame().set_facecolor('#9E9E9E')
             ax.set_xlabel("Scan time(s)")
+            # TODO: cm^(-3) instead of cm3
             ax.set_ylabel("Concentration(cm3)")
             self.concentration_over_scan_time_axis = ax
             self.concentration_over_scan_time_graph = figure
@@ -627,6 +632,7 @@ class Controller():
             legend = ax.legend(handles, labels, loc="upper right", bbox_to_anchor=(1, 0.9))
             legend.get_frame().set_facecolor('#9E9E9E')
             ax.set_xlabel("Diameter (nm)")
+            # TODO: CCNC/ SMPS
             ax.set_ylabel("CCN/CN")
             self.ccn_cn_ratio_ax = ax
             self.ccn_cn_ratio_graph = figure
@@ -652,90 +658,6 @@ class Controller():
         self.ccn_fixed_list = self.ccn_list[:]
         self.g_ccn_list = self.ccn_fixed_list[:]
         self.g_cn_list = self.cn_fixed_list[:]
-
-    def correct_charges(self):
-        try:
-            start = timer()
-            asymp = 99999
-            newList = []
-            epsilon = 0.0000000001
-            e = scipy.constants.e
-            e0 = scipy.constants.epsilon_0
-            k = scipy.constants.k
-            t = scipy.constants.zero_Celsius + 25
-            z = 0.875
-            p = 1013
-            nair = 0.000001458 * t ** 1.5 / (t + 110.4)
-            lambdaAir = 2 * nair / 100 / p / (8 * 28.84 / pi / 8.314 / t) ** 0.5 * 1000 ** 0.5
-            coeficientList = [[-0.0003, -0.1014, 0.3073, -0.3372, 0.1023, -0.0105],
-                              [-2.3484, 0.6044, 0.48, 0.0013, -0.1553, 0.032],
-                              [-44.4756, 79.3772, -62.89, 26.4492, -5.748, 0.5049]]
-
-            # frac0List = calculate_fraction(self.diameterList,0,coeficientList[0])
-            frac1List = calculate_fraction(self.particle_diameter_list, 1, coeficientList[1])
-            frac2List = calculate_fraction(self.particle_diameter_list, 2, coeficientList[2])
-            frac3List = calculate_fraction(self.particle_diameter_list, 3)
-            chargeList = []
-
-            for i in self.particle_diameter_list:
-                aDList = [0]
-                for k in range(1, 4):
-                    c = cal_cc(i * 10 ** -9, lambdaAir)
-                    dp = 10 ** 9 * FastDpCalculator.find_dp(i * 10 ** -9 / c, lambdaAir, k)
-                    aDList.append(dp)
-                chargeList.append(aDList)
-            # second part of correct charges
-            self.cn_fixed_list = self.cn_list[:]
-            self.ccn_fixed_list = self.ccn_list[:]
-            maxUpperBinBound = (self.particle_diameter_list[-1] + self.particle_diameter_list[-2]) / 2
-            lenDpList = len(self.particle_diameter_list)
-            for i in range(lenDpList):
-                n = lenDpList - i - 1
-                moveDoubletCounts = frac2List[n] / (frac1List[n] + frac2List[n] + frac3List[n]) * self.cn_list[n]
-                moveTripletCounts = frac3List[n] / (frac1List[n] + frac2List[n] + frac3List[n]) * self.cn_list[n]
-                self.cn_fixed_list[n] = self.cn_fixed_list[n] - moveDoubletCounts - moveTripletCounts
-                self.ccn_fixed_list[n] = self.ccn_fixed_list[n] - moveDoubletCounts - moveTripletCounts
-                if chargeList[n][2] <= maxUpperBinBound:
-                    j = lenDpList - 2
-                    while (True):
-                        upperBinBound = (self.particle_diameter_list[j] + self.particle_diameter_list[j + 1]) / 2
-                        lowerBinBound = (self.particle_diameter_list[j] + self.particle_diameter_list[j - 1]) / 2
-                        if upperBinBound > chargeList[n][2] >= lowerBinBound:
-                            self.cn_fixed_list[j] = self.cn_fixed_list[j] + moveDoubletCounts
-                            if chargeList[n][2] < asymp:
-                                if self.g_ccn_list[j] > epsilon:
-                                    self.ccn_fixed_list[j] = self.ccn_fixed_list[j] + moveDoubletCounts * \
-                                                                                      self.g_ccn_list[j] / \
-                                                                                      self.g_cn_list[j]
-                            else:
-                                self.ccn_fixed_list[j] = self.ccn_fixed_list[j] + moveDoubletCounts
-                            break
-                        j -= 1
-
-                if chargeList[n][3] < maxUpperBinBound:
-                    j = lenDpList - 2
-                    while (True):
-                        upperBinBound = (self.particle_diameter_list[j] + self.particle_diameter_list[j + 1]) / 2
-                        lowerBinBound = (self.particle_diameter_list[j] + self.particle_diameter_list[j - 1]) / 2
-                        if upperBinBound > chargeList[n][3] >= lowerBinBound:
-                            self.cn_fixed_list[j] = self.cn_fixed_list[j] + moveTripletCounts
-                            if chargeList[n][3] < asymp:
-                                self.ccn_fixed_list[j] = self.ccn_fixed_list[j] + moveTripletCounts * \
-                                                                                  self.ccn_list[j] / self.cn_list[j]
-                            else:
-                                self.ccn_fixed_list[j] = self.ccn_fixed_list[j] + moveTripletCounts
-                            break
-                        j -= 1
-            for i in range(len(self.ccn_fixed_list)):
-                if self.ccn_fixed_list[i] / self.cn_fixed_list[i] < -0.01:
-                    self.ccn_fixed_list[i] = 0
-
-            self.g_ccn_list = self.ccn_fixed_list[:]
-            self.g_cn_list = self.cn_fixed_list[:]
-            self.usable_for_kappa_cal_list[self.current_scan] = True
-
-        except:
-            raise ScanDataError()
 
     def get_parameters_for_sigmoid_fit(self, min_dp=None, min_dp_asym=None, max_dp_asym=None):
         try:
@@ -807,9 +729,7 @@ class Controller():
             raise ScanDataError()
 
     def fit_sigmoid_line(self):
-        """
-        fit the sigmoid line to the the data points.
-        """
+        # TODO: show why some runs fail
         try:
             xList = []
             yList = []
@@ -840,30 +760,33 @@ class Controller():
             raise SigmoidFitError()
 
     def refitting_sigmoid_line(self, min_dry_diameter, min_dry_diameter_asymptote, max_dry_diameter_asymptote):
-        if not self.finish_sigmoid_fit_phase:
-            return
-        self.move_progress_bar_forward("Updating sigmoid line fitting of current scan..." + str(self.current_scan + 1),
-                                       max_value=6)
-        self.usable_for_kappa_cal_list[self.current_scan] = True
-        self.usable_for_sigmoid_fit_list[self.current_scan] = True
-        self.ccnc_sig_list = []
+        self.move_progress_bar_forward("Refitting sigmoid line to scan #" + str(self.current_scan + 1),
+                                       max_value=2)
         try:
+            if not self.usable_for_sigmoid_fit_list[self.current_scan]:
+                self.view.show_error_dialog("The current scan is not enable for sigmoidal fit!")
             self.prepare_scan_data()
-            self.move_progress_bar_forward()
-            remove_small_ccn(self.ccn_list, self.min_ccn)
-            self.move_progress_bar_forward()
-            self.init_correct_charges()
-            for i in range(5):
-                self.correct_charges()
-
-            for i in range(len(self.ccn_fixed_list)):
-                self.ccnc_sig_list.append(self.ccn_fixed_list[i] / self.cn_fixed_list[i])
-            self.ccnc_sig_list_list[self.current_scan] = self.ccnc_sig_list
             self.move_progress_bar_forward()
             self.get_parameters_for_sigmoid_fit(min_dry_diameter, min_dry_diameter_asymptote,
                                                 max_dry_diameter_asymptote)
             self.fit_sigmoid_line()
             self.move_progress_bar_forward()
+        except:
+            self.usable_for_kappa_cal_list[self.current_scan] = False
+            self.usable_for_sigmoid_fit_list[self.current_scan] = False
+            self.b_list[self.current_scan] = 0
+            self.d_list[self.current_scan] = 0
+            self.c_list[self.current_scan] = 0
+            self.dp50_list[self.current_scan] = (0, 0)
+            self.dp50_wet_list[self.current_scan] = 0
+            self.dp50_plus_20_list[self.current_scan] = 0
+            self.min_dp_list[self.current_scan] = 0
+            self.min_dp_asym_list[self.current_scan] = 0
+            self.max_dp_asym_list[self.current_scan] = 0
+            self.update_view()
+            self.move_progress_bar_forward(complete=True)
+        else:
+            self.usable_for_kappa_cal_list[self.current_scan] = True
             self.min_dp_list[self.current_scan] = self.min_dp
             self.min_dp_asym_list[self.current_scan] = self.min_dp_asym
             self.max_dp_asym_list[self.current_scan] = self.max_dp_asym
@@ -871,18 +794,8 @@ class Controller():
             self.d_list[self.current_scan] = self.d
             self.c_list[self.current_scan] = self.c
             self.dp50_list[self.current_scan] = (self.d, self.super_saturation_list[self.current_scan])
-            self.update_view()
-            self.move_progress_bar_forward(complete=True)
-        except:
-            self.usable_for_kappa_cal_list[self.current_scan] = False
-            self.usable_for_sigmoid_fit_list[self.current_scan] = False
-            self.min_dp_list[self.current_scan] = 0
-            self.min_dp_asym_list[self.current_scan] = 0
-            self.max_dp_asym_list[self.current_scan] = 0
-            self.b_list[self.current_scan] = 0
-            self.d_list[self.current_scan] = 0
-            self.c_list[self.current_scan] = 0
-            self.dp50_list[self.current_scan] = (0, 0)
+            self.dp50_wet_list[self.current_scan] = self.dp50_wet
+            self.dp50_plus_20_list[self.current_scan] = self.dp50_plus_20
             self.update_view()
             self.move_progress_bar_forward(complete=True)
 
@@ -915,7 +828,6 @@ class Controller():
                         self.g_cn_list, self.g_ccn_list)
                 for i in range(len(self.ccn_fixed_list)):
                     self.ccnc_sig_list.append(self.ccn_fixed_list[i] / self.cn_fixed_list[i])
-                self.ccnc_sig_list_list.append(self.ccnc_sig_list)
                 self.get_parameters_for_sigmoid_fit()
                 self.fit_sigmoid_line()
         except:
@@ -930,17 +842,21 @@ class Controller():
             self.min_dp_list.append(0)
             self.min_dp_asym_list.append(0)
             self.max_dp_asym_list.append(0)
+            self.ccnc_sig_list_list.append(None)
         else:
             # Store processed_data
+            self.usable_for_kappa_cal_list[self.current_scan] = True
+            self.usable_for_sigmoid_fit_list[self.current_scan] = True
             self.min_dp_list.append(self.min_dp)
             self.min_dp_asym_list.append(self.min_dp_asym)
             self.max_dp_asym_list.append(self.max_dp_asym)
             self.b_list.append(self.b)
             self.d_list.append(self.d)
             self.c_list.append(self.c)
+            self.dp50_list.append((self.d, self.super_saturation_list[self.current_scan]))
             self.dp50_wet_list.append(self.dp50_wet)
             self.dp50_plus_20_list.append(self.dp50_plus_20)
-            self.dp50_list.append((self.d, self.super_saturation_list[self.current_scan]))
+            self.ccnc_sig_list_list.append(self.ccnc_sig_list)
 
     def correct_charges_and_fit_sigmoid_all_scans(self):
         """
@@ -969,7 +885,6 @@ class Controller():
         """
         Make complete graph of the dry diameter after optimization and sigmodal fit
         """
-
         if self.sigmoid_fit_ax is None:
             figure, ax = plt.subplots(facecolor=settings.graphBackgroundColor)
             ax.axes.set_frame_on(False)
@@ -1027,70 +942,64 @@ class Controller():
         self.view.update_alignment_and_sigmoid_fit_figures(None, self.sigmoid_fit_graph)
 
     def draw_all_scans_alignment_summary_graph(self):
-        """
-        A graph of peak alignment, and also allow interaction to select peak to process
-        """
-        # Prepare the figure
-        figure = plt.figure(facecolor=settings.graphBackgroundColor)
-        plt.axes(frameon=False)
-        plt.grid(color='0.5')
-        plt.axhline(0, color='0.6', linewidth=4)
-        plt.axvline(0, color='0.6', linewidth=4)
-        plt.gca().tick_params(axis='x', color='1', which='both', labelcolor="0.6")
-        plt.gca().tick_params(axis='y', color='1', which='both', labelcolor="0.6")
-        plt.gca().yaxis.label.set_color('0.6')
-        plt.gca().xaxis.label.set_color('0.6')
-        figure.canvas.mpl_connect('pick_event', self.on_pick)
-        tempSMPSPeakList = []
-        tempCCNPeakCList = []
-        for i in range(len(self.min_pos_CCNC_list)):
-            if self.min_pos_CCNC_list[i] and self.min_pos_SMPS_list[i] and self.usable_for_sigmoid_fit_list[i]:
-                tempSMPSPeakList.append(self.min_pos_SMPS_list[i])
-                tempCCNPeakCList.append(self.min_pos_CCNC_list[i])
-            else:
-                # Make up for the null values
-                if len(tempSMPSPeakList) > 0:
-                    tempSMPSPeakList.append(tempSMPSPeakList[-1] + self.scan_duration)
-                    tempCCNPeakCList.append(tempCCNPeakCList[-1] + self.scan_duration)
+        if self.all_scans_alignment_ax is None:
+            for i in range(self.number_of_scan):
+                self.all_scans_alignment_visited.append(False)
+
+            figure, ax = plt.subplots(facecolor=settings.graphBackgroundColor)
+            ax.axes.set_frame_on(False)
+            ax.grid(False)
+            ax.axhline(0, color='0.6', linewidth=4)
+            ax.axvline(0, color='0.6', linewidth=4)
+            index = numpy.arange(1, self.number_of_scan + 1)
+            ax.set_xticks(index)
+            ax.set_xticklabels(index, color="1", size="large")
+            ax.set_yticks(range(0, max(self.shift_factor_list)))
+            ax.set_yticklabels(range(0, max(self.shift_factor_list)), color="1", size="large")
+            ax.yaxis.label.set_color('0.6')
+            ax.xaxis.label.set_color('0.6')
+            figure.canvas.mpl_connect('pick_event', self.on_pick)
+            ax.set_xlabel("Scan #")
+            ax.set_ylabel("CCNC Shift Amount")
+            handles, labels = ax.get_legend_handles_labels()
+            legend = ax.legend(handles, labels, loc="upper right", bbox_to_anchor=(1, 0.7))
+            legend.get_frame().set_facecolor('#9E9E9E')
+            self.all_scans_alignment_bars = ax.bar(range(1, self.number_of_scan + 1), self.shift_factor_list,
+                                                   color="#43A047", picker=True, align='center')
+            for i in range(len(self.usable_for_sigmoid_fit_list)):
+                if not self.usable_for_sigmoid_fit_list[i]:
+                    self.all_scans_alignment_bars[i].set_facecolor('#EF5350')
+            self.all_scans_alignment_visited[self.current_scan] = True
+            print self.all_scans_alignment_visited
+            for i in range(len(self.all_scans_alignment_visited)):
+                if self.all_scans_alignment_visited[i]:
+                    self.all_scans_alignment_bars[i].set_alpha(1)
                 else:
-                    tempSMPSPeakList.append(10)
-                    tempCCNPeakCList.append(10)
-
-        x = numpy.asarray(tempSMPSPeakList)
-        y = numpy.asarray(tempCCNPeakCList)
-
-        result = scipy.stats.linregress(x, y)
-        slope = result[0]
-        yIntercept = result[1]
-
-        # Recalculate the position of the smps
-        plt.plot(x, x * slope + yIntercept, linewidth=4, color='#43A047', label="Regression line")
-        plt.plot(x, y, "o", ms=10, color="#43A047", picker=5, mew=0, label="Minimum")
-        slope = ('{0:.4f}'.format(slope))
-        yIntercept = ('{0:.4f}'.format(yIntercept))
-        textToShow = str(slope) + "* x" + " + " + str(yIntercept)
-        self.current_point, = plt.plot(x[0], y[0], 'o', color="#81C784", ms=12, mew=0)
-        plt.xlabel("SMPS minumum point")
-        plt.ylabel("CCNC minimum point")
-        handles, labels = plt.gca().get_legend_handles_labels()
-        legend = plt.legend(handles, labels, loc="upper right", bbox_to_anchor=(1, 0.7))
-        legend.get_frame().set_facecolor('#9E9E9E')
-
-        if not self.min_compare_graph:
-            self.min_compare_graph = plt.gcf()
+                    self.all_scans_alignment_bars[i].set_alpha(0.3)
+            self.all_scans_alignment_bars[self.current_scan].set_facecolor('#50ef5d')
+            self.all_scans_alignment_graph = figure
+            self.all_scans_alignment_ax = ax
         else:
-            plt.close(self.min_compare_graph)
-            self.min_compare_graph = plt.gcf()
-        self.current_point.set_xdata(numpy.asarray(self.min_pos_SMPS_list)[self.current_scan])
-        self.current_point.set_ydata(numpy.asarray(self.min_pos_CCNC_list)[self.current_scan])
+            for i in range(len(self.usable_for_sigmoid_fit_list)):
+                if not self.usable_for_sigmoid_fit_list[i]:
+                    self.all_scans_alignment_bars[i].set_facecolor('#EF5350')
+                else:
+                    self.all_scans_alignment_bars[i].set_facecolor('#43A047')
+            self.all_scans_alignment_visited[self.current_scan] = True
+            for i in range(len(self.all_scans_alignment_visited)):
+                if self.all_scans_alignment_visited[i]:
+                    self.all_scans_alignment_bars[i].set_alpha(1)
+                else:
+                    self.all_scans_alignment_bars[i].set_alpha(0.2)
+            self.all_scans_alignment_bars[self.current_scan].set_facecolor('#50ef5d')
+
+        self.view.update_temp_and_min_figure(self.all_scans_alignment_graph)
 
     def on_pick(self, event):
-        """
-        When aParam dot on the graph is selected
-        """
-        peak = event.ind[0]
-        if peak != self.current_scan:
-            self.switch_to_scan(peak)
+        for i in range(len(self.all_scans_alignment_bars)):
+            if event.artist == self.all_scans_alignment_bars[i]:
+                if i != self.current_scan:
+                    self.switch_to_scan(i)
 
     ##############################################
     #
@@ -1122,6 +1031,9 @@ class Controller():
         """
         Calculate the kappa values - producing both raw processed_data kappa and graph processed_data kappa
         """
+        # TODO: Show values when click on kappa points/ or use some other methods to select kappa points
+        # TODO: export the kappa data to excel
+
         for i in range(len(self.dp50_list)):
             self.usable_for_kappa_cal_list.append(True)
         self.move_progress_bar_forward("Calculating Kappa...", max_value=len(self.dp50_list) + 3)
@@ -1245,6 +1157,7 @@ class Controller():
         self.move_progress_bar_forward(complete=True)
 
     def create_kappa_graph(self):
+        # TODO: write the title  for the graph
         """
         Produce the kappa graph, may be in full or only around the points
         """
@@ -1516,8 +1429,11 @@ class Controller():
         self.prepare_scan_data()
         self.draw_concentration_over_scan_time_graph()
         if self.finish_sigmoid_fit_phase:
-            self.draw_complete_sigmoid_graph()
-            # self.draw_all_scans_alignment_summary_graph()
+            if self.usable_for_sigmoid_fit_list[self.current_scan]:
+                self.draw_complete_sigmoid_graph()
+            else:
+                self.draw_ccn_cn_ratio_over_diameter_graph()
+            self.draw_all_scans_alignment_summary_graph()
             self.view.update_scan_information_after_sigmoid_fit()
         else:
             self.draw_ccn_cn_ratio_over_diameter_graph()

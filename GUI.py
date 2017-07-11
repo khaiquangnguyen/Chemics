@@ -62,6 +62,7 @@ class View(QMainWindow):
         select_button.setStatusTip('Select the files which contains the processed_data files')
         select_button.triggered.connect(self.select_files)
         file_button.addAction(select_button)
+        # TODO: Fix feedback button
         feedback_button = QAction('&Feedback', self)
         feedback_button.triggered.connect(self.submit_feedback)
         navigation_bar.addAction(feedback_button)
