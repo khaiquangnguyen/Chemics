@@ -82,7 +82,7 @@ class Controller():
         self.cancelling_progress_bar = False
         self.usable_for_sigmoid_fit_list = []
 
-        self.concentration = 0.3
+        self.flow_rate = 0.3
         self.ccn_list = None
         self.cn_list = None
         self.ccn_fixed_list = None
@@ -164,11 +164,11 @@ class Controller():
 
     def get_concentration(self):
         """
-        The concentration of particles in the flow.
+        The flow_rate of particles in the flow.
         In the original Post-Processing Spreadsheet, this is called CountsToConcConv
         :return:
         """
-        self.concentration = self.view.get_concentration()
+        self.flow_rate = self.view.get_concentration()
 
     def get_raw_data(self):
         """
@@ -229,8 +229,8 @@ class Controller():
 
     def get_normalized_concentration(self):
         """
-        Get the normalized concentration data. This information is taken directly from the SMPS (.txt) file
-        Normalized concentration is also called dN/dLogDp, which is the notation we use for the graph.
+        Get the normalized flow_rate data. This information is taken directly from the SMPS (.txt) file
+        Normalized flow_rate is also called dN/dLogDp, which is the notation we use for the graph.
         For better understanding, you can read the following document.
         http://www.tsi.com/uploadedFiles/Product_Information/Literature/Application_Notes/PR-001-RevA_Aerosol-Statistics-AppNote.pdf
         :return:
@@ -506,7 +506,7 @@ class Controller():
             self.get_concentration()
             self.move_progress_bar_forward("Processing SMPS and CCNC files...")
             self.get_raw_data()
-            self.move_progress_bar_forward("Acquiring normalized concentration...")
+            self.move_progress_bar_forward("Acquiring normalized flow_rate...")
             self.get_normalized_concentration()
             self.move_progress_bar_forward("Acquiring SMPS count and CCNC count...")
             self.get_smps_count_and_ccnc_count()
@@ -600,8 +600,7 @@ class Controller():
             legend = ax.legend(handles, labels, loc="upper left", bbox_to_anchor=(0, 0.9))
             legend.get_frame().set_facecolor('#9E9E9E')
             ax.set_xlabel("Scan time(s)")
-            # TODO: cm^(-3) instead of cm3
-            ax.set_ylabel("Concentration(cm3)")
+            ax.set_ylabel("Concentration (1/cm3)")
             self.concentration_over_scan_time_axis = ax
             self.concentration_over_scan_time_graph = figure
         else:
@@ -632,8 +631,7 @@ class Controller():
             legend = ax.legend(handles, labels, loc="upper right", bbox_to_anchor=(1, 0.9))
             legend.get_frame().set_facecolor('#9E9E9E')
             ax.set_xlabel("Diameter (nm)")
-            # TODO: CCNC/ SMPS
-            ax.set_ylabel("CCN/CN")
+            ax.set_ylabel("CCNC/SMPS")
             self.ccn_cn_ratio_ax = ax
             self.ccn_cn_ratio_graph = figure
         else:
@@ -902,16 +900,16 @@ class Controller():
                                                              linewidth=4, color='#43A047', label="dN/dLogDp")
             self.ccn_cn_ratio_points, = ax.plot(self.particle_diameter_list, self.ccn_cn_ratio_list, 'o',
                                                 color="#2196F3",
-                                                mew=0.5, mec="#1976D2", ms=9, label="CCN/CN")
+                                                mew=0.5, mec="#1976D2", ms=9, label="CCNC/SMPS")
             self.ccn_cn_ratio_corrected_points, = ax.plot(self.particle_diameter_list, self.ccnc_sig_list, 'o',
                                                           color="#1565C0", mew=0.5, mec="#0D47A1",
-                                                          ms=9, label="CCN/CN (Corrected)")
+                                                          ms=9, label="CCNC/SMPS (Corrected)")
             if self.usable_for_kappa_cal_list[self.current_scan] and \
                     self.usable_for_sigmoid_fit_list[self.current_scan]:
                 self.sigmoid_line, = ax.plot(self.particle_diameter_list, self.ccn_cn_sim_list, linewidth=5,
                                              color='#EF5350', label="Sigmodal Fit")
             ax.set_xlabel("Dry diameter(nm)")
-            ax.set_ylabel("CCN/CN ratio and Normalized dN/dLogDp")
+            ax.set_ylabel("CCNC/SMPS ratio and dN/dLogDp")
             handles, labels = ax.get_legend_handles_labels()
             legend = ax.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.7, 1.1))
             legend.get_frame().set_facecolor('#9E9E9E')
@@ -1317,7 +1315,7 @@ class Controller():
             self.temp1 = list(self.processed_data[startPoint:endPoint]['T1'])
             self.temp2 = list(self.processed_data[startPoint:endPoint]['T2'])
             self.temp3 = list(self.processed_data[startPoint:endPoint]['T3'])
-            self.cn_list = [x * 0.2 for x in self.cn_list]
+            self.cn_list = [x * 1/(self.flow_rate*1000/60) for x in self.cn_list]
             self.diameter_midpoint_list = []
             self.ccn_cn_ratio_list = []
             for i in range(len(self.ccn_list)):
@@ -1454,7 +1452,7 @@ class Controller():
         self.current_point = None
         self.finish_sigmoid_fit_phase = False
         self.cancelling_progress_bar = False
-        self.concentration = 0.3
+        self.flow_rate = 0.3
         self.ccn_list = None
         self.cn_list = None
         self.ccn_fixed_list = None

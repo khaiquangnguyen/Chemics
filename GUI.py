@@ -1,4 +1,3 @@
-
 ###############################
 #
 # IMPORT STATEMENTS
@@ -18,10 +17,10 @@ from AlignmentUI import *
 from KappaUI import *
 import webbrowser
 import urllib2
-matplotlib.use('Qt4Agg')
-matplotlib.rcParams['backend.qt4']='PySide'
-qt_app = QApplication(sys.argv)
 
+matplotlib.use('Qt4Agg')
+matplotlib.rcParams['backend.qt4'] = 'PySide'
+qt_app = QApplication(sys.argv)
 
 ###############################
 #
@@ -32,6 +31,7 @@ qt_app = QApplication(sys.argv)
 width = 0
 height = 0
 VERSION = 101
+
 
 ###############################
 #
@@ -62,11 +62,10 @@ class View(QMainWindow):
         select_button.setStatusTip('Select the files which contains the processed_data files')
         select_button.triggered.connect(self.select_files)
         file_button.addAction(select_button)
-        # TODO: Fix feedback button
         feedback_button = QAction('&Feedback', self)
         feedback_button.triggered.connect(self.submit_feedback)
         navigation_bar.addAction(feedback_button)
-        exit_button = QAction( '&Exit', self)
+        exit_button = QAction('&Exit', self)
         exit_button.setShortcut('Ctrl+Q')
         exit_button.setStatusTip('Exit application')
         exit_button.triggered.connect(self.close)
@@ -81,7 +80,7 @@ class View(QMainWindow):
         self.show()
         qt_app.exec_()
 
-    def show_update_dialog(self, update = 1):
+    def show_update_dialog(self, update=1):
         """
         show the update
         """
@@ -96,7 +95,7 @@ class View(QMainWindow):
         """
         Submit feedback by showing a google form
         """
-        webbrowser.open("https://goo.gl/forms/Cf6YQtdOXAqGx21U2")
+        webbrowser.open("https://goo.gl/forms/X9OB6AQSJSiKScBs2")
 
     def check_for_update(self):
         response = urllib2.urlopen('http://khaiquangnguyen.github.io/chemics_update.html')
@@ -114,7 +113,7 @@ class View(QMainWindow):
             self.controller.files = files
             self.controller.run()
 
-    def move_progress_bar_forward(self, message=None, max_value=None, complete = False, value = 1):
+    def move_progress_bar_forward(self, message=None, max_value=None, complete=False, value=1):
         """
         Activate the progress bar
         :param max_value: the maximum of the progress dialog. Used to signal reset progress dialog
@@ -150,7 +149,7 @@ class View(QMainWindow):
                     self.progress_dialog.setValue(self.progress)
                 qApp.processEvents()
 
-    def show_error_dialog(self, error_message ='Unknown Error!'):
+    def show_error_dialog(self, error_message='Unknown Error!'):
         """
         Show the error message
         :param error_message: The message to show in the error message
@@ -204,7 +203,8 @@ class View(QMainWindow):
         if self.controller.min_pos_SMPS_list[curr_scan] is None or self.controller.min_pos_CCNC_list[curr_scan] is None:
             self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
         else:
-            if self.controller.usable_for_kappa_cal_list[curr_scan] and self.controller.usable_for_sigmoid_fit_list[curr_scan]:
+            if self.controller.usable_for_kappa_cal_list[curr_scan] and self.controller.usable_for_sigmoid_fit_list[
+                curr_scan]:
                 self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Disable Scan")
             else:
                 self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
@@ -225,9 +225,10 @@ class View(QMainWindow):
         self.centralWidget().graph_widget.graphView.update_figure(self.controller.kappa_graph)
 
     def get_concentration(self):
-        return_value = self.controller.concentration
+        return_value = self.controller.flow_rate
         while True:
-            input = QInputDialog.getDouble(self, self.tr("Get Flow Rate"),self.tr("Q(flow rate)"), 0.2)
+            input = QInputDialog.getDouble(self, self.tr("Get Flow Rate"), self.tr("Flow Rate (L/min)"), 0.3,
+                                           decimals=5)
             if input[1] is True:
                 return_value = float(input[0])
                 break
@@ -241,7 +242,7 @@ class View(QMainWindow):
 #######################################################
 
 class ControlPanel(QWidget):
-    def __init__(self, main_window = None):
+    def __init__(self, main_window=None):
         QWidget.__init__(self)
         # addSubWidget
         self.mainWindow = main_window
@@ -286,6 +287,3 @@ class ControlPanel(QWidget):
                     widget.deleteLater()
                 else:
                     self.clear_layout(item.layout())
-
-
-

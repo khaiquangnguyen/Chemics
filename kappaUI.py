@@ -238,12 +238,12 @@ class KappaConstDataTable(QTableWidget):
         d2 = kappaVars[4]
         i2 = kappaVars[5]
         solu = kappaVars[6]
-        # TODO:
+        # TODO: fix this
         self.add_message("Sigma", s)
-        self.add_message("Temperature", t)
-        self.add_message("dry diamater(1)", d1)
+        self.add_message("Temperature (k)", t)
+        self.add_message("dry diamater(1) (nm)", d1)
         self.add_message("iKppa(1)", i1)
-        self.add_message("dry diamater(2)", d2)
+        self.add_message("dry diamater(2) (nm)", d2)
         self.add_message("iKppa(2)", i2)
         self.add_message("Solubility", solu)
 
