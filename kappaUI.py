@@ -280,31 +280,30 @@ class KappaControlTabWidget(QWidget):
         self.show_graph_data_button.resize(self.width(), self.height())
         self.show_raw_data_button.resize(self.width(), self.height())
         self.show_parameters_button.resize(self.width(), self.height())
-        self.show_full_graph_buttons.resize(self.width(), self.height())
-        self.show_average_graph_button.resize(self.width(), self.height())
+        self.toggle_all_less_k_lines_button.resize(self.width(), self.height())
+        self.toggle_average_all_k_points_button.resize(self.width(), self.height())
 
     def __init__(self, main_window=None):
         self.mainWindow = main_window
         QWidget.__init__(self)
         self.layout = QHBoxLayout()
         self.layout.setContentsMargins(0, 10, 60, 10)
-
         self.show_raw_data_button = CustomButton("Kappa Data", main_window)
         self.show_graph_data_button = CustomButton("Graph Data", main_window)
         self.show_parameters_button = CustomButton("Parameters", main_window)
-        self.show_full_graph_buttons = CustomButton("Show All", main_window)
-        self.show_average_graph_button = CustomButton("Show Average", main_window)
+        self.toggle_average_all_k_points_button = CustomButton("Ave Points", main_window)
+        self.toggle_all_less_k_lines_button = CustomButton("Less Lines", main_window)
         self.show_raw_data_button.clicked.connect(self.on_click_show_raw_data)
         self.show_graph_data_button.clicked.connect(self.on_click_show_graph)
         self.show_parameters_button.clicked.connect(self.on_click_show_parameters)
-        self.show_full_graph_buttons.clicked.connect(self.on_click_full_graph)
-        self.show_average_graph_button.clicked.connect(self.on_click_average_graph)
+        self.toggle_all_less_k_lines_button.clicked.connect(self.on_click_toggle_k_lines)
+        self.toggle_average_all_k_points_button.clicked.connect(self.on_click_toggle_all_average_k_points)
 
         self.layout.addWidget(self.show_raw_data_button)
-        # self.layout.addWidget(self.show_graph_data_button)
+        self.layout.addWidget(self.show_graph_data_button)
         self.layout.addWidget(self.show_parameters_button)
-        self.layout.addWidget(self.show_average_graph_button)
-        self.layout.addWidget(self.show_full_graph_buttons)
+        self.layout.addWidget(self.toggle_average_all_k_points_button)
+        self.layout.addWidget(self.toggle_all_less_k_lines_button)
         self.setLayout(self.layout)
 
         self.setAutoFillBackground(True)
@@ -321,13 +320,23 @@ class KappaControlTabWidget(QWidget):
     def on_click_show_parameters(self):
         self.mainWindow.centralWidget().info_widget.change_to_parameters_data_table()
 
-    def on_click_full_graph(self):
-        self.mainWindow.controller.is_full_kappa_graph = True
-        self.mainWindow.controller.create_kappa_graph()
+    def on_click_toggle_all_average_k_points(self):
+        if (self.mainWindow.controller.is_show_all_k_points):
+            self.mainWindow.controller.is_show_all_k_points = False
+            self.toggle_average_all_k_points_button.setText("All Points")
+        else:
+            self.mainWindow.controller.is_show_all_k_points = True
+            self.toggle_average_all_k_points_button.setText("Ave Points")
+        self.mainWindow.controller.draw_kappa_graph()
 
-    def on_click_average_graph(self):
-        self.mainWindow.controller.is_full_kappa_graph = False
-        self.mainWindow.controller.create_kappa_graph()
+    def on_click_toggle_k_lines(self):
+        if (self.mainWindow.controller.is_show_all_k_lines):
+            self.mainWindow.controller.is_show_all_k_lines = False
+            self.toggle_all_less_k_lines_button.setText("All Lines")
+        else:
+            self.mainWindow.controller.is_show_all_k_lines = True
+            self.toggle_all_less_k_lines_button.setText("Less Lines")
+        self.mainWindow.controller.draw_kappa_graph()
 
 
 class KappaFigureCanvas(FigureCanvas):

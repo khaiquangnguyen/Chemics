@@ -181,7 +181,7 @@ class View(QMainWindow):
     def calculate_kappa_value(self):
         self.controller.calculate_kappa_value()
         self.centralWidget().switch_to_kappa_widget()
-        self.controller.create_kappa_graph()
+        self.controller.draw_kappa_graph()
 
     def update_experiment_information(self):
         self.centralWidget().info_widget.information_table.update_experiment_information()
@@ -204,7 +204,7 @@ class View(QMainWindow):
             self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
         else:
             if self.controller.usable_for_kappa_cal_list[curr_scan] and self.controller.usable_for_sigmoid_fit_list[
-                curr_scan]:
+                                                                                                            curr_scan]:
                 self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Disable Scan")
             else:
                 self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
