@@ -21,17 +21,24 @@ infoAreaHeaderFont = None
 infoAreaItemFont = None
 ButtonFont = None
 
+
+# all colors are from 0 to 1. 0 is black and 1 is white. RGB is applicable as well
+# possible sizes are size in points|xx-small|x-small|small|medium|large|x-large|xx-large
+# for additional property: https://matplotlib.org/api/text_api.html#matplotlib.text.Text
+
+
 AX_LINE_COLOR = "0.6"
-AX_TICK_COLOR = "0.8"
-AX_TICK_SIZE = "large"
+AX_TICK_COLOR = "0.6"
+AX_TICK_SIZE = "x-large"
 LABEL_COLOR = "0.6"
-LABEL_SIZE = "large"
+LABEL_SIZE = "xx-large"
 LABEL_FAMILY = ""
 TITLE_COLOR = "0.6"
-TITLE_SIZE = "large"
+TITLE_SIZE = "xx-large"
 TITLE_FAMILY = ""
 LEGEND_BG_COLOR = '#9E9E9E'
-GRID_COLOR = "0.6"
+LEGEND_FONT_SIZE = "large"
+GRID_COLOR = "0.4"
 
 T1_LINE_COLOR = '#EF5350'
 T2_LINE_COLOR = '#2196F3'

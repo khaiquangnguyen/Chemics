@@ -24,10 +24,6 @@ import FastDpCalculator
 from settings import *
 
 matplotlib.style.use('ggplot')
-# all colors are from 0 to 1. 0 is black and 1 is white
-# possible sizes are size in points|xx-small|x-small|small|medium|large|x-large|xx-large
-# for additional property: https://matplotlib.org/api/text_api.html#matplotlib.text.Text
-
 
 
 class Controller():
@@ -558,11 +554,10 @@ class Controller():
             ax.grid(color=GRID_COLOR)
             ax.axhline(0, color=AX_LINE_COLOR, linewidth=4)
             ax.axvline(0, color=AX_LINE_COLOR, linewidth=4)
-            ax.tick_params(axis='x', color=AX_TICK_COLOR, which='both', labelcolor=LABEL_COLOR)
-            ax.tick_params(axis='y', color=AX_TICK_COLOR, which='both', labelcolor=LABEL_COLOR)
-            ax.set_xlabel("Scan time(s)",color = LABEL_COLOR, size = LABEL_SIZE)
-            ax.set_ylabel("Temperature", color = LABEL_COLOR, size = LABEL_SIZE)
-            ax.set_title("Temperature over scan time", color = TITLE_COLOR, size = TITLE_SIZE)
+            ax.tick_params(color=AX_TICK_COLOR, which='both', labelcolor=AX_TICK_COLOR, labelsize=AX_TICK_SIZE)
+            ax.set_xlabel("Scan time(s)", color=LABEL_COLOR, size=LABEL_SIZE)
+            ax.set_ylabel("Temperature", color=LABEL_COLOR, size=LABEL_SIZE)
+            ax.set_title("Temperature over scan time", color=TITLE_COLOR, size=TITLE_SIZE)
             x = range(self.scan_duration)
             minY = min(min(self.temp1), min(self.temp2), min(self.temp3)) - 3
             maxY = max(max(self.temp1), max(self.temp2), max(self.temp3)) + 3
@@ -571,8 +566,7 @@ class Controller():
             self.t2_line, = ax.plot(x, self.temp2, linewidth=5, color=T2_LINE_COLOR, label="T2")
             self.t3_line, = ax.plot(x, self.temp3, linewidth=5, color=T3_LINE_COLOR, label="T3")
             handles, labels = ax.get_legend_handles_labels()
-            legend = ax.legend(handles, labels, loc="upper right", bbox_to_anchor=(1.1, 1.1))
-            legend.get_frame().set_facecolor(LEGEND_BG_COLOR)
+            legend = ax.legend(handles, labels, facecolor=LEGEND_BG_COLOR, fontsize=LEGEND_FONT_SIZE)
             self.temperature_graph = figure
             self.temperature_axis = ax
         else:
@@ -593,17 +587,17 @@ class Controller():
             ax.grid(color=GRID_COLOR)
             ax.axhline(0, color=AX_LINE_COLOR, linewidth=4)
             ax.axvline(0, color=AX_LINE_COLOR, linewidth=4)
-            ax.tick_params(axis='x', color=AX_TICK_COLOR, which='both', labelcolor=LABEL_COLOR)
-            ax.tick_params(axis='y', color=AX_TICK_COLOR, which='both', labelcolor=LABEL_COLOR)
-            ax.set_xlabel("Scan time(s)",color = LABEL_COLOR, size = LABEL_SIZE)
-            ax.set_ylabel("Concentration (1/cm3)",color = LABEL_COLOR, size = LABEL_SIZE)
+            ax.tick_params(color=AX_TICK_COLOR, which='both', labelcolor=AX_TICK_COLOR, labelsize=AX_TICK_SIZE)
+            ax.set_xlabel("Scan time(s)", color=LABEL_COLOR, size=LABEL_SIZE)
+            ax.set_ylabel("Concentration (1/cm3)", color=LABEL_COLOR, size=LABEL_SIZE)
             x = range(self.scan_duration)
-            self.scan_time_figure_smps_line, = ax.plot(x, self.cn_list, linewidth=4, color=SMPS_LINE_COLOR, label="SMPS")
-            self.scan_time_figure_ccnc_line, = ax.plot(x, self.ccn_list, linewidth=4, color=CCNC_LINE_COLOR, label="CCNC")
+            self.scan_time_figure_smps_line, = ax.plot(x, self.cn_list, linewidth=4, color=SMPS_LINE_COLOR,
+                                                       label="SMPS")
+            self.scan_time_figure_ccnc_line, = ax.plot(x, self.ccn_list, linewidth=4, color=CCNC_LINE_COLOR,
+                                                       label="CCNC")
             handles, labels = ax.get_legend_handles_labels()
-            legend = ax.legend(handles, labels, loc="upper left", bbox_to_anchor=(0, 0.9))
-            legend.get_frame().set_facecolor(LEGEND_BG_COLOR)
-            ax.set_title("SMPS and CCNC concentration over scan time", color = TITLE_COLOR, size = TITLE_SIZE)
+            legend = ax.legend(handles, labels, facecolor=LEGEND_BG_COLOR, fontsize=LEGEND_FONT_SIZE)
+            ax.set_title("SMPS and CCNC concentration over scan time", color=TITLE_COLOR, size=TITLE_SIZE)
             self.concentration_over_scan_time_axis = ax
             self.concentration_over_scan_time_graph = figure
         else:
@@ -620,19 +614,17 @@ class Controller():
             ax.axhline(0, color=AX_LINE_COLOR, linewidth=2)
             ax.axvline(0, color=AX_LINE_COLOR, linewidth=4)
             ax.axhline(1, color=str(float(AX_LINE_COLOR) + 0.1), linewidth=2, linestyle='dashed')
-            ax.tick_params(axis='x', color=AX_TICK_COLOR, which='both', labelcolor=LABEL_COLOR)
-            ax.tick_params(axis='y', color=AX_TICK_COLOR, which='both', labelcolor=LABEL_COLOR)
-            ax.set_xlabel("Diameter (nm)")
-            ax.set_ylabel("CCNC/SMPS")
-            ax.set_title("CCNC/SMPS over Dry Diameter")
+            ax.tick_params(color=AX_TICK_COLOR, which='both', labelcolor=AX_TICK_COLOR, labelsize=AX_TICK_SIZE)
+            ax.set_xlabel("Diameter (nm)", color=LABEL_COLOR, size=LABEL_SIZE)
+            ax.set_ylabel("CCNC/SMPS", color=LABEL_COLOR, size=LABEL_SIZE)
+            ax.set_title("CCNC/SMPS over Dry Diameter", color=TITLE_COLOR, size=TITLE_SIZE)
             self.ccn_cn_ratio_points, = ax.plot(self.particle_diameter_list, self.ccn_cn_ratio_list, 'o',
                                                 color=CCNC_SMPS_POINT_COLOR, mew=0.5,
                                                 ms=9, label="CCNC/SMPS")
             yLim = min(2, max(self.ccn_cn_ratio_list)) + 0.2
             ax.axes.set_ylim([-0.1, yLim])
             handles, labels = ax.get_legend_handles_labels()
-            legend = ax.legend(handles, labels, loc="upper right", bbox_to_anchor=(1, 0.9))
-            legend.get_frame().set_facecolor(LEGEND_BG_COLOR)
+            legend = ax.legend(handles, labels, facecolor=LEGEND_BG_COLOR, fontsize=LEGEND_FONT_SIZE)
             self.ccn_cn_ratio_ax = ax
             self.ccn_cn_ratio_graph = figure
         else:
@@ -891,28 +883,28 @@ class Controller():
             ax.axhline(0, color=AX_LINE_COLOR, linewidth=2)
             ax.axvline(0, color=AX_LINE_COLOR, linewidth=4)
             ax.axhline(1, color=str(float(AX_LINE_COLOR) + 0.1), linewidth=2, linestyle='dashed')
-            ax.tick_params(axis='x', color=AX_TICK_COLOR, which='both', labelcolor=LABEL_COLOR)
-            ax.tick_params(axis='y', color=AX_TICK_COLOR, which='both', labelcolor=LABEL_COLOR)
-            ax.set_xlabel("Dry diameter(nm)", color = LABEL_COLOR, size = LABEL_SIZE)
-            ax.set_ylabel("CCNC/SMPS ratio and dN/dLogDp",color = LABEL_COLOR, size = LABEL_SIZE)
-            ax.set_title("CCNC/SMPS over Dry Diameter and Sigmoid Line", color = TITLE_COLOR, size = TITLE_SIZE)
+            ax.tick_params(color=AX_TICK_COLOR, which='both', labelcolor=AX_TICK_COLOR, labelsize=AX_TICK_SIZE)
+            ax.set_xlabel("Dry diameter(nm)", color=LABEL_COLOR, size=LABEL_SIZE)
+            ax.set_ylabel("CCNC/SMPS ratio and dN/dLogDp", color=LABEL_COLOR, size=LABEL_SIZE)
+            ax.set_title("CCNC/SMPS over Dry Diameter and Sigmoid Line", color=TITLE_COLOR, size=TITLE_SIZE)
             yLim = min(2, max(self.ccnc_sig_list)) + 0.2
             ax.axes.set_ylim([-0.1, yLim])
             self.normalized_concentration_points, = plt.plot(self.diameter_midpoint_list, self.ccn_normalized_list,
-                                                             linewidth=4, color=NORMALIZED_CONCENTRATION_POINT_COLOR, label="dN/dLogDp")
+                                                             linewidth=4, color=NORMALIZED_CONCENTRATION_POINT_COLOR,
+                                                             label="dN/dLogDp")
             self.ccn_cn_ratio_points, = ax.plot(self.particle_diameter_list, self.ccn_cn_ratio_list, 'o',
                                                 color=CCNC_SMPS_POINT_COLOR,
                                                 mew=0.5, ms=9, label="CCNC/SMPS")
             self.ccn_cn_ratio_corrected_points, = ax.plot(self.particle_diameter_list, self.ccnc_sig_list, 'o',
-                                                          color=CCNC_SMPS_RATIO_CORRECTED_POINT_COLOR, mew=0.5, mec="#0D47A1",
+                                                          color=CCNC_SMPS_RATIO_CORRECTED_POINT_COLOR, mew=0.5,
+                                                          mec="#0D47A1",
                                                           ms=9, label="CCNC/SMPS (Corrected)")
             if self.usable_for_kappa_cal_list[self.current_scan] and \
                     self.usable_for_sigmoid_fit_list[self.current_scan]:
                 self.sigmoid_line, = ax.plot(self.particle_diameter_list, self.ccn_cn_sim_list, linewidth=5,
                                              color=SIGMOID_LINE_COLOR, label="Sigmodal Fit")
             handles, labels = ax.get_legend_handles_labels()
-            legend = ax.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.7, 1.1))
-            legend.get_frame().set_facecolor(LEGEND_BG_COLOR)
+            legend = ax.legend(handles, labels, fontsize=LEGEND_FONT_SIZE, facecolor=LEGEND_BG_COLOR)
             self.sigmoid_fit_graph = figure
             self.sigmoid_fit_ax = ax
         else:
@@ -951,16 +943,15 @@ class Controller():
             ax.axvline(0, color=AX_LINE_COLOR, linewidth=4)
             index = numpy.arange(1, self.number_of_scan + 1)
             ax.set_xticks(index)
-            ax.set_xticklabels(index, color=AX_TICK_COLOR, size="large")
+            ax.set_xticklabels(index, color=AX_TICK_COLOR, size=AX_TICK_SIZE)
             ax.set_yticks(range(0, max(self.shift_factor_list)))
             ax.set_yticklabels(range(0, max(self.shift_factor_list)), color=AX_TICK_COLOR, size=AX_TICK_SIZE)
-            ax.set_xlabel("Scan #",color = LABEL_COLOR, size = LABEL_SIZE)
-            ax.set_ylabel("CCNC Shift (s)", color = LABEL_COLOR, size = LABEL_SIZE)
-            ax.set_title("All Scans Shift", color = TITLE_COLOR, size = TITLE_SIZE)
+            ax.set_xlabel("Scan #", color=LABEL_COLOR, size=LABEL_SIZE)
+            ax.set_ylabel("CCNC Shift (s)", color=LABEL_COLOR, size=LABEL_SIZE)
+            ax.set_title("All Scans Shift", color=TITLE_COLOR, size=TITLE_SIZE)
             figure.canvas.mpl_connect('pick_event', self.on_pick)
             handles, labels = ax.get_legend_handles_labels()
-            legend = ax.legend(handles, labels, loc="upper right", bbox_to_anchor=(1, 0.7))
-            legend.get_frame().set_facecolor(LEGEND_BG_COLOR)
+            legend = ax.legend(handles, labels, fontsize=LEGEND_FONT_SIZE, facecolor=LEGEND_BG_COLOR)
             self.all_scans_alignment_bars = ax.bar(range(1, self.number_of_scan + 1), self.shift_factor_list,
                                                    color=SCAN_SUMMARY_USABLE_SCAN_COLOR, picker=True, align='center')
             for i in range(len(self.usable_for_sigmoid_fit_list)):
@@ -1315,7 +1306,7 @@ class Controller():
             self.temp1 = list(self.processed_data[startPoint:endPoint]['T1'])
             self.temp2 = list(self.processed_data[startPoint:endPoint]['T2'])
             self.temp3 = list(self.processed_data[startPoint:endPoint]['T3'])
-            self.cn_list = [x * 1/(self.flow_rate*1000/60) for x in self.cn_list]
+            self.cn_list = [x * 1 / (self.flow_rate * 1000 / 60) for x in self.cn_list]
             self.diameter_midpoint_list = []
             self.ccn_cn_ratio_list = []
             for i in range(len(self.ccn_list)):
