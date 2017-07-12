@@ -1261,6 +1261,8 @@ class Controller():
         When a kappa point is clicked
         """
         kappaPoint = event.ind[0]
+        if not self.is_show_all_k_points:
+            pass
         excluded = False
         # if already in excluded list, include the points
         for i in range(len(self.invalid_k_points_list)):

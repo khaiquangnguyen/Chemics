@@ -48,8 +48,11 @@ class SingleTableItem(QWidget):
         self.setLayout(self.layout)
         self.setAutoFillBackground(True)
         palette = QPalette()
-        palette.setColor(QPalette.Base, settings.infoAreaItemBackgroundColor)
+        palette.setColor(QPalette.Base, settings.NEGATIVE_USABILITY_BUTTON_COLOR)
         self.setPalette(palette)
+
+    def toggle_color(self):
+        self.infoText.toggle_color()
 
 
 class SingleTableHeaderItem(QWidget):
@@ -139,3 +142,9 @@ class InfoText(QLabel):
         size = max(10, self.height() * 2 / 10)
         font.setPointSize(size)
         self.setFont(font)
+
+    def toggle_color(self):
+        palette = self.palette()
+        palette.setColor(QPalette.Base, settings.NEGATIVE_USABILITY_BUTTON_COLOR)
+        self.setPalette(palette)
+

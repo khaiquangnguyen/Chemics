@@ -129,11 +129,6 @@ class AllKappaPointsDataTable(QTableWidget):
 
 
 class AverageKappaPointsDataTable(QTableWidget):
-    def resize(self, parent_width, parent_height):
-        self.setFixedHeight(parent_height)
-        self.setFixedWidth(parent_width)
-        self.verticalHeader().setDefaultSectionSize(self.height() / 25)
-
     def __init__(self, main_window=None):
         QTableWidget.__init__(self)
         self.setColumnCount(5)
@@ -148,7 +143,10 @@ class AverageKappaPointsDataTable(QTableWidget):
         self.mainWindow = main_window
         self.setAutoFillBackground(True)
         palette = QPalette()
+        self.SelectItems
         palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
+        palette.setColor(QPalette.Highlight, settings.NEGATIVE_USABILITY_BUTTON_COLOR)
+        palette.setColor(QPalette.HighlightedText,settings.NEGATIVE_USABILITY_BUTTON_COLOR)
         self.setPalette(palette)
 
     def update_data(self):
@@ -192,6 +190,13 @@ class AverageKappaPointsDataTable(QTableWidget):
         self.setCellWidget(self.rowCount() - 1, 3, ana)
         devi = SingleTableItem(devi)
         self.setCellWidget(self.rowCount() - 1, 4, devi)
+
+    def resize(self, parent_width, parent_height):
+        self.setFixedHeight(parent_height)
+        self.setFixedWidth(parent_width)
+        self.verticalHeader().setDefaultSectionSize(self.height() / 25)
+        self.cellWidget(2,2).toggle_color()
+
 
 
 
