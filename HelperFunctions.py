@@ -348,3 +348,12 @@ def get_correct_num(a_list, number, bigger=True):
         else:
             num = a_list[i]
     return (a_list[-1], len(a_list) - 1)
+
+
+def check_temperature_fluctuation(temp_list):
+    min_temp = min(temp_list)
+    max_temp = max(temp_list)
+    if max_temp - min_temp >= 1:
+        return False
+    else:
+        return True

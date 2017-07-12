@@ -192,7 +192,7 @@ class KappaGraphDataTable(QTableWidget):
 
     def add_message(self, data_list, column_pos):
         for i in range(len(data_list)):
-            a_cell = ('% .2f' % data_list[i])
+            a_cell = ('% .2f' % data_list[i].rstrip('0').rstrip('.'))
             a_cell = SingleTableItem(a_cell)
             self.setCellWidget(i, column_pos, a_cell)
 
@@ -336,7 +336,7 @@ class KappaFigureCanvas(FigureCanvas):
         self.setFixedWidth(parent_width)
 
     def __init__(self, main_window=None):
-        fig = Figure(facecolor=settings.graphBackgroundColor)
+        fig = Figure(facecolor=settings.GRAPH_BACKGROUND_COLOR)
         super(self.__class__, self).__init__(fig)
 
     def update_figure(self, figure):

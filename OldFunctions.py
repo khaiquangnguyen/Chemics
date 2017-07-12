@@ -357,7 +357,7 @@ def draw_all_scans_alignment_summary_graph(self):
     #     # textToShow = str(slope) + "* x" + " + " + str(yIntercept)
     #     # ax.text(10,10,textToShow)
     #     # plt.scatter(x, y, s=150, marker="o", color=colors, picker=6)
-    #     figure, ax = plt.subplots(facecolor=settings.graphBackgroundColor)
+    #     figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
     #     ax.axes.set_frame_on(False)
     #     ax.grid(color='0.5')
     #     ax.axhline(0, color='0.6', linewidth=4)

@@ -1,6 +1,6 @@
 
-graphBackgroundColor = "#424242"
-
+GRAPH_BACKGROUND_COLOR = "#424242"
+NEGATIVE_USABILITY_BUTTON_COLOR = '#EF5350'
 infoAreaBackgroundColor = "#616161"
 infoAreaItemColor = "#E0E0E0"
 infoAreaItemBackgroundColor = "#424242"

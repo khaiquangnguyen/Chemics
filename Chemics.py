@@ -520,11 +520,11 @@ class Controller():
                 plt.ioff()
                 self.current_scan = i
                 self.prepare_scan_data()
-                if (self.super_saturation_list[i] == -1):
+                if (self.super_saturation_list[i] == -1 or not check_temperature_fluctuation(self.temp1)
+                    or not check_temperature_fluctuation(self.temp2) or not check_temperature_fluctuation(self.temp3)):
                     self.min_pos_CCNC_list[i] = None
                     self.min_pos_SMPS_list[i] = None
                     self.usable_for_sigmoid_fit_list[i] = False
-            print self.usable_for_sigmoid_fit_list
             self.move_progress_bar_forward(complete=True)
             self.current_scan = -1
             self.view.update_experiment_information()
@@ -549,7 +549,7 @@ class Controller():
     # ----------------------graphs------------------------
     def draw_temperature_graph(self):
         if self.temperature_axis is None:
-            figure, ax = plt.subplots(facecolor=settings.graphBackgroundColor)
+            figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
             ax.axes.set_frame_on(False)
             ax.grid(color=GRID_COLOR)
             ax.axhline(0, color=AX_LINE_COLOR, linewidth=4)
@@ -582,7 +582,7 @@ class Controller():
         if len(self.cn_list) != len(self.ccn_list) or len(self.cn_list) == 0 or len(self.ccn_list) == 0:
             return
         if self.concentration_over_scan_time_axis is None:
-            figure, ax = plt.subplots(facecolor=settings.graphBackgroundColor)
+            figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
             ax.axes.set_frame_on(False)
             ax.grid(color=GRID_COLOR)
             ax.axhline(0, color=AX_LINE_COLOR, linewidth=4)
@@ -608,7 +608,7 @@ class Controller():
 
     def draw_ccn_cn_ratio_over_diameter_graph(self):
         if self.ccn_cn_ratio_ax is None:
-            figure, ax = plt.subplots(facecolor=settings.graphBackgroundColor)
+            figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
             ax.axes.set_frame_on(False)
             ax.grid(color='0.5')
             ax.axhline(0, color=AX_LINE_COLOR, linewidth=2)
@@ -877,7 +877,7 @@ class Controller():
         Make complete graph of the dry diameter after optimization and sigmodal fit
         """
         if self.sigmoid_fit_ax is None:
-            figure, ax = plt.subplots(facecolor=settings.graphBackgroundColor)
+            figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
             ax.axes.set_frame_on(False)
             ax.grid(color=GRID_COLOR)
             ax.axhline(0, color=AX_LINE_COLOR, linewidth=2)
@@ -936,7 +936,7 @@ class Controller():
             for i in range(self.number_of_scan):
                 self.all_scans_alignment_visited.append(False)
 
-            figure, ax = plt.subplots(facecolor=settings.graphBackgroundColor)
+            figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
             ax.axes.set_frame_on(False)
             ax.grid(False)
             ax.axhline(0, color=AX_LINE_COLOR, linewidth=4)
@@ -1201,7 +1201,7 @@ class Controller():
             figure = plt.figure(self.kappa_graph.number)
             figure.clf()
         else:
-            figure = plt.figure(facecolor=settings.graphBackgroundColor)
+            figure = plt.figure(facecolor=settings.GRAPH_BACKGROUND_COLOR)
         plt.axes(frameon=False)
         plt.grid(color='0.5')
         plt.axhline(0.1, color='0.6', linewidth=4)

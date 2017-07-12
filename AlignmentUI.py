@@ -55,9 +55,11 @@ class ScanInformationTable(QTableWidget):
         self.verticalHeader().setDefaultSectionSize(self.height() / 25)
 
     def update_experiment_information(self):
+        # add header for table
         header = TableHeader("Experiment Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
+        # add table cells
         self.add_message("Experiment Date", self.main_window.controller.experiment_date)
         self.add_message("Experiment Start Time", self.main_window.controller.scan_start_time_list[0])
         self.add_message("Time per scan (s)", self.main_window.controller.scan_duration)
@@ -65,45 +67,53 @@ class ScanInformationTable(QTableWidget):
         self.add_message("Flow rate (L/min)", self.main_window.controller.flow_rate)
 
     def update_scan_information(self):
+        # clear the cells to redraw the table. 6 is the number of cells of exp table
         if self.rowCount() > 6:
             for i in range(self.rowCount() - 6):
                 self.removeRow(self.rowCount() - 1)
+        # add header
         header = TableHeader("Scan Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
+        # add table cells
         current_scan = self.main_window.controller.current_scan
         if self.main_window.controller.usable_for_sigmoid_fit_list[current_scan]:
             self.add_message("Usability for Sigmoid Fit", "Positive")
         else:
-            self.add_message("Usability for Sigmoid Fit", "Negative", color='#EF5350')
+            self.add_message("Usability for Sigmoid Fit", "Negative", color=settings.NEGATIVE_USABILITY_BUTTON_COLOR)
+        self.add_message("Scan Start Time (h/m/s)",self.main_window.controller.scan_start_time_list[current_scan])
         self.add_message("Scan #", current_scan + 1)
+        self.add_message("CCNC Data Shift (s)",self.main_window.controller.shift_factor_list[current_scan])
         self.add_message("Super Saturation (%)", self.main_window.controller.super_saturation_rate)
 
     def update_scan_information_after_sigmoid_fit(self):
         if self.rowCount() > 6:
             for i in range(self.rowCount() - 6):
                 self.removeRow(self.rowCount() - 1)
-
-        # Add basic information processed_data
+        # add header
         header = TableHeader("Scan Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         current_scan = self.main_window.controller.current_scan
+        # add table cell
         if self.main_window.controller.usable_for_sigmoid_fit_list[current_scan]:
             self.add_message("Usability for Sigmoid Fit", "Positive")
         else:
-            self.add_message("Usability for Sigmoid Fit", "Negative", color='#EF5350')
+            self.add_message("Usability for Sigmoid Fit", "Negative", color=NEGATIVE_USABILITY_BUTTON_COLOR)
+        self.add_message("Scan Start Time (h/m/s)", self.main_window.controller.scan_start_time_list[current_scan])
         self.add_message("Scan #", current_scan + 1)
-        self.add_message("Saturation Rate", self.main_window.controller.super_saturation_rate)
-
+        self.add_message("CCNC Data Shift (s)",self.main_window.controller.shift_factor_list[current_scan])
+        self.add_message("Super Saturation (%)", self.main_window.controller.super_saturation_rate)
+        # add header
         header = TableHeader("Sigmoid Fit Parameters")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
+        # add table cells
         if self.main_window.controller.usable_for_kappa_cal_list[current_scan] and \
                 self.main_window.controller.usable_for_sigmoid_fit_list[current_scan]:
             self.add_message("Usability for Kappa", "Positive")
         else:
-            self.add_message("Usability for Kappa", "Negative", color='#EF5350')
+            self.add_message("Usability for Kappa", "Negative", color=NEGATIVE_USABILITY_BUTTON_COLOR)
         self.add_message('minDp (nm)', self.main_window.controller.min_dp)
         self.add_message('minDpAsym (nm)', self.main_window.controller.min_dp_asym)
         self.add_message('maxDpAsym (nm)', self.main_window.controller.max_dp_asym)
@@ -115,7 +125,7 @@ class ScanInformationTable(QTableWidget):
 
     def add_message(self, field, message, color=None):
         if type(message) is not str:
-            message = '{0:.2f}'.format(message)
+            message = '{0:.2f}'.format(message).rstrip('0').rstrip('.')
         message = str(message)
         item = TableItem(field, message, color)
         self.insertRow(self.rowCount())
@@ -287,7 +297,7 @@ class AlignmentAndSigmoidFitWidget(QWidget):
 
 class RectFigureCanvas(FigureCanvas):
     def __init__(self, main_window=None):
-        fig = Figure(facecolor=settings.graphBackgroundColor)
+        fig = Figure(facecolor=settings.GRAPH_BACKGROUND_COLOR)
         super(self.__class__, self).__init__(fig)
 
     def resize(self, parent_width, parent_height):
@@ -308,7 +318,7 @@ class RectFigureCanvas(FigureCanvas):
 
 class SquareFigureCanvas(FigureCanvas):
     def __init__(self, main_window=None):
-        fig = Figure(facecolor=settings.graphBackgroundColor)
+        fig = Figure(facecolor=settings.GRAPH_BACKGROUND_COLOR)
         super(self.__class__, self).__init__(fig)
 
     def resize(self, parent_width, parent_height):
