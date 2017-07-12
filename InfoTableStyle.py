@@ -51,6 +51,7 @@ class SingleTableItem(QWidget):
         palette.setColor(QPalette.Base, settings.infoAreaItemBackgroundColor)
         self.setPalette(palette)
 
+
 class SingleTableHeaderItem(QWidget):
     def __init__(self, message):
         QWidget.__init__(self)
@@ -64,10 +65,11 @@ class SingleTableHeaderItem(QWidget):
         palette.setColor(QPalette.Base, settings.infoAreaItemBackgroundColor)
         self.setPalette(palette)
 
+
 class TableHeader(QWidget):
     def __init__(self, header):
         QWidget.__init__(self)
-        self.layout = QVBoxLayout()
+        self.layout = QHBoxLayout()
         self.layout.setContentsMargins(5, 0, 0, 0)
         self.header = QLabel(header)
         palette = self.header.palette()
@@ -83,14 +85,14 @@ class TableHeader(QWidget):
         self.setPalette(palette)
 
         font = QFont()
-        size = max(10, self.height() * 2/9)
+        size = max(10, self.height() * 1/5)
         font.setPointSize(size)
         self.setFont(font)
 
     def resizeEvent(self,event):
         font = self.font()
         font.setStyleStrategy(QFont.PreferAntialias or QFont.PreferQuality)
-        size = max(10, self.height() * 2/9)
+        size = max(10, self.height() * 1/5)
         font.setPointSize(size)
         self.setFont(font)
 

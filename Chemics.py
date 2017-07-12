@@ -34,13 +34,14 @@ class Controller():
 
         self.kappa_graph = None
         self.kappa_ax = None
-        self.is_show_all_k_lines = True
+        self.is_show_all_k_lines = False
         self.temperature_graph = None
         self.temperature_axis = None
         self.t1_line = None
         self.t2_line = None
         self.t3_line = None
-
+        self.k_lines_list = []
+        self.kappa_points = None
         self.concentration_over_scan_time_graph = None
         self.concentration_over_scan_time_axis = None
         self.scan_time_figure_smps_line = None
@@ -143,8 +144,8 @@ class Controller():
         self.kappa_excel = None
         self.shift_factor_list = []
         self.invalid_k_points_list = []
-        self.kappa_points = []
-        self.klines = None
+        self.kappa_points_data_list = []
+        self.klines_data = None
         self.max_kappa = None
         self.min_kappa = None
         self.is_show_all_k_points = True
@@ -1146,88 +1147,82 @@ class Controller():
         self.move_progress_bar_forward(complete=True)
 
     def draw_kappa_graph(self):
-        if self.kappa_ax is None:
-            if self.klines is None:
-                self.klines = pandas.read_csv("klines.csv", header=1)
-                header = self.klines.columns
-                diameter_list = self.klines[header[1]]
+        if self.klines_data is None:
+            self.klines_data = pandas.read_csv("klines.csv", header=1)
+        header = self.klines_data.columns
+        diameter_list = self.klines_data[header[1]]
+        kappa_list = []
+        std_kappa_list = []
+        self.kappa_points_data_list = []
+        for key in self.alpha_pinene_dict.keys():
+            kappa_list.append(self.alpha_pinene_dict[key][2])
+            std_kappa_list.append(self.alpha_pinene_dict[key][3])
+            if self.is_show_all_k_points:
+                for i in self.alpha_pinene_dict[key][-1]:
+                    self.kappa_points_data_list.append((i, key))
             else:
-                self.view.show_error_dialog("File for kappa lines doesn't exist! Please put the "
-                                            "file with kappa lines in the same folder with this file and "
-                                            "name it klines.csv")
-                return
-            # Get the kappa points
-            kappa_list = []
-            std_kappa_list = []
-            self.kappa_points = []
-            for key in self.alpha_pinene_dict.keys():
-                kappa_list.append(self.alpha_pinene_dict[key][2])
-                std_kappa_list.append(self.alpha_pinene_dict[key][3])
-                if self.is_show_all_k_points:
-                    for i in self.alpha_pinene_dict[key][-1]:
-                        self.kappa_points.append((i, key))
-                else:
-                    self.kappa_points.append((self.alpha_pinene_dict[key][0], key))
-            all_k_points_x_list = []
-            all_k_points_y_list = []
-            all_k_points_color_list = []
-            for i in range(len(self.kappa_points)):
-                all_k_points_x_list.append(self.kappa_points[i][0])
-                all_k_points_y_list.append(self.kappa_points[i][1])
-                # get the colors for the valid and invalid points
-                if self.is_show_all_k_points:
-                    if i in self.invalid_k_points_list:
-                        all_k_points_color_list.append("#EF5350")
-                    else:
-                        all_k_points_color_list.append('#2196F3')
+                self.kappa_points_data_list.append((self.alpha_pinene_dict[key][0], key))
+        k_points_x_list = []
+        k_points_y_list = []
+        all_k_points_color_list = []
+        for i in range(len(self.kappa_points_data_list)):
+            k_points_x_list.append(self.kappa_points_data_list[i][0])
+            k_points_y_list.append(self.kappa_points_data_list[i][1])
+            # get the colors for the valid and invalid points
+            if self.is_show_all_k_points:
+                if i in self.invalid_k_points_list:
+                    all_k_points_color_list.append("#EF5350")
                 else:
                     all_k_points_color_list.append('#2196F3')
-            if self.is_show_all_k_lines:
-                kappa_start_pos = 2
-                kappa_end_pos = len(header)
             else:
-                # Get the maximum and minimum value of kappa.
-                # Used to draw the graph with less k lines
-                temp_kappa_list = []
-                for i in range(len(kappa_list)):
-                    temp_kappa_list.append(kappa_list[i] + std_kappa_list[i])
-                self.max_kappa = max(temp_kappa_list)
-                temp_kappa_list = []
-                for i in range(len(kappa_list)):
-                    temp_kappa_list.append(kappa_list[i] - std_kappa_list[i])
-                self.min_kappa = min(temp_kappa_list)
-                # get the limit of the k lines close to the kappa points
-                i = 2
-                kappa = 1
-                step = 0.1
-                kappa_start_pos = 2
-                kappa_end_pos = len(header)
-                while True:
-                    if self.max_kappa > kappa:
-                        kappa_start_pos = max(2, i - 3)
-                        break
-                    i += 1
-                    kappa -= step
-                    if kappa == step:
-                        step /= 10
-                    if i >= len(header):
-                        kappa_start_pos = len(header)
-                        break
-                i = 2
-                kappa = 1
-                step = 0.1
-                while True:
-                    if self.min_kappa > kappa:
-                        kappa_end_pos = min(i + 3, len(header))
-                        break
-                    i += 1
-                    kappa -= step
-                    if kappa == step:
-                        step /= 10
-                    if i >= len(header):
-                        kappa_end_pos = len(header)
-                        break
-
+                all_k_points_color_list.append('#2196F3')
+        if self.is_show_all_k_lines:
+            kappa_start_pos = 2
+            kappa_end_pos = len(header)
+        else:
+            # Get the maximum and minimum value of kappa.
+            # Used to draw the graph with less k lines
+            temp_kappa_list = []
+            for i in range(len(kappa_list)):
+                temp_kappa_list.append(kappa_list[i] + std_kappa_list[i])
+            self.max_kappa = max(temp_kappa_list)
+            temp_kappa_list = []
+            for i in range(len(kappa_list)):
+                temp_kappa_list.append(kappa_list[i] - std_kappa_list[i])
+            self.min_kappa = min(temp_kappa_list)
+            # get the limit of the k lines close to the kappa points
+            i = 2
+            kappa = 1
+            step = 0.1
+            kappa_start_pos = 2
+            kappa_end_pos = len(header)
+            while True:
+                if self.max_kappa > kappa:
+                    kappa_start_pos = max(2, i - 3)
+                    break
+                i += 1
+                kappa -= step
+                if kappa == step:
+                    step /= 10
+                if i >= len(header):
+                    kappa_start_pos = len(header)
+                    break
+            i = 2
+            kappa = 1
+            step = 0.1
+            while True:
+                if self.min_kappa > kappa:
+                    kappa_end_pos = min(i + 3, len(header))
+                    break
+                i += 1
+                kappa -= step
+                if kappa == step:
+                    step /= 10
+                if i >= len(header):
+                    kappa_end_pos = len(header)
+                    break
+        if self.kappa_ax is None:
+            # Get the kappa points
             figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
             ax.axes.set_frame_on(False)
             ax.grid(True, which='both', color=GRID_COLOR)
@@ -1238,18 +1233,27 @@ class Controller():
             ax.axes.set_xlim([10, 200])
             ax.set_xlabel("Dry diameter(nm)", color=LABEL_COLOR, size=LABEL_SIZE)
             ax.set_ylabel("Super Saturation(%)", color=LABEL_COLOR, size=LABEL_SIZE)
-            ax.set_title("Activation Diameter and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
+            if (self.is_show_all_k_points):
+                ax.set_title("Activation Diameter for all Kappa points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
+            else:
+                ax.set_title("Activation Diameter for average Kappa Points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
             figure.canvas.mpl_connect('pick_event', self.on_pick_kappa_points)
 
             for i in range(kappa_start_pos, kappa_end_pos):
-                y = self.klines[header[i]]
+                y = self.klines_data[header[i]]
                 ax.loglog(diameter_list, y, label=str(header[i]), linewidth=4)
             # Graph all the kappa points
-            plt.scatter(all_k_points_x_list, all_k_points_y_list, s = 300, c = all_k_points_color_list, picker=5)
+            self.kappa_points = ax.scatter(k_points_x_list, k_points_y_list, s = 300, c = all_k_points_color_list, picker=5)
             handles, labels = ax.get_legend_handles_labels()
             legend = ax.legend(handles, labels, facecolor=LEGEND_BG_COLOR, fontsize=LEGEND_FONT_SIZE)
             self.kappa_graph = figure
             self.kappa_ax = ax
+        else:
+            if (self.is_show_all_k_points):
+                self.kappa_ax.set_title("Activation Diameter for all Kappa points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
+            else:
+                self.kappa_ax.set_title("Activation Diameter for average Kappa Points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
+            self.kappa_points.set_offsets(numpy.c_[k_points_x_list, k_points_y_list])
         self.view.update_kappa_graph()
 
     def on_pick_kappa_points(self, event):
@@ -1483,7 +1487,7 @@ class Controller():
         self.scan_position_in_data = []
         self.usable_for_kappa_cal_list = []
         self.invalid_k_points_list = []
-        self.kappa_points = []
+        self.kappa_points_data_list = []
         gc.collect()
 
     # ---------------------progress bar-------------------------

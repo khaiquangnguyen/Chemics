@@ -381,3 +381,72 @@ def draw_all_scans_alignment_summary_graph(self):
     #     self.all_scans_alignment_ax = ax
     #
     # self.view.update_temp_and_min_figure(self.all_scans_alignment_graph)
+
+
+
+    # class AverageKappaPointsDataTable(QTableWidget):
+# def resize(self, parent_width, parent_height):
+    #     self.setFixedHeight(parent_height)
+    #     self.setFixedWidth(parent_width)
+    #     self.verticalHeader().setDefaultSectionSize(self.height() / 25)
+
+    # def __init__(self, main_window=None):
+    #     QTableWidget.__init__(self)
+    #     self.setRowCount(0)
+    #     self.setShowGrid(False)
+    #     self.verticalHeader().setVisible(False)
+    #     self.horizontalHeader().setVisible(False)
+    #     self.verticalHeader().setDefaultSectionSize(self.height() / 25)
+    #     self.setWordWrap(True)
+    #     self.setFrameStyle(QFrame.NoFrame)
+    #
+    #     self.main_window = main_window
+    #
+    #     # set background color
+    #     self.setAutoFillBackground(True)
+    #     palette = QPalette()
+    #     palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
+    #     self.setPalette(palette)
+
+    # def update_data(self):
+    #     for i in range(self.rowCount()):
+    #         self.removeRow(self.rowCount() - 1)
+    #
+    #     data_dict = self.main_window.controller.alpha_pinene_dict
+    #     self.setColumnCount(len(data_dict.keys()) + 1)
+    #     self.headerList = []
+    #     ssHeader = SingleTableHeaderItem("SS(%)")
+    #     meanDPHeader = SingleTableHeaderItem("MeanDp(nm)")
+    #     stdDPheader = SingleTableHeaderItem("StdDp(nm)")
+    #     meanAppHeader = SingleTableHeaderItem("Mean K, app")
+    #     stdAppHeader = SingleTableHeaderItem("Std K, app")
+    #     meanAnaHeader = SingleTableHeaderItem("Mean K, ana")
+    #     stdAnaHeader = SingleTableHeaderItem("Std K, ana")
+    #     meanDeviHeader = SingleTableHeaderItem("Mean of %Deviation")
+    #     deviMeanHeader = SingleTableHeaderItem("%Deviation of Mean")
+    #     self.headerList.append(ssHeader)
+    #     self.headerList.append(meanDPHeader)
+    #     self.headerList.append(stdDPheader)
+    #     self.headerList.append(meanAppHeader)
+    #     self.headerList.append(stdAppHeader)
+    #     self.headerList.append(meanAnaHeader)
+    #     self.headerList.append(stdAnaHeader)
+    #     self.headerList.append(meanDeviHeader)
+    #     self.headerList.append(deviMeanHeader)
+    #
+    #     # Insert Header
+    #     for i in range(0, len(self.headerList)):
+    #         self.insertRow(self.rowCount())
+    #         self.setCellWidget(self.rowCount() - 1, 0, self.headerList[i])
+    #     count = 1
+    #     for a_key in data_dict.keys():
+    #         a_list = [a_key]
+    #         a_list.extend(data_dict[a_key])
+    #         self.add_message(a_list, count)
+    #         count += 1
+
+    # def add_message(self, data_list, column_pos):
+    #     for i in range(len(data_list)-1):
+    #         a_cell = '% .2f' % data_list[i]
+    #         a_cell = SingleTableItem(a_cell)
+    #         self.setCellWidget(i, column_pos, a_cell)
