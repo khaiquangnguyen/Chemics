@@ -56,7 +56,7 @@ class ScanInformationTable(QTableWidget):
 
     def update_experiment_information(self):
         # add header for table
-        header = TableHeader("Experiment Information")
+        header = AllTableHeader("Experiment Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         # add table cells
@@ -72,7 +72,7 @@ class ScanInformationTable(QTableWidget):
             for i in range(self.rowCount() - 6):
                 self.removeRow(self.rowCount() - 1)
         # add header
-        header = TableHeader("Scan Information")
+        header = AllTableHeader("Scan Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         # add table cells
@@ -91,7 +91,7 @@ class ScanInformationTable(QTableWidget):
             for i in range(self.rowCount() - 6):
                 self.removeRow(self.rowCount() - 1)
         # add header
-        header = TableHeader("Scan Information")
+        header = AllTableHeader("Scan Information")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         current_scan = self.main_window.controller.current_scan
@@ -105,7 +105,7 @@ class ScanInformationTable(QTableWidget):
         self.add_message("CCNC Data Shift (s)",self.main_window.controller.shift_factor_list[current_scan])
         self.add_message("Super Saturation (%)", self.main_window.controller.super_saturation_rate)
         # add header
-        header = TableHeader("Sigmoid Fit Parameters")
+        header = AllTableHeader("Sigmoid Fit Parameters")
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         # add table cells
@@ -127,7 +127,7 @@ class ScanInformationTable(QTableWidget):
         if type(message) is not str:
             message = '{0:.2f}'.format(message).rstrip('0').rstrip('.')
         message = str(message)
-        item = TableItem(field, message, color)
+        item = AlignmentTableItem(field, message, color)
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, item)
 

@@ -26,6 +26,7 @@ ButtonFont = None
 # possible sizes are size in points|xx-small|x-small|small|medium|large|x-large|xx-large
 # for additional property: https://matplotlib.org/api/text_api.html#matplotlib.text.Text
 
+TABLE_ROW_HIGHLIGHT_COLOR = '#EF5350'
 
 AX_LINE_COLOR = "0.6"
 AX_TICK_COLOR = "0.6"

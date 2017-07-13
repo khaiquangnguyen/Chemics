@@ -179,8 +179,8 @@ class View(QMainWindow):
         self.centralWidget().graph_widget.temp_and_alignment_view.update_figure(new_figure)
 
     def calculate_kappa_value(self):
-        self.controller.calculate_kappa_value()
         self.centralWidget().switch_to_kappa_widget()
+        self.controller.calculate_kappa_value()
         self.controller.draw_kappa_graph()
 
     def update_experiment_information(self):
@@ -222,7 +222,9 @@ class View(QMainWindow):
         self.controller.solubility = solu
 
     def update_kappa_graph(self):
-        self.centralWidget().graph_widget.graphView.update_figure(self.controller.kappa_graph)
+        self.centralWidget().graph_widget.update_figure(self.controller.kappa_graph)
+        self.centralWidget().info_widget.update_data()
+        self.centralWidget().resize()
 
     def get_concentration(self):
         return_value = self.controller.flow_rate
@@ -266,7 +268,6 @@ class ControlPanel(QWidget):
         self.layout.addWidget(self.info_widget)
         self.layout.addWidget(self.graph_widget)
         self.setLayout(self.layout)
-        self.info_widget.update_data()
         self.resize()
 
     def switch_to_scan_widget(self):

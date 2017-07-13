@@ -1162,6 +1162,8 @@ class Controller():
                     self.kappa_points_data_list.append((i, key))
             else:
                 self.kappa_points_data_list.append((self.alpha_pinene_dict[key][0], key))
+        self.kappa_points_data_list.sort(key=lambda tup: tup[0],reverse = True)
+
         k_points_x_list = []
         k_points_y_list = []
         all_k_points_color_list = []
@@ -1254,27 +1256,27 @@ class Controller():
             else:
                 self.kappa_ax.set_title("Activation Diameter for average Kappa Points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
             self.kappa_points.set_offsets(numpy.c_[k_points_x_list, k_points_y_list])
+        print ("drawing")
         self.view.update_kappa_graph()
 
     def on_pick_kappa_points(self, event):
         """
         When a kappa point is clicked
         """
-        kappaPoint = event.ind[0]
-        if not self.is_show_all_k_points:
-            pass
+        kappa_point = event.ind[0]
+        self.view.centralWidget().info_widget.update_data()
+        self.view.centralWidget().info_widget.information_table.toggle_color(kappa_point)
         excluded = False
         # if already in excluded list, include the points
         for i in range(len(self.invalid_k_points_list)):
-            if self.invalid_k_points_list[i] == kappaPoint:
+            if self.invalid_k_points_list[i] == kappa_point:
                 self.invalid_k_points_list = self.invalid_k_points_list[:i] + self.invalid_k_points_list[i + 1:]
                 excluded = True
                 break
         # else, exclude the point
         if not excluded:
-            self.invalid_k_points_list.append(kappaPoint)
+            self.invalid_k_points_list.append(kappa_point)
         # Remake the kappa graph
-        self.draw_kappa_graph()
 
     ##############################################
     #

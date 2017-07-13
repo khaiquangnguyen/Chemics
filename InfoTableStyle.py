@@ -9,18 +9,18 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 import time
 
 
-class TableItem(QWidget):
+class AlignmentTableItem(QWidget):
     def __init__(self,field,message, color = None):
         QWidget.__init__(self)
         self.layout = QVBoxLayout()
         margin = self.height() / 400
         self.layout.setContentsMargins(0, margin, 0, margin)
-        self.content = InnerTableItem(field, message, color)
+        self.content = AlignmentInnerTableItem(field, message, color)
         self.layout.addWidget(self.content)
         self.setLayout(self.layout)
 
 
-class InnerTableItem(QWidget):
+class AlignmentInnerTableItem(QWidget):
     def __init__(self,field,message, color):
         QWidget.__init__(self)
         self.layout = QGridLayout()
@@ -38,13 +38,13 @@ class InnerTableItem(QWidget):
         self.setPalette(palette)
 
 
-class SingleTableItem(QWidget):
+class KappaTableItem(QWidget):
     def __init__(self, message):
         QWidget.__init__(self)
         self.layout = QHBoxLayout()
-        self.infoText = InfoText(message)
+        self.info_text = InfoText(message)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.addWidget(self.infoText)
+        self.layout.addWidget(self.info_text)
         self.setLayout(self.layout)
         self.setAutoFillBackground(True)
         palette = QPalette()
@@ -52,24 +52,9 @@ class SingleTableItem(QWidget):
         self.setPalette(palette)
 
     def toggle_color(self):
-        self.infoText.toggle_color()
+        self.info_text.toggle_color()
 
-
-class SingleTableHeaderItem(QWidget):
-    def __init__(self, message):
-        QWidget.__init__(self)
-        self.layout = QHBoxLayout()
-        self.fieldText = FieldText(message)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.addWidget(self.fieldText)
-        self.setLayout(self.layout)
-        self.setAutoFillBackground(True)
-        palette = QPalette()
-        palette.setColor(QPalette.Base, settings.infoAreaItemBackgroundColor)
-        self.setPalette(palette)
-
-
-class TableHeader(QWidget):
+class AllTableHeader(QWidget):
     def __init__(self, header):
         QWidget.__init__(self)
         self.layout = QHBoxLayout()
@@ -120,6 +105,7 @@ class FieldText(QLabel):
         font.setPointSize(size)
         self.setFont(font)
 
+
 class InfoText(QLabel):
     def __init__(self, message, color = None):
         QLabel.__init__(self, message)
@@ -145,6 +131,6 @@ class InfoText(QLabel):
 
     def toggle_color(self):
         palette = self.palette()
-        palette.setColor(QPalette.Base, settings.NEGATIVE_USABILITY_BUTTON_COLOR)
+        palette.setColor(QPalette.Base, settings.TABLE_ROW_HIGHLIGHT_COLOR)
         self.setPalette(palette)
 

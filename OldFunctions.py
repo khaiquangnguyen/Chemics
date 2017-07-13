@@ -450,3 +450,91 @@ def draw_all_scans_alignment_summary_graph(self):
     #         a_cell = '% .2f' % data_list[i]
     #         a_cell = SingleTableItem(a_cell)
     #         self.setCellWidget(i, column_pos, a_cell)
+
+
+class KappaControlTabWidget(QWidget):
+    def resize(self, parent_width, parent_height):
+        self.setFixedHeight(parent_height * 1 / 10)
+        self.setFixedWidth(parent_width)
+        self.show_parameters_button.resize(self.width(), self.height())
+        self.toggle_average_all_k_points_button.resize(self.width(), self.height())
+
+    def __init__(self, main_window=None):
+        self.main_window = main_window
+        QWidget.__init__(self)
+        self.layout = QHBoxLayout()
+        self.layout.setContentsMargins(0, 10, 60, 10)
+
+        self.show_parameters_button = CustomButton("Parameters", main_window)
+        self.toggle_average_all_k_points_button = CustomButton("Ave Points", main_window)
+
+        self.show_parameters_button.clicked.connect(self.on_click_show_parameters)
+        self.toggle_average_all_k_points_button.clicked.connect(self.on_click_toggle_all_average_k_points)
+
+        self.layout.addWidget(self.show_parameters_button)
+        self.layout.addWidget(self.toggle_average_all_k_points_button)
+
+        self.setLayout(self.layout)
+        self.setAutoFillBackground(True)
+        palette = QPalette()
+        palette.setColor(QPalette.Background, settings.controlAreaBackgroundColor)
+        self.setPalette(palette)
+        # self.toggle_all_less_k_lines_button = CustomButton("Less Lines", main_window)
+        # self.show_raw_data_button = CustomButton("Kappa Data", main_window)
+        # self.show_graph_data_button = CustomButton("Graph Data", main_window)
+        # self.show_raw_data_button.clicked.connect(self.on_click_show_raw_data)
+        # self.show_graph_data_button.clicked.connect(self.on_click_show_graph)
+        # self.layout.addWidget(self.toggle_all_less_k_lines_button)
+        # self.layout.addWidget(self.show_raw_data_button)
+        # self.layout.addWidget(self.show_graph_data_button)
+        # self.toggle_all_less_k_lines_button.clicked.connect(self.on_click_toggle_k_lines)
+
+    def on_click_show_parameters(self):
+        self.main_window.centralWidget().info_widget.change_to_parameters_data_table()
+
+    def on_click_toggle_all_average_k_points(self):
+        # order of these functions are important. we need to call draw_kappa_graph first
+        # to update the list of kappa points, then call show_data_for... to update the UI
+        if (self.main_window.controller.is_show_all_k_points):
+            self.main_window.controller.is_show_all_k_points = False
+            self.toggle_average_all_k_points_button.setText("All Points")
+            self.main_window.controller.draw_kappa_graph()
+            self.main_window.centralWidget().info_widget.show_data_for_ave_k_points()
+        else:
+            self.main_window.controller.is_show_all_k_points = True
+            self.toggle_average_all_k_points_button.setText("Ave Points")
+            self.main_window.controller.draw_kappa_graph()
+            self.main_window.centralWidget().info_widget.show_data_for_all_k_points()
+
+
+    # def on_click_toggle_k_lines(self):
+    #     if (self.main_window.controller.is_show_all_k_lines):
+    #         self.main_window.controller.is_show_all_k_lines = False
+    #         self.toggle_all_less_k_lines_button.setText("All Lines")
+    #     else:
+    #         self.main_window.controller.is_show_all_k_lines = True
+    #         self.toggle_all_less_k_lines_button.setText("Less Lines")
+    #     self.main_window.controller.draw_kappa_graph()
+
+    # def on_click_show_graph(self):
+    #     self.main_window.centralWidget().info_widget.show_data_for_ave_k_points()
+
+    # def on_click_show_raw_data(self):
+    #     self.main_window.centralWidget().info_widget.show_data_for_all_k_points()
+
+
+# class SingleTableHeaderItem(QWidget):
+#     def __init__(self, message):
+#         QWidget.__init__(self)
+#         self.layout = QHBoxLayout()
+#         self.field_text = FieldText(message)
+#         self.layout.setContentsMargins(0, 0, 0, 0)
+#         self.layout.addWidget(self.field_text)
+#         self.setLayout(self.layout)
+#         self.setAutoFillBackground(True)
+#         palette = QPalette()
+#         palette.setColor(QPalette.Base, settings.infoAreaItemBackgroundColor)
+#         self.setPalette(palette)
+#
+#     def toggle_color(self):
+#         self.field_text.toggle_color()
