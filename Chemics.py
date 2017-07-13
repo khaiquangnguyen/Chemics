@@ -158,6 +158,7 @@ class Controller():
         self.all_scans_alignment_ax = None
         self.all_scans_alignment_bars = []
         self.all_scans_alignment_visited = []
+        self.graph_current_selection = None
 
     ##############################################
     #
@@ -1163,7 +1164,7 @@ class Controller():
             else:
                 self.kappa_points_data_list.append((self.alpha_pinene_dict[key][0], key))
         self.kappa_points_data_list.sort(key=lambda tup: tup[0],reverse = True)
-
+        self.kappa_points_data_list.sort(key=lambda tup: tup[1],reverse = True)
         k_points_x_list = []
         k_points_y_list = []
         all_k_points_color_list = []
@@ -1240,12 +1241,12 @@ class Controller():
             else:
                 ax.set_title("Activation Diameter for average Kappa Points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
             figure.canvas.mpl_connect('pick_event', self.on_pick_kappa_points)
-
             for i in range(kappa_start_pos, kappa_end_pos):
                 y = self.klines_data[header[i]]
                 ax.loglog(diameter_list, y, label=str(header[i]), linewidth=4)
             # Graph all the kappa points
             self.kappa_points = ax.scatter(k_points_x_list, k_points_y_list, s = 300, c = all_k_points_color_list, picker=5)
+
             handles, labels = ax.get_legend_handles_labels()
             legend = ax.legend(handles, labels, facecolor=LEGEND_BG_COLOR, fontsize=LEGEND_FONT_SIZE)
             self.kappa_graph = figure
@@ -1256,27 +1257,61 @@ class Controller():
             else:
                 self.kappa_ax.set_title("Activation Diameter for average Kappa Points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
             self.kappa_points.set_offsets(numpy.c_[k_points_x_list, k_points_y_list])
-        print ("drawing")
+            x = k_points_x_list[self.current_point]
+            y = k_points_y_list[self.current_point]
+            if self.graph_current_selection is None:
+                self.graph_current_selection, = self.kappa_ax.plot(x,y,'o',color=NEGATIVE_USABILITY_BUTTON_COLOR,mew=0.5, ms=20, label="current selection")
+            else:
+                self.graph_current_selection.set_xdata(x)
+                self.graph_current_selection.set_ydata(y)
         self.view.update_kappa_graph()
+
+    def on_key_release_kappa_graph(self,event):
+        key = event.key()
+        if self.current_point is None:
+            self.current_point = len(self.kappa_points_data_list)-1
+        # left arrow key
+        elif (key == 16777234):
+            self.current_point = min(len(self.kappa_points_data_list)-1, self.current_point + 1)
+        # right arrow key
+        elif (key == 16777236):
+            self.current_point = max(0,self.current_point-1)
+        elif (key == 16777235):
+            curr_ss = self.kappa_points_data_list[self.current_point][1]
+            for i in range(len(self.kappa_points_data_list)-1,-1,-1):
+                if self.kappa_points_data_list[i][1] > curr_ss:
+                    self.current_point = i
+                    break
+        elif (key == 16777237):
+            curr_ss = self.kappa_points_data_list[self.current_point][1]
+            for i in range(len(self.kappa_points_data_list)):
+                if self.kappa_points_data_list[i][1] < curr_ss:
+                    self.current_point = i
+                    break
+        self.draw_kappa_graph()
+        self.view.centralWidget().info_widget.update_data()
+        self.view.centralWidget().info_widget.information_table.toggle_color(self.current_point)
+
 
     def on_pick_kappa_points(self, event):
         """
         When a kappa point is clicked
         """
-        kappa_point = event.ind[0]
+        self.current_point = event.ind[0]
+        self.draw_kappa_graph()
         self.view.centralWidget().info_widget.update_data()
-        self.view.centralWidget().info_widget.information_table.toggle_color(kappa_point)
-        excluded = False
-        # if already in excluded list, include the points
-        for i in range(len(self.invalid_k_points_list)):
-            if self.invalid_k_points_list[i] == kappa_point:
-                self.invalid_k_points_list = self.invalid_k_points_list[:i] + self.invalid_k_points_list[i + 1:]
-                excluded = True
-                break
-        # else, exclude the point
-        if not excluded:
-            self.invalid_k_points_list.append(kappa_point)
-        # Remake the kappa graph
+        self.view.centralWidget().info_widget.information_table.toggle_color(self.current_point)
+        # excluded = False
+        # # if already in excluded list, include the points
+        # for i in range(len(self.invalid_k_points_list)):
+        #     if self.invalid_k_points_list[i] == self.current_point:
+        #         self.invalid_k_points_list = self.invalid_k_points_list[:i] + self.invalid_k_points_list[i + 1:]
+        #         excluded = True
+        #         break
+        # # else, exclude the point
+        # if not excluded:
+        #     self.invalid_k_points_list.append(self.current_point)
+        # # Remake the kappa graph
 
     ##############################################
     #

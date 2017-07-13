@@ -54,7 +54,6 @@ class KappaInformationAndDataWidget(QWidget):
                 else:
                     self.clear_layout(item.layout())
 
-
 class AllKappaPointsDataTable(QTableWidget):
     def resize(self, parent_width, parent_height):
         self.setFixedHeight(parent_height)
@@ -286,6 +285,8 @@ class KappaGraphWidget(QWidget):
 
     def update_figure(self,figure):
         self.kappa_graph_view.update_figure(figure)
+
+
 
 
 class KappaControlTabWidget(QWidget):

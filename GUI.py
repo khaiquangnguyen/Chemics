@@ -247,12 +247,12 @@ class ControlPanel(QWidget):
     def __init__(self, main_window=None):
         QWidget.__init__(self)
         # addSubWidget
-        self.mainWindow = main_window
+        self.main_window = main_window
         self.layout = QHBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        self.info_widget = ScanInformationWidget(self.mainWindow)
-        self.graph_widget = ScanGraphsWidget(self.mainWindow)
+        self.info_widget = ScanInformationWidget(self.main_window)
+        self.graph_widget = ScanGraphsWidget(self.main_window)
         self.layout.addWidget(self.info_widget)
         self.layout.addWidget(self.graph_widget)
         self.setLayout(self.layout)
@@ -263,8 +263,8 @@ class ControlPanel(QWidget):
 
     def switch_to_kappa_widget(self):
         self.clear_layout(self.layout)
-        self.info_widget = KappaInformationAndDataWidget(self.mainWindow)
-        self.graph_widget = KappaGraphWidget(self.mainWindow)
+        self.info_widget = KappaInformationAndDataWidget(self.main_window)
+        self.graph_widget = KappaGraphWidget(self.main_window)
         self.layout.addWidget(self.info_widget)
         self.layout.addWidget(self.graph_widget)
         self.setLayout(self.layout)
@@ -272,8 +272,8 @@ class ControlPanel(QWidget):
 
     def switch_to_scan_widget(self):
         self.clear_layout(self.layout)
-        self.info_widget = ScanInformationWidget(self.mainWindow)
-        self.graph_widget = ScanGraphsWidget(self.mainWindow)
+        self.info_widget = ScanInformationWidget(self.main_window)
+        self.graph_widget = ScanGraphsWidget(self.main_window)
         self.layout.addWidget(self.info_widget)
         self.layout.addWidget(self.graph_widget)
         self.setLayout(self.layout)
@@ -288,3 +288,12 @@ class ControlPanel(QWidget):
                     widget.deleteLater()
                 else:
                     self.clear_layout(item.layout())
+
+    def keyReleaseEvent(self, event):
+        if not self.main_window.controller.kappa_ax:
+            return
+        else:
+            self.main_window.controller.on_key_release_kappa_graph(event)
+
+
+
