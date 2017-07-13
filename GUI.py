@@ -17,6 +17,7 @@ from AlignmentUI import *
 from KappaUI import *
 import webbrowser
 import urllib2
+from timeit import default_timer as timer
 
 matplotlib.use('Qt4Agg')
 matplotlib.rcParams['backend.qt4'] = 'PySide'
@@ -290,6 +291,7 @@ class ControlPanel(QWidget):
                     self.clear_layout(item.layout())
 
     def keyReleaseEvent(self, event):
+        print event.key()
         if not self.main_window.controller.kappa_ax:
             return
         else:

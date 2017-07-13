@@ -9,6 +9,7 @@ import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 import time
+from timeit import default_timer as timer
 
 
 class KappaInformationAndDataWidget(QWidget):
@@ -53,6 +54,7 @@ class KappaInformationAndDataWidget(QWidget):
                     widget.deleteLater()
                 else:
                     self.clear_layout(item.layout())
+
 
 class AllKappaPointsDataTable(QTableWidget):
     def resize(self, parent_width, parent_height):
@@ -200,6 +202,11 @@ class AverageKappaPointsDataTable(QTableWidget):
         self.setFixedWidth(parent_width)
         self.verticalHeader().setDefaultSectionSize(self.height() / 25)
 
+    def reset_data(self):
+        for i in range(self.rowCount()):
+            for j in range(self.columnCount()):
+                self.cellWidget(i, j).toggle_color()
+
     def toggle_color(self,row):
         for i in range(self.columnCount()):
             self.cellWidget(row+1,i).toggle_color()
@@ -287,8 +294,6 @@ class KappaGraphWidget(QWidget):
         self.kappa_graph_view.update_figure(figure)
 
 
-
-
 class KappaControlTabWidget(QWidget):
     def resize(self, parent_width, parent_height):
         self.setFixedHeight(parent_height * 1 / 10)
@@ -318,7 +323,19 @@ class KappaControlTabWidget(QWidget):
         self.setPalette(palette)
 
     def on_click_show_parameters(self):
-        self.main_window.centralWidget().info_widget.change_to_parameters_data_table()
+        controller = self.main_window.controller
+        kappaVars = (
+            controller.sigma, controller.temp, controller.dd, controller.iKappa, controller.dd2, controller.iKappa2,
+            controller.solubility)
+        sig = kappaVars[0]
+        temp = kappaVars[1]
+        dd1 = kappaVars[2]
+        iKappa1 = kappaVars[3]
+        dd2 = kappaVars[4]
+        iKappa2 = kappaVars[5]
+        solu = kappaVars[6]
+        kappa_var_dialog = KappaVarDialog(sig, temp, dd1, iKappa1, dd2, iKappa2, solu, self.main_window)
+        kappa_var_dialog.exec_()
 
     def on_click_toggle_all_average_k_points(self):
         if (self.main_window.controller.is_show_all_k_points):
@@ -329,6 +346,8 @@ class KappaControlTabWidget(QWidget):
             self.main_window.controller.is_show_all_k_points = True
             self.toggle_average_all_k_points_button.setText("Ave Points")
             self.main_window.centralWidget().info_widget.show_data_for_all_k_points()
+        # reset certain attributes of kappa to draw correctly
+        self.main_window.controller.current_point = 0
         self.main_window.controller.draw_kappa_graph()
 
 
@@ -341,11 +360,39 @@ class KappaFigureCanvas(FigureCanvas):
         fig = Figure(facecolor=settings.GRAPH_BACKGROUND_COLOR)
         super(self.__class__, self).__init__(fig)
 
-    def update_figure(self, figure):
-        self.figure = figure
-        self.draw()
+    def update_figure(self, new_figure):
+        if new_figure is None:
+            return
+        if self.figure != new_figure:
+            self.figure = new_figure
+            h = self.height()
+            self.setFixedHeight(h / 2)
+            self.setFixedHeight(h)
+        else:
+            self.draw()
+            self.flush_events()
 
-        # A hack to make the figure update to the size of the Figure Canvas
-        h = self.height()
-        self.setFixedHeight(h / 2)
-        self.setFixedHeight(h)
+
+class KappaVarDialog(QDialog):
+    def __init__(self, sigma, temp, dd1, iKappa1, dd2, iKapp2, solu, main_window=None):
+        super(self.__class__, self).__init__()
+        self.mainWindow = main_window
+        self.formLayout = QFormLayout()
+        self.sigmaLine = QLabel(str(sigma))
+        self.tempLine = QLabel(str(temp))
+        self.dd1Line = QLabel(str(dd1))
+        self.iKappa1Line = QLabel(str(iKappa1))
+        self.dd2Line = QLabel(str(dd2))
+        self.iKappa2Line = QLabel(str(iKapp2))
+        self.soluLine = QLabel(str(solu))
+        self.formLayout.addRow(self.tr("&Sigma"), self.sigmaLine)
+        self.formLayout.addRow(self.tr("&Temperature"), self.tempLine)
+        self.formLayout.addRow(self.tr("&dry diameter(1)"), self.dd1Line)
+        self.formLayout.addRow(self.tr("&iKappa(1)"), self.iKappa1Line)
+        self.formLayout.addRow(self.tr("&dry diameter(2)"), self.dd2Line)
+        self.formLayout.addRow(self.tr("&iKappa(2)"), self.iKappa2Line)
+        self.formLayout.addRow(self.tr("&solubility"), self.soluLine)
+        self.setLayout(self.formLayout)
+
+
+

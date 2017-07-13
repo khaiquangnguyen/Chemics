@@ -1246,24 +1246,32 @@ class Controller():
                 y = self.klines_data[header[i]]
                 ax.loglog(diameter_list, y, label=str(header[i]), linewidth=4)
             # Graph all the kappa points
-            self.kappa_points = ax.scatter(k_points_x_list, k_points_y_list, s = 300, c = all_k_points_color_list, picker=5)
-
+            self.kappa_points = ax.scatter(k_points_x_list, k_points_y_list, s = 300, c = all_k_points_color_list, picker=5, label = "kappa points")
+            if self.current_point is None:
+                self.current_point = len(self.kappa_points_data_list)-1
+            x = k_points_x_list[self.current_point]
+            y = k_points_y_list[self.current_point]
+            self.graph_current_selection, = ax.plot(x, y, 'o', color=NEGATIVE_USABILITY_BUTTON_COLOR,
+                                                               mew=0.5, ms=18, label="current selection")
             handles, labels = ax.get_legend_handles_labels()
             legend = ax.legend(handles, labels, facecolor=LEGEND_BG_COLOR, fontsize=LEGEND_FONT_SIZE)
             self.kappa_graph = figure
             self.kappa_ax = ax
+            self.view.update_kappa_graph()
+
         else:
             if (self.is_show_all_k_points):
                 self.kappa_ax.set_title("Activation Diameter for all Kappa points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
             else:
                 self.kappa_ax.set_title("Activation Diameter for average Kappa Points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
             self.kappa_points.set_offsets(numpy.c_[k_points_x_list, k_points_y_list])
-            if self.graph_current_selection is None:
-                self.graph_current_selection, = self.kappa_ax.plot(x,y,'o',color=NEGATIVE_USABILITY_BUTTON_COLOR,mew=0.5, ms=20, label="current selection")
-            else:
-                self.graph_current_selection.set_xdata(x)
-                self.graph_current_selection.set_ydata(y)
-        self.view.update_kappa_graph()
+            if self.current_point is None:
+                self.current_point = len(self.kappa_points_data_list)-1
+            x = k_points_x_list[self.current_point]
+            y = k_points_y_list[self.current_point]
+            self.graph_current_selection.set_xdata(x)
+            self.graph_current_selection.set_ydata(y)
+            self.view.update_kappa_graph()
 
     def on_key_release_kappa_graph(self,event):
         key = event.key()
@@ -1288,9 +1296,7 @@ class Controller():
                     self.current_point = i
                     break
         self.draw_kappa_graph()
-        self.view.centralWidget().info_widget.update_data()
         self.view.centralWidget().info_widget.information_table.toggle_color(self.current_point)
-
 
     def on_pick_kappa_points(self, event):
         """
@@ -1298,7 +1304,6 @@ class Controller():
         """
         self.current_point = event.ind[0]
         self.draw_kappa_graph()
-        self.view.centralWidget().info_widget.update_data()
         self.view.centralWidget().info_widget.information_table.toggle_color(self.current_point)
         # excluded = False
         # # if already in excluded list, include the points

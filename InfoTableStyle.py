@@ -54,6 +54,7 @@ class KappaTableItem(QWidget):
     def toggle_color(self):
         self.info_text.toggle_color()
 
+
 class AllTableHeader(QWidget):
     def __init__(self, header):
         QWidget.__init__(self)
@@ -84,6 +85,9 @@ class AllTableHeader(QWidget):
         font.setPointSize(size)
         self.setFont(font)
 
+    def toggle_color(self):
+        pass
+
 
 class FieldText(QLabel):
     def __init__(self,message):
@@ -104,6 +108,9 @@ class FieldText(QLabel):
         size = max(10, self.height() * 2 / 10)
         font.setPointSize(size)
         self.setFont(font)
+
+    def toggle_color(self):
+        pass
 
 
 class InfoText(QLabel):
