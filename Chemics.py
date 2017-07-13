@@ -1241,6 +1241,7 @@ class Controller():
             else:
                 ax.set_title("Activation Diameter for average Kappa Points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
             figure.canvas.mpl_connect('pick_event', self.on_pick_kappa_points)
+            # graph the k lines
             for i in range(kappa_start_pos, kappa_end_pos):
                 y = self.klines_data[header[i]]
                 ax.loglog(diameter_list, y, label=str(header[i]), linewidth=4)
@@ -1257,8 +1258,6 @@ class Controller():
             else:
                 self.kappa_ax.set_title("Activation Diameter for average Kappa Points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
             self.kappa_points.set_offsets(numpy.c_[k_points_x_list, k_points_y_list])
-            x = k_points_x_list[self.current_point]
-            y = k_points_y_list[self.current_point]
             if self.graph_current_selection is None:
                 self.graph_current_selection, = self.kappa_ax.plot(x,y,'o',color=NEGATIVE_USABILITY_BUTTON_COLOR,mew=0.5, ms=20, label="current selection")
             else:
