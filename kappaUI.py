@@ -148,8 +148,8 @@ class AverageKappaPointsDataTable(QTableWidget):
         palette = QPalette()
         self.SelectItems
         palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
-        palette.setColor(QPalette.Highlight, settings.NEGATIVE_USABILITY_BUTTON_COLOR)
-        palette.setColor(QPalette.HighlightedText,settings.NEGATIVE_USABILITY_BUTTON_COLOR)
+        palette.setColor(QPalette.Highlight, settings.NEGATIVE_USABILITY_COLOR)
+        palette.setColor(QPalette.HighlightedText, settings.NEGATIVE_USABILITY_COLOR)
         self.setPalette(palette)
 
     def update_data(self):
@@ -210,67 +210,6 @@ class AverageKappaPointsDataTable(QTableWidget):
     def toggle_color(self,row):
         for i in range(self.columnCount()):
             self.cellWidget(row+1,i).toggle_color()
-
-
-class KappaParamsDataTable(QTableWidget):
-    def resize(self, parent_width, parent_height):
-        self.setFixedHeight(parent_height)
-        self.setFixedWidth(parent_width)
-        self.verticalHeader().setDefaultSectionSize(self.height() / 25)
-
-    def __init__(self, main_window=None):
-        QTableWidget.__init__(self)
-        self.setColumnCount(1)
-        self.setRowCount(0)
-        self.setShowGrid(False)
-        self.verticalHeader().setVisible(False)
-        self.horizontalHeader().setVisible(False)
-        self.horizontalHeader().setStretchLastSection(True)
-        self.verticalHeader().setDefaultSectionSize(self.height() / 25)
-        self.setWordWrap(True)
-        self.resizeRowsToContents()
-        self.setFrameStyle(QFrame.NoFrame)
-        self.mainWindow = main_window
-
-        self.setAutoFillBackground(True)
-        palette = QPalette()
-        palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
-        self.setPalette(palette)
-
-    def update_data(self):
-        for i in range(self.rowCount()):
-            self.removeRow(self.rowCount() - 1)
-
-        header = AllTableHeader("Variables")
-        self.insertRow(self.rowCount())
-        self.setCellWidget(self.rowCount() - 1, 0, header)
-        controller = self.mainWindow.controller
-        kappaVars = (controller.sigma, controller.temp, controller.dd, controller.iKappa, controller.dd2, controller.iKappa2, controller.solubility)
-        s = kappaVars[0]
-        t = kappaVars[1]
-        d1 = kappaVars[2]
-        i1 = kappaVars[3]
-        d2 = kappaVars[4]
-        i2 = kappaVars[5]
-        solu = kappaVars[6]
-        # TODO: get unit for this
-        self.add_message("Sigma", s)
-        self.add_message("Temperature (k)", t)
-        self.add_message("dry diamater(1) (nm)", d1)
-        self.add_message("iKppa(1)", i1)
-        self.add_message("dry diamater(2) (nm)", d2)
-        self.add_message("iKppa(2)", i2)
-        self.add_message("Solubility", solu)
-
-    def add_message(self, field, message):
-        message = str(message)
-        item = AlignmentTableItem(field, message)
-        self.insertRow(self.rowCount())
-        self.setCellWidget(self.rowCount()-1, 0, item)
-
-    def toggle_color(self,row):
-        pass
-
 
 class KappaGraphWidget(QWidget):
     def resize(self, parent_width, parent_height):

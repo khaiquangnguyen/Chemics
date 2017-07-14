@@ -48,7 +48,7 @@ class KappaTableItem(QWidget):
         self.setLayout(self.layout)
         self.setAutoFillBackground(True)
         palette = QPalette()
-        palette.setColor(QPalette.Base, settings.NEGATIVE_USABILITY_BUTTON_COLOR)
+        palette.setColor(QPalette.Base, settings.NEGATIVE_USABILITY_COLOR)
         self.setPalette(palette)
 
     def toggle_color(self):

@@ -1,6 +1,4 @@
 
-GRAPH_BACKGROUND_COLOR = "#424242"
-NEGATIVE_USABILITY_BUTTON_COLOR = '#EF5350'
 infoAreaBackgroundColor = "#616161"
 infoAreaItemColor = "#E0E0E0"
 infoAreaItemBackgroundColor = "#424242"
@@ -26,8 +24,7 @@ ButtonFont = None
 # possible sizes are size in points|xx-small|x-small|small|medium|large|x-large|xx-large
 # for additional property: https://matplotlib.org/api/text_api.html#matplotlib.text.Text
 
-TABLE_ROW_HIGHLIGHT_COLOR = '#EF5350'
-
+GRAPH_BACKGROUND_COLOR = "#424242"
 AX_LINE_COLOR = "0.6"
 AX_TICK_COLOR = "0.6"
 AX_TICK_SIZE = "x-large"
@@ -53,6 +50,7 @@ CCNC_SMPS_POINT_COLOR = "#2196F3"
 CCNC_SMPS_RATIO_CORRECTED_POINT_COLOR = "#1565C0"
 SIGMOID_LINE_COLOR = '#EF5350'
 
+NEGATIVE_USABILITY_COLOR = '#EF5350'
 SCAN_SUMMARY_USABLE_SCAN_COLOR = '#2196F3'
 SCAN_SUMMARY_UNUSABLE_SCAN_COLOR = '#EF5350'
 SCAN_SUMMARY_HIGHLIGHT_COLOR = '#50ef5d'
@@ -61,6 +59,7 @@ KAPPA_USABLE_POINT_COLOR = '#2196F3'
 KAPPA_UNUSABLE_POINT_COLOR = '#EF5350'
 KAPPA_CURRENT_SELECTION_COLOR = '#50ef5d'
 
+TABLE_ROW_HIGHLIGHT_COLOR = '#50ef5d'
 
 
 

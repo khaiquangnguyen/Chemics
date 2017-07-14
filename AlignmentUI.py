@@ -79,7 +79,7 @@ class ScanInformationTable(QTableWidget):
         if self.main_window.controller.usable_for_sigmoid_fit_list[current_scan]:
             self.add_message("Usability for Sigmoid Fit", "Positive")
         else:
-            self.add_message("Usability for Sigmoid Fit", "Negative", color=settings.NEGATIVE_USABILITY_BUTTON_COLOR)
+            self.add_message("Usability for Sigmoid Fit", "Negative", color=settings.NEGATIVE_USABILITY_COLOR)
         self.add_message("Scan Start Time (h/m/s)", self.main_window.controller.scan_start_time_list[current_scan])
         self.add_message("Scan #", current_scan + 1)
         self.add_message("CCNC Data Shift (s)", self.main_window.controller.shift_factor_list[current_scan])

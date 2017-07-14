@@ -1129,6 +1129,7 @@ class Controller():
         self.alpha_pinene_dict = {}
         for a_key in self.kappa_calculate_dict.keys():
             aSSList = self.kappa_calculate_dict[a_key]
+            temp_dp50List = []
             dp50List = []
             appKappaList = []
             anaKappaList = []
@@ -1136,11 +1137,12 @@ class Controller():
             for aSS in aSSList:
                 dp50List.append(aSS[0])
                 if self.kappa_points_is_included_list[(aSS[0],a_key)]:
+                    temp_dp50List.append(aSS[0])
                     appKappaList.append(aSS[1])
                     anaKappaList.append(aSS[2])
                     meanDevList.append(aSS[3])
-            meanDp = average(dp50List)
-            stdDp = numpy.std(dp50List)
+            meanDp = average(temp_dp50List)
+            stdDp = numpy.std(temp_dp50List)
             meanApp = average(appKappaList)
             stdApp = numpy.std(appKappaList)
             meanAna = average(anaKappaList)
@@ -1170,7 +1172,8 @@ class Controller():
                 for i in self.alpha_pinene_dict[key][-1]:
                     self.kappa_points_data_list.append((i, key))
             else:
-                self.kappa_points_data_list.append((self.alpha_pinene_dict[key][0], key))
+                if not math.isnan(self.alpha_pinene_dict[key][0]):
+                    self.kappa_points_data_list.append((self.alpha_pinene_dict[key][0], key))
         self.kappa_points_data_list.sort(key=lambda tup: tup[0],reverse = True)
         self.kappa_points_data_list.sort(key=lambda tup: tup[1],reverse = True)
         if self.current_point is None:
