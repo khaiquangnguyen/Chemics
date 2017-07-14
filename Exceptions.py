@@ -9,11 +9,6 @@ class FileParseError(Exception):
         pass
 
 
-class FileProcessingError(Exception):
-    def __init__(self):
-        pass
-
-
 class SMPSCountError(Exception):
     def __init__(self):
         pass
@@ -29,22 +24,12 @@ class NormalizedConcentrationError(Exception):
         pass
 
 
-class DataError(Exception):
+class SigmoidFitGetParameterError(Exception):
     def __init__(self):
         pass
 
 
-class DataPreparationError(Exception):
-    def __init__(self):
-        pass
-
-
-class ScanDataError(Exception):
-    def __init__(self):
-        pass
-
-
-class SigmoidFitError(Exception):
+class SigmoidLineFitError(Exception):
     def __init__(self):
         pass
 

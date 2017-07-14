@@ -538,7 +538,8 @@ class Controller():
         except FileParseError:
             self.view.show_error_dialog("Fail to process the SMPS or CCNC files! Please check the files again!")
         except NormalizedConcentrationError:
-            self.view.show_error_dialog("Can't process dN/dLogDp data from the SMPS file!")
+            self.view.show_error_dialog("Fail to acquire normalized concentration (dN/dLogDp) "
+                                        "data from the SMPS(.txt) file!")
         except SMPSCountError():
             self.view.show_error_dialog(
                 "Fail to acquire SMPS count from SMPS file! Please check the SMPS(.txt) file again!")
@@ -721,7 +722,7 @@ class Controller():
             self.b = get_ave_none_zero(asymsList)
             self.usable_for_kappa_cal_list[self.current_scan] = True
         except:
-            raise ScanDataError()
+            raise SigmoidFitGetParameterError()
 
     def fit_sigmoid_line(self):
         # TODO: show why some runs fail
@@ -752,7 +753,7 @@ class Controller():
                     break
             self.usable_for_kappa_cal_list[self.current_scan] = True
         except:
-            raise SigmoidFitError()
+            raise SigmoidLineFitError()
 
     def refitting_sigmoid_line(self, min_dry_diameter, min_dry_diameter_asymptote, max_dry_diameter_asymptote):
         self.move_progress_bar_forward("Refitting sigmoid line to scan #" + str(self.current_scan + 1),
@@ -760,7 +761,7 @@ class Controller():
         try:
             if not self.usable_for_sigmoid_fit_list[self.current_scan]:
                 self.view.show_error_dialog("Can't fit sigmoid line to current scan!")
-                raise SigmoidFitError()
+                raise SigmoidLineFitError()
             self.prepare_scan_data()
             self.move_progress_bar_forward()
             self.get_parameters_for_sigmoid_fit(min_dry_diameter, min_dry_diameter_asymptote,
@@ -801,7 +802,7 @@ class Controller():
         """
         try:
             if not self.usable_for_sigmoid_fit_list[self.current_scan]:
-                raise SigmoidFitError
+                raise SigmoidLineFitError
             self.ccnc_sig_list = []
             self.prepare_scan_data()
             remove_small_ccn(self.ccn_list, self.min_ccn)
