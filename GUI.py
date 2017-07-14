@@ -205,7 +205,7 @@ class View(QMainWindow):
             self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
         else:
             if self.controller.usable_for_kappa_cal_list[curr_scan] and self.controller.usable_for_sigmoid_fit_list[
-                                                                                                            curr_scan]:
+                curr_scan]:
                 self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Disable Scan")
             else:
                 self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
@@ -230,11 +230,12 @@ class View(QMainWindow):
         ss = self.controller.kappa_points_data_list[self.controller.current_point][1]
         dp = self.controller.kappa_points_data_list[self.controller.current_point][0]
         if self.controller.is_show_all_k_points:
-            status = self.controller.kappa_points_is_included_list[(dp,ss)]
+            status = self.controller.kappa_points_is_included_list[(dp, ss)]
             if status:
                 self.centralWidget().graph_widget.control_widget.toggle_k_point_status_button.setText("Disable")
             else:
                 self.centralWidget().graph_widget.control_widget.toggle_k_point_status_button.setText("Enable")
+        self.centralWidget().setFocus()
 
     def get_concentration(self):
         return_value = self.controller.flow_rate
@@ -300,11 +301,8 @@ class ControlPanel(QWidget):
                     self.clear_layout(item.layout())
 
     def keyReleaseEvent(self, event):
-        print event.key()
-        if not self.main_window.controller.kappa_ax:
-            return
-        else:
+        # finish kappa
+        if self.main_window.controller.kappa_ax:
             self.main_window.controller.on_key_release_kappa_graph(event)
-
-
-
+        else:
+            self.main_window.controller.on_key_release(event)

@@ -81,7 +81,7 @@ class AllKappaPointsDataTable(QTableWidget):
 
     def update_data(self):
         for i in range(self.rowCount()):
-            self.removeRow(self.rowCount()-1)
+            self.removeRow(self.rowCount() - 1)
         self.insertRow(self.rowCount())
         ss = AllTableHeader('ss')
         self.setCellWidget(self.rowCount() - 1, 0, ss)
@@ -106,33 +106,33 @@ class AllKappaPointsDataTable(QTableWidget):
                         app = aSS[1]
                         ana = aSS[2]
                         devi = aSS[3]
-                        if usability_list[(dp,ss)]:
+                        if usability_list[(dp, ss)]:
                             self.add_message(ss, dp, app, ana, devi)
                         else:
                             self.add_message(ss, dp, app, ana, devi, settings.NEGATIVE_USABILITY_COLOR)
                         break
 
-    def add_message(self, ss, dp, app, ana, devi,color = None):
+    def add_message(self, ss, dp, app, ana, devi, color=None):
         ss = ('% .2f' % ss)
         dp = ('% .4f' % dp)
         app = ('% .4f' % app)
         ana = ('% .4f' % ana)
         devi = ('% .4f' % devi)
         self.insertRow(self.rowCount())
-        ss = KappaTableItem(ss,color)
+        ss = KappaTableItem(ss, color)
         self.setCellWidget(self.rowCount() - 1, 0, ss)
-        dp = KappaTableItem(dp,color)
+        dp = KappaTableItem(dp, color)
         self.setCellWidget(self.rowCount() - 1, 1, dp)
-        app = KappaTableItem(app,color)
+        app = KappaTableItem(app, color)
         self.setCellWidget(self.rowCount() - 1, 2, app)
-        ana = KappaTableItem(ana,color)
+        ana = KappaTableItem(ana, color)
         self.setCellWidget(self.rowCount() - 1, 3, ana)
-        devi = KappaTableItem(devi,color)
+        devi = KappaTableItem(devi, color)
         self.setCellWidget(self.rowCount() - 1, 4, devi)
 
-    def toggle_color(self,row):
+    def toggle_color(self, row):
         for i in range(self.columnCount()):
-            self.cellWidget(row+1,i).toggle_color()
+            self.cellWidget(row + 1, i).toggle_color()
 
 
 class AverageKappaPointsDataTable(QTableWidget):
@@ -158,7 +158,7 @@ class AverageKappaPointsDataTable(QTableWidget):
 
     def update_data(self):
         for i in range(self.rowCount()):
-            self.removeRow(self.rowCount()-1)
+            self.removeRow(self.rowCount() - 1)
         self.insertRow(self.rowCount())
         ss = AllTableHeader('ss')
         self.setCellWidget(self.rowCount() - 1, 0, ss)
@@ -211,9 +211,9 @@ class AverageKappaPointsDataTable(QTableWidget):
             for j in range(self.columnCount()):
                 self.cellWidget(i, j).toggle_color()
 
-    def toggle_color(self,row):
+    def toggle_color(self, row):
         for i in range(self.columnCount()):
-            self.cellWidget(row+1,i).toggle_color()
+            self.cellWidget(row + 1, i).toggle_color()
 
 
 class KappaGraphWidget(QWidget):
@@ -234,7 +234,7 @@ class KappaGraphWidget(QWidget):
         self.layout.addWidget(self.kappa_graph_view)
         self.layout.addWidget(self.control_widget)
 
-    def update_figure(self,figure):
+    def update_figure(self, figure):
         self.kappa_graph_view.update_figure(figure)
 
 
@@ -345,6 +345,3 @@ class KappaVarDialog(QDialog):
         self.formLayout.addRow(self.tr("&iKappa(2)"), self.iKappa2Line)
         self.formLayout.addRow(self.tr("&solubility"), self.soluLine)
         self.setLayout(self.formLayout)
-
-
-

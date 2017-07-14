@@ -144,7 +144,7 @@ class Controller():
         self.kappa_excel = None
         self.shift_factor_list = []
         self.invalid_k_points_list = []
-        self.kappa_points_data_list = []     # format of data is (dp,ss)
+        self.kappa_points_data_list = []  # format of data is (dp,ss)
         self.klines_data = None
         self.max_kappa = None
         self.min_kappa = None
@@ -159,7 +159,7 @@ class Controller():
         self.all_scans_alignment_bars = []
         self.all_scans_alignment_visited = []
         self.graph_current_selection = None
-        self.kappa_points_is_included_list = {}     # format of key is (dp,ss)
+        self.kappa_points_is_included_list = {}  # format of key is (dp,ss)
 
     ##############################################
     #
@@ -992,6 +992,15 @@ class Controller():
                 if i != self.current_scan:
                     self.switch_to_scan(i)
 
+    def on_key_release(self, event):
+        key = event.key()
+        # left arrow key
+        if key == 16777234 or key == 16777237:
+            self.switch_to_scan(max(0, self.current_scan - 1))
+        # right arrow key
+        elif key == 16777236 or key == 16777235:
+            self.switch_to_scan(min(self.current_scan + 1, self.number_of_scan - 1))
+
     ##############################################
     #
     # KAPPA CALCULATION
@@ -1026,7 +1035,6 @@ class Controller():
         if self.kappa_excel is None:
             self.kappa_excel = pandas.read_csv("kCal.csv", header=None)
         lookup = self.kappa_excel
-        self.move_progress_bar_forward("Calculating necessary parameters...")
         self.aParam = 0.00000869251 * self.sigma / self.temp
         self.asc = (exp(sqrt(4 * self.aParam ** 3 / (27 * self.iKappa * (self.dd * 0.000000001) ** 3))) - 1) * 100
         # Calculate each kappa
@@ -1053,7 +1061,6 @@ class Controller():
                 d = 0
             self.appKappa = (ss - (a - (a - b) / (c - d) * c)) / ((a - b) / (c - d))
             if not scCalcs:
-                self.move_progress_bar_forward("Calculating sc...")
                 # Calculate the sc Calculation
                 firstAKappa = self.appKappa
                 # Calcualte the first row of scCalcs
@@ -1117,7 +1124,7 @@ class Controller():
                 self.kappa_calculate_dict[ss].append([dp50, self.appKappa, self.anaKappa, kDevi, self.trueSC])
             else:
                 self.kappa_calculate_dict[ss] = ([[dp50, self.appKappa, self.anaKappa, kDevi, self.trueSC]])
-            self.kappa_points_is_included_list[(dp50,ss)] = True
+            self.kappa_points_is_included_list[(dp50, ss)] = True
         self.update_kappa_info_and_graph()
 
     def calculate_average_kappa_values(self):
@@ -1136,7 +1143,7 @@ class Controller():
             meanDevList = []
             for aSS in aSSList:
                 dp50List.append(aSS[0])
-                if self.kappa_points_is_included_list[(aSS[0],a_key)]:
+                if self.kappa_points_is_included_list[(aSS[0], a_key)]:
                     temp_dp50List.append(aSS[0])
                     appKappaList.append(aSS[1])
                     anaKappaList.append(aSS[2])
@@ -1149,7 +1156,8 @@ class Controller():
             stdAna = numpy.std(anaKappaList)
             meanDev = average(meanDevList)
             devMean = (meanApp - meanAna) / meanApp * 100
-            self.alpha_pinene_dict[a_key] = (meanDp, stdDp, meanApp, stdApp, meanAna, stdAna, meanDev, devMean, dp50List)
+            self.alpha_pinene_dict[a_key] = (
+            meanDp, stdDp, meanApp, stdApp, meanAna, stdAna, meanDev, devMean, dp50List)
 
     def update_kappa_info_and_graph(self):
         self.calculate_average_kappa_values()
@@ -1174,8 +1182,8 @@ class Controller():
             else:
                 if not math.isnan(self.alpha_pinene_dict[key][0]):
                     self.kappa_points_data_list.append((self.alpha_pinene_dict[key][0], key))
-        self.kappa_points_data_list.sort(key=lambda tup: tup[0],reverse = True)
-        self.kappa_points_data_list.sort(key=lambda tup: tup[1],reverse = True)
+        self.kappa_points_data_list.sort(key=lambda tup: tup[0], reverse=True)
+        self.kappa_points_data_list.sort(key=lambda tup: tup[1], reverse=True)
         if self.current_point is None:
             self.current_point = len(self.kappa_points_data_list) - 1
         k_points_x_list = []
@@ -1189,7 +1197,7 @@ class Controller():
             if self.is_show_all_k_points:
                 ss = self.kappa_points_data_list[i][1]
                 dp = self.kappa_points_data_list[i][0]
-                if self.kappa_points_is_included_list[(dp,ss)]:
+                if self.kappa_points_is_included_list[(dp, ss)]:
                     all_k_points_color_list.append(KAPPA_USABLE_POINT_COLOR)
                 else:
                     all_k_points_color_list.append(KAPPA_UNUSABLE_POINT_COLOR)
@@ -1252,21 +1260,24 @@ class Controller():
             ax.set_xlabel("Dry diameter(nm)", color=LABEL_COLOR, size=LABEL_SIZE)
             ax.set_ylabel("Super Saturation(%)", color=LABEL_COLOR, size=LABEL_SIZE)
             if (self.is_show_all_k_points):
-                ax.set_title("Activation Diameter for all Kappa points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
+                ax.set_title("Activation Diameter for all Kappa points and Lines of Constant Kappa (K)",
+                             color=TITLE_COLOR, size=TITLE_SIZE)
             else:
-                ax.set_title("Activation Diameter for average Kappa Points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
+                ax.set_title("Activation Diameter for average Kappa Points and Lines of Constant Kappa (K)",
+                             color=TITLE_COLOR, size=TITLE_SIZE)
             figure.canvas.mpl_connect('pick_event', self.on_pick_kappa_points)
             # graph the k lines
             for i in range(kappa_start_pos, kappa_end_pos):
                 y = self.klines_data[header[i]]
                 ax.loglog(diameter_list, y, label=str(header[i]), linewidth=4)
             # Graph all the kappa points
-            self.kappa_points = ax.scatter(k_points_x_list, k_points_y_list, s = 300, c = all_k_points_color_list, picker=5, label = "kappa points")
+            self.kappa_points = ax.scatter(k_points_x_list, k_points_y_list, s=300, c=all_k_points_color_list, picker=5,
+                                           label="kappa points")
             x = k_points_x_list[self.current_point]
             y = k_points_y_list[self.current_point]
             # graph the current selection point
             self.graph_current_selection, = ax.plot(x, y, 'o', color=KAPPA_CURRENT_SELECTION_COLOR,
-                                                               mew=0.5, ms=18, label="current selection")
+                                                    mew=0.5, ms=18, label="current selection")
             handles, labels = ax.get_legend_handles_labels()
             legend = ax.legend(handles, labels, facecolor=LEGEND_BG_COLOR, fontsize=LEGEND_FONT_SIZE)
             self.kappa_graph = figure
@@ -1274,9 +1285,11 @@ class Controller():
 
         else:
             if (self.is_show_all_k_points):
-                self.kappa_ax.set_title("Activation Diameter for all Kappa points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
+                self.kappa_ax.set_title("Activation Diameter for all Kappa points and Lines of Constant Kappa (K)",
+                                        color=TITLE_COLOR, size=TITLE_SIZE)
             else:
-                self.kappa_ax.set_title("Activation Diameter for average Kappa Points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
+                self.kappa_ax.set_title("Activation Diameter for average Kappa Points and Lines of Constant Kappa (K)",
+                                        color=TITLE_COLOR, size=TITLE_SIZE)
             self.kappa_points.set_offsets(numpy.c_[k_points_x_list, k_points_y_list])
             self.kappa_points.set_color(all_k_points_color_list)
             x = k_points_x_list[self.current_point]
@@ -1284,7 +1297,7 @@ class Controller():
             self.graph_current_selection.set_xdata(x)
             self.graph_current_selection.set_ydata(y)
 
-    def on_key_release_kappa_graph(self,event):
+    def on_key_release_kappa_graph(self, event):
         """
         When keys are pressed. Used to select current kappa points
         :param event: key press event
@@ -1292,17 +1305,17 @@ class Controller():
         """
         key = event.key()
         if self.current_point is None:
-            self.current_point = len(self.kappa_points_data_list)-1
+            self.current_point = len(self.kappa_points_data_list) - 1
         # left arrow key
         elif (key == 16777234):
-            self.current_point = min(len(self.kappa_points_data_list)-1, self.current_point + 1)
+            self.current_point = min(len(self.kappa_points_data_list) - 1, self.current_point + 1)
         # right arrow key
         elif (key == 16777236):
-            self.current_point = max(0,self.current_point-1)
+            self.current_point = max(0, self.current_point - 1)
         # up arrow key
         elif (key == 16777235):
             curr_ss = self.kappa_points_data_list[self.current_point][1]
-            for i in range(len(self.kappa_points_data_list)-1,-1,-1):
+            for i in range(len(self.kappa_points_data_list) - 1, -1, -1):
                 if self.kappa_points_data_list[i][1] > curr_ss:
                     self.current_point = i
                     break
@@ -1332,10 +1345,10 @@ class Controller():
         """
         ss = self.kappa_points_data_list[self.current_point][1]
         dp = self.kappa_points_data_list[self.current_point][0]
-        if self.kappa_points_is_included_list[(dp,ss)]:
-            self.kappa_points_is_included_list[(dp,ss)] = False
+        if self.kappa_points_is_included_list[(dp, ss)]:
+            self.kappa_points_is_included_list[(dp, ss)] = False
         else:
-            self.kappa_points_is_included_list[(dp,ss)] = True
+            self.kappa_points_is_included_list[(dp, ss)] = True
         self.update_kappa_info_and_graph()
 
     ##############################################
@@ -1481,6 +1494,7 @@ class Controller():
             self.draw_ccn_cn_ratio_over_diameter_graph()
             self.draw_temperature_graph()
             self.view.update_scan_information()
+        self.view.centralWidget().setFocus()
 
     def reset(self):
         i = 1

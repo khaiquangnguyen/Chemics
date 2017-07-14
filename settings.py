@@ -1,4 +1,3 @@
-
 infoAreaBackgroundColor = "#616161"
 infoAreaItemColor = "#E0E0E0"
 infoAreaItemBackgroundColor = "#424242"
@@ -11,14 +10,12 @@ simpleButtonColor = "#EEEEEE"
 simpleButtonTextColor = "#000000"
 specialButtonColor = "#EEEEEE"
 
-
 infoAreaHeaderColor = "#212121"
 infoAreaHeaderFontColor = "#EEEEEE"
 
 infoAreaHeaderFont = None
 infoAreaItemFont = None
 ButtonFont = None
-
 
 # all colors are from 0 to 1. 0 is black and 1 is white. RGB is applicable as well
 # possible sizes are size in points|xx-small|x-small|small|medium|large|x-large|xx-large
@@ -60,7 +57,3 @@ KAPPA_UNUSABLE_POINT_COLOR = '#EF5350'
 KAPPA_CURRENT_SELECTION_COLOR = '#50ef5d'
 
 TABLE_ROW_HIGHLIGHT_COLOR = '#50ef5d'
-
-
-
-
