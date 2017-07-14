@@ -229,11 +229,13 @@ class View(QMainWindow):
         self.centralWidget().info_widget.information_table.toggle_color(self.controller.current_point)
         ss = self.controller.kappa_points_data_list[self.controller.current_point][1]
         dp = self.controller.kappa_points_data_list[self.controller.current_point][0]
-        status = self.controller.kappa_points_is_included_list[(ss,dp)]
-        if status:
-            self.centralWidget().graph_widget.control_widget.toggle_k_point_status_button.setText("Disable")
-        else:
-            self.centralWidget().graph_widget.control_widget.toggle_k_point_status_button.setText("Enable")
+        if self.controller.is_show_all_k_points:
+            status = self.controller.kappa_points_is_included_list[(dp,ss)]
+            if status:
+                self.centralWidget().graph_widget.control_widget.toggle_k_point_status_button.setText("Disable")
+            else:
+                self.centralWidget().graph_widget.control_widget.toggle_k_point_status_button.setText("Enable")
+
 
     def get_concentration(self):
         return_value = self.controller.flow_rate

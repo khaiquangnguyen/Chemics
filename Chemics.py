@@ -144,7 +144,7 @@ class Controller():
         self.kappa_excel = None
         self.shift_factor_list = []
         self.invalid_k_points_list = []
-        self.kappa_points_data_list = []
+        self.kappa_points_data_list = []     # format of data is (dp,ss)
         self.klines_data = None
         self.max_kappa = None
         self.min_kappa = None
@@ -159,7 +159,7 @@ class Controller():
         self.all_scans_alignment_bars = []
         self.all_scans_alignment_visited = []
         self.graph_current_selection = None
-        self.kappa_points_is_included_list = {}
+        self.kappa_points_is_included_list = {}     # format of key is (dp,ss)
 
     ##############################################
     #
@@ -1117,13 +1117,8 @@ class Controller():
                 self.kappa_calculate_dict[ss].append([dp50, self.appKappa, self.anaKappa, kDevi, self.trueSC])
             else:
                 self.kappa_calculate_dict[ss] = ([[dp50, self.appKappa, self.anaKappa, kDevi, self.trueSC]])
-            self.kappa_points_is_included_list[(ss,dp50)] = True
+            self.kappa_points_is_included_list[(dp50,ss)] = True
         self.update_kappa_info_and_graph()
-
-    def update_kappa_info_and_graph(self):
-        self.calculate_average_kappa_values()
-        self.draw_kappa_graph()
-        self.view.update_kappa_info_and_graph()
 
     def calculate_average_kappa_values(self):
         """
@@ -1131,6 +1126,7 @@ class Controller():
         same super saturation
         :return:
         """
+        self.alpha_pinene_dict = {}
         for a_key in self.kappa_calculate_dict.keys():
             aSSList = self.kappa_calculate_dict[a_key]
             dp50List = []
@@ -1138,8 +1134,8 @@ class Controller():
             anaKappaList = []
             meanDevList = []
             for aSS in aSSList:
-                if self.kappa_points_is_included_list[(a_key,aSS[0])]:
-                    dp50List.append(aSS[0])
+                dp50List.append(aSS[0])
+                if self.kappa_points_is_included_list[(aSS[0],a_key)]:
                     appKappaList.append(aSS[1])
                     anaKappaList.append(aSS[2])
                     meanDevList.append(aSS[3])
@@ -1152,6 +1148,11 @@ class Controller():
             meanDev = average(meanDevList)
             devMean = (meanApp - meanAna) / meanApp * 100
             self.alpha_pinene_dict[a_key] = (meanDp, stdDp, meanApp, stdApp, meanAna, stdAna, meanDev, devMean, dp50List)
+
+    def update_kappa_info_and_graph(self):
+        self.calculate_average_kappa_values()
+        self.draw_kappa_graph()
+        self.view.update_kappa_info_and_graph()
 
     def draw_kappa_graph(self):
         if self.klines_data is None:
@@ -1185,7 +1186,7 @@ class Controller():
             if self.is_show_all_k_points:
                 ss = self.kappa_points_data_list[i][1]
                 dp = self.kappa_points_data_list[i][0]
-                if self.kappa_points_is_included_list[(ss,dp)]:
+                if self.kappa_points_is_included_list[(dp,ss)]:
                     all_k_points_color_list.append(KAPPA_USABLE_POINT_COLOR)
                 else:
                     all_k_points_color_list.append(KAPPA_UNUSABLE_POINT_COLOR)
@@ -1274,6 +1275,7 @@ class Controller():
             else:
                 self.kappa_ax.set_title("Activation Diameter for average Kappa Points and Lines of Constant Kappa (K)", color=TITLE_COLOR, size=TITLE_SIZE)
             self.kappa_points.set_offsets(numpy.c_[k_points_x_list, k_points_y_list])
+            self.kappa_points.set_color(all_k_points_color_list)
             x = k_points_x_list[self.current_point]
             y = k_points_y_list[self.current_point]
             self.graph_current_selection.set_xdata(x)
@@ -1327,13 +1329,11 @@ class Controller():
         """
         ss = self.kappa_points_data_list[self.current_point][1]
         dp = self.kappa_points_data_list[self.current_point][0]
-        if self.kappa_points_is_included_list[(ss,dp)]:
-            self.kappa_points_is_included_list[(ss,dp)] = False
+        if self.kappa_points_is_included_list[(dp,ss)]:
+            self.kappa_points_is_included_list[(dp,ss)] = False
         else:
-            self.kappa_points_is_included_list[(ss, dp)] = False
+            self.kappa_points_is_included_list[(dp,ss)] = True
         self.update_kappa_info_and_graph()
-
-
 
     ##############################################
     #

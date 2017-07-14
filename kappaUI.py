@@ -345,10 +345,12 @@ class KappaControlTabWidget(QWidget):
             self.main_window.controller.is_show_all_k_points = False
             self.toggle_average_all_k_points_button.setText("All Points")
             self.main_window.centralWidget().info_widget.show_data_for_ave_k_points()
+            self.toggle_k_point_status_button.hide()
         else:
             self.main_window.controller.is_show_all_k_points = True
             self.toggle_average_all_k_points_button.setText("Ave Points")
             self.main_window.centralWidget().info_widget.show_data_for_all_k_points()
+            self.toggle_k_point_status_button.show()
         # reset certain attributes of kappa to draw correctly
         self.main_window.controller.current_point = None
         self.main_window.controller.update_kappa_info_and_graph()
