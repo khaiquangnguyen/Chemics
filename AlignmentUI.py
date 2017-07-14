@@ -98,7 +98,7 @@ class ScanInformationTable(QTableWidget):
         if self.main_window.controller.usable_for_sigmoid_fit_list[current_scan]:
             self.add_message("Usability for Sigmoid Fit", "Positive")
         else:
-            self.add_message("Usability for Sigmoid Fit", "Negative", color=NEGATIVE_USABILITY_BUTTON_COLOR)
+            self.add_message("Usability for Sigmoid Fit", "Negative", color=settings.NEGATIVE_USABILITY_COLOR)
         self.add_message("Scan Start Time (h/m/s)", self.main_window.controller.scan_start_time_list[current_scan])
         self.add_message("Scan #", current_scan + 1)
         self.add_message("CCNC Data Shift (s)", self.main_window.controller.shift_factor_list[current_scan])
@@ -112,7 +112,7 @@ class ScanInformationTable(QTableWidget):
                 self.main_window.controller.usable_for_sigmoid_fit_list[current_scan]:
             self.add_message("Usability for Kappa", "Positive")
         else:
-            self.add_message("Usability for Kappa", "Negative", color=NEGATIVE_USABILITY_BUTTON_COLOR)
+            self.add_message("Usability for Kappa", "Negative", color=settings.NEGATIVE_USABILITY_COLOR)
         self.add_message('minDp (nm)', self.main_window.controller.min_dp)
         self.add_message('minDpAsym (nm)', self.main_window.controller.min_dp_asym)
         self.add_message('maxDpAsym (nm)', self.main_window.controller.max_dp_asym)
@@ -251,7 +251,7 @@ class ButtonsWidget(QWidget):
 
     def on_click_fit_sigmoid_line(self):
         self.main_window.controller.correct_charges_and_fit_sigmoid_all_scans()
-        if self.main_window.controller.finish_sigmoid_fit_phase:
+        if self.main_window.controller.finish_scan_alignment:
             self.sigmoid_fit_button.hide()
             self.layout.addWidget(self.update_sigmoid_fit_parameters, 2, 1, 3, 1)
             self.layout.addWidget(self.calc_kappa_button, 2, 5, 3, 1)

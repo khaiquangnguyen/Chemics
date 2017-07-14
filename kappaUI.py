@@ -244,6 +244,7 @@ class KappaControlTabWidget(QWidget):
         self.setFixedWidth(parent_width)
         self.show_parameters_button.resize(self.width(), self.height())
         self.toggle_average_all_k_points_button.resize(self.width(), self.height())
+        self.toggle_k_point_status_button.resize(self.width(),self.height())
 
     def __init__(self, main_window=None):
         self.main_window = main_window

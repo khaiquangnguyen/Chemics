@@ -81,7 +81,7 @@ class Controller():
         self.processed_data = None
         self.raw_data = None
         self.current_point = None
-        self.finish_sigmoid_fit_phase = False
+        self.finish_scan_alignment = False
         self.cancelling_progress_bar = False
         self.usable_for_sigmoid_fit_list = []
 
@@ -759,7 +759,8 @@ class Controller():
                                        max_value=2)
         try:
             if not self.usable_for_sigmoid_fit_list[self.current_scan]:
-                self.view.show_error_dialog("The current scan is not enable for sigmoidal fit!")
+                self.view.show_error_dialog("Can't fit sigmoid line to current scan!")
+                raise SigmoidFitError()
             self.prepare_scan_data()
             self.move_progress_bar_forward()
             self.get_parameters_for_sigmoid_fit(min_dry_diameter, min_dry_diameter_asymptote,
@@ -800,34 +801,30 @@ class Controller():
         """
         try:
             if not self.usable_for_sigmoid_fit_list[self.current_scan]:
-                self.prepare_scan_data()
-                raise SigmoidFitError()
-            else:
-                self.ccnc_sig_list = []
-                self.prepare_scan_data()
-                remove_small_ccn(self.ccn_list, self.min_ccn)
-                self.init_correct_charges()
-                start = timer()
-                self.particle_diameter_list = numpy.asarray(self.particle_diameter_list)
-                self.cn_list = numpy.asarray(self.cn_list)
-                self.ccn_list = numpy.asarray(self.ccn_list)
-                self.cn_fixed_list = numpy.asarray(self.cn_fixed_list)
-                self.ccn_fixed_list = numpy.asarray(self.ccn_fixed_list)
-                self.g_cn_list = numpy.asarray(self.g_cn_list)
-                self.g_ccn_list = numpy.asarray(self.g_ccn_list)
-                for i in range(5):
-                    self.particle_diameter_list, self.cn_list, self.ccn_list, self.cn_fixed_list, \
-                    self.ccn_fixed_list, self.g_cn_list, self.g_ccn_list = FastDpCalculator.correct_charges(
-                        self.particle_diameter_list, self.cn_list, self.ccn_list, self.cn_fixed_list,
-                        self.ccn_fixed_list,
-                        self.g_cn_list, self.g_ccn_list)
-                for i in range(len(self.ccn_fixed_list)):
-                    self.ccnc_sig_list.append(self.ccn_fixed_list[i] / self.cn_fixed_list[i])
-                self.get_parameters_for_sigmoid_fit()
-                self.fit_sigmoid_line()
+                raise SigmoidFitError
+            self.ccnc_sig_list = []
+            self.prepare_scan_data()
+            remove_small_ccn(self.ccn_list, self.min_ccn)
+            self.particle_diameter_list = numpy.asarray(self.particle_diameter_list)
+            self.cn_list = numpy.asarray(self.cn_list)
+            self.ccn_list = numpy.asarray(self.ccn_list)
+            self.cn_fixed_list = numpy.asarray(self.cn_fixed_list)
+            self.ccn_fixed_list = numpy.asarray(self.ccn_fixed_list)
+            self.g_cn_list = numpy.asarray(self.g_cn_list)
+            self.g_ccn_list = numpy.asarray(self.g_ccn_list)
+            self.init_correct_charges()
+            for i in range(5):
+                self.particle_diameter_list, self.cn_list, self.ccn_list, self.cn_fixed_list, \
+                self.ccn_fixed_list, self.g_cn_list, self.g_ccn_list = FastDpCalculator.correct_charges(
+                    self.particle_diameter_list, self.cn_list, self.ccn_list, self.cn_fixed_list,
+                    self.ccn_fixed_list,
+                    self.g_cn_list, self.g_ccn_list)
+            for i in range(len(self.ccn_fixed_list)):
+                self.ccnc_sig_list.append(self.ccn_fixed_list[i] / self.cn_fixed_list[i])
+            self.get_parameters_for_sigmoid_fit()
+            self.fit_sigmoid_line()
         except:
             self.usable_for_kappa_cal_list[self.current_scan] = False
-            self.usable_for_sigmoid_fit_list[self.current_scan] = False
             self.b_list.append(0)
             self.d_list.append(0)
             self.c_list.append(0)
@@ -841,7 +838,6 @@ class Controller():
         else:
             # Store processed_data
             self.usable_for_kappa_cal_list[self.current_scan] = True
-            self.usable_for_sigmoid_fit_list[self.current_scan] = True
             self.min_dp_list.append(self.min_dp)
             self.min_dp_asym_list.append(self.min_dp_asym)
             self.max_dp_asym_list.append(self.max_dp_asym)
@@ -867,11 +863,11 @@ class Controller():
                 self.correct_charges_and_fit_sigmoid_one_scan()
             self.current_scan = -1
             self.move_progress_bar_forward(complete=True)
-            self.finish_sigmoid_fit_phase = True
+            self.finish_scan_alignment = True
             self.switch_to_scan(0)
         except ProgressBarInterruptException:
             self.view.show_error_dialog("The sigmoid fitting process is cancelled!")
-            self.finish_sigmoid_fit_phase = False
+            self.finish_scan_alignment = False
             self.parse_and_match_smps_ccnc_data()
 
     # -------------------------graphs-----------------------------
@@ -959,7 +955,7 @@ class Controller():
             self.all_scans_alignment_bars = ax.bar(range(1, self.number_of_scan + 1), self.shift_factor_list,
                                                    color=SCAN_SUMMARY_USABLE_SCAN_COLOR, picker=True, align='center')
             for i in range(len(self.usable_for_sigmoid_fit_list)):
-                if not self.usable_for_sigmoid_fit_list[i]:
+                if not self.usable_for_sigmoid_fit_list[i] or not self.usable_for_kappa_cal_list[i]:
                     self.all_scans_alignment_bars[i].set_facecolor(SCAN_SUMMARY_UNUSABLE_SCAN_COLOR)
             self.all_scans_alignment_visited[self.current_scan] = True
             for i in range(len(self.all_scans_alignment_visited)):
@@ -972,7 +968,7 @@ class Controller():
             self.all_scans_alignment_ax = ax
         else:
             for i in range(len(self.usable_for_sigmoid_fit_list)):
-                if not self.usable_for_sigmoid_fit_list[i]:
+                if not self.usable_for_sigmoid_fit_list[i] or not self.usable_for_kappa_cal_list[i]:
                     self.all_scans_alignment_bars[i].set_facecolor(SCAN_SUMMARY_UNUSABLE_SCAN_COLOR)
                 else:
                     self.all_scans_alignment_bars[i].set_facecolor(SCAN_SUMMARY_USABLE_SCAN_COLOR)
@@ -1041,7 +1037,7 @@ class Controller():
         firstAKappa = 0
         scCalcs = False
         for i in range(len(self.dp50_list)):
-            if not self.usable_for_kappa_cal_list[i] or not self.usable_for_sigmoid_fit_list[i]:
+            if not self.usable_for_kappa_cal_list[i]:
                 continue
             ss = float(self.dp50_list[i][1])
             dp50 = float(self.dp50_list[i][0])
@@ -1383,7 +1379,7 @@ class Controller():
                 normalized_concentration_list.append(self.normalized_concentration_list[i][self.current_scan + 1])
             self.ccn_normalized_list = normalize_list(normalized_concentration_list)
             self.super_saturation_rate = self.super_saturation_list[self.current_scan]
-            if self.finish_sigmoid_fit_phase:
+            if self.finish_scan_alignment:
                 self.ccnc_sig_list = self.ccnc_sig_list_list[self.current_scan]
                 self.b = self.b_list[self.current_scan]
                 self.d = self.d_list[self.current_scan]
@@ -1417,10 +1413,12 @@ class Controller():
 
     def shift_data_by_one_second(self, forward=True):
         try:
-            if not self.usable_for_kappa_cal_list[self.current_scan] or not self.usable_for_sigmoid_fit_list[
-                self.current_scan] or self.min_pos_SMPS_list[
-                self.current_scan] is None or \
-                            self.min_pos_CCNC_list[self.current_scan] is None:
+            # can't shift if already pass the alignment step
+            if self.finish_scan_alignment:
+                return
+            # invalid scan. Can't shift
+            if not self.usable_for_sigmoid_fit_list[self.current_scan] or self.min_pos_SMPS_list[self.current_scan] \
+                    is None or self.min_pos_CCNC_list[self.current_scan] is None:
                 return
             shift_factor = self.shift_factor_list[self.current_scan]
             if forward is True:
@@ -1452,7 +1450,8 @@ class Controller():
             self.view.show_error_dialog("Can't shift processed_data. You should disable this peak!")
 
     def change_scan_status(self):
-        if self.finish_sigmoid_fit_phase is False:
+        # is aligning the CCNC and SMPS data of each scan
+        if self.finish_scan_alignment is False:
             if self.usable_for_sigmoid_fit_list[self.current_scan] is True:
                 self.usable_for_sigmoid_fit_list[self.current_scan] = False
             elif self.min_pos_CCNC_list[self.current_scan] and self.min_pos_CCNC_list[self.current_scan]:
@@ -1460,13 +1459,13 @@ class Controller():
             else:
                 self.view.show_error_dialog("You can't enable this scan! This scan is not usable!")
             self.update_view()
+        # is checking sigmoid fit
         else:
-            if self.usable_for_sigmoid_fit_list[self.current_scan] is True and \
-                    self.usable_for_kappa_cal_list[self.current_scan]:
-                self.usable_for_sigmoid_fit_list[self.current_scan] = False
-            elif self.min_pos_CCNC_list[self.current_scan] and self.min_pos_CCNC_list[self.current_scan] and \
-                    self.usable_for_kappa_cal_list[self.current_scan]:
-                self.usable_for_sigmoid_fit_list[self.current_scan] = True
+            if self.usable_for_sigmoid_fit_list[self.current_scan]:
+                if self.usable_for_kappa_cal_list[self.current_scan]:
+                    self.usable_for_kappa_cal_list[self.current_scan] = False
+                else:
+                    self.usable_for_kappa_cal_list[self.current_scan] = True
             else:
                 self.view.show_error_dialog("You can't enable this scan! This scan is not usable!")
             self.update_view()
@@ -1483,7 +1482,7 @@ class Controller():
     def update_view(self):
         self.prepare_scan_data()
         self.draw_concentration_over_scan_time_graph()
-        if self.finish_sigmoid_fit_phase:
+        if self.finish_scan_alignment:
             if self.usable_for_sigmoid_fit_list[self.current_scan]:
                 self.draw_complete_sigmoid_graph()
             else:
@@ -1508,7 +1507,7 @@ class Controller():
             plt.close(self.kappa_graph)
             self.kappa_graph = None
         self.current_point = None
-        self.finish_sigmoid_fit_phase = False
+        self.finish_scan_alignment = False
         self.cancelling_progress_bar = False
         self.flow_rate = 0.3
         self.ccn_list = None
