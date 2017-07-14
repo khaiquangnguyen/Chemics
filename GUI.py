@@ -179,10 +179,10 @@ class View(QMainWindow):
     def update_temp_and_min_figure(self, new_figure):
         self.centralWidget().graph_widget.temp_and_alignment_view.update_figure(new_figure)
 
-    def calculate_kappa_value(self):
+    def calculate_all_kappa_values(self):
         self.centralWidget().switch_to_kappa_widget()
-        self.controller.calculate_kappa_value()
-        self.controller.draw_kappa_graph()
+        self.controller.calculate_all_kappa_values()
+        self.controller.update_kappa_info_and_graph()
 
     def update_experiment_information(self):
         self.centralWidget().info_widget.information_table.update_experiment_information()
@@ -222,10 +222,18 @@ class View(QMainWindow):
         self.controller.iKappa2 = i2
         self.controller.solubility = solu
 
-    def update_kappa_graph(self):
+    def update_kappa_info_and_graph(self):
         self.centralWidget().graph_widget.update_figure(self.controller.kappa_graph)
         self.centralWidget().info_widget.update_data()
         self.centralWidget().resize()
+        self.centralWidget().info_widget.information_table.toggle_color(self.controller.current_point)
+        ss = self.controller.kappa_points_data_list[self.controller.current_point][1]
+        dp = self.controller.kappa_points_data_list[self.controller.current_point][0]
+        status = self.controller.kappa_points_is_included_list[(ss,dp)]
+        if status:
+            self.centralWidget().graph_widget.control_widget.toggle_k_point_status_button.setText("Disable")
+        else:
+            self.centralWidget().graph_widget.control_widget.toggle_k_point_status_button.setText("Enable")
 
     def get_concentration(self):
         return_value = self.controller.flow_rate

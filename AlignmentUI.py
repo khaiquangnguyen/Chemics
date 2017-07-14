@@ -80,9 +80,9 @@ class ScanInformationTable(QTableWidget):
             self.add_message("Usability for Sigmoid Fit", "Positive")
         else:
             self.add_message("Usability for Sigmoid Fit", "Negative", color=settings.NEGATIVE_USABILITY_BUTTON_COLOR)
-        self.add_message("Scan Start Time (h/m/s)",self.main_window.controller.scan_start_time_list[current_scan])
+        self.add_message("Scan Start Time (h/m/s)", self.main_window.controller.scan_start_time_list[current_scan])
         self.add_message("Scan #", current_scan + 1)
-        self.add_message("CCNC Data Shift (s)",self.main_window.controller.shift_factor_list[current_scan])
+        self.add_message("CCNC Data Shift (s)", self.main_window.controller.shift_factor_list[current_scan])
         self.add_message("Super Saturation (%)", self.main_window.controller.super_saturation_rate)
 
     def update_scan_information_after_sigmoid_fit(self):
@@ -101,7 +101,7 @@ class ScanInformationTable(QTableWidget):
             self.add_message("Usability for Sigmoid Fit", "Negative", color=NEGATIVE_USABILITY_BUTTON_COLOR)
         self.add_message("Scan Start Time (h/m/s)", self.main_window.controller.scan_start_time_list[current_scan])
         self.add_message("Scan #", current_scan + 1)
-        self.add_message("CCNC Data Shift (s)",self.main_window.controller.shift_factor_list[current_scan])
+        self.add_message("CCNC Data Shift (s)", self.main_window.controller.shift_factor_list[current_scan])
         self.add_message("Super Saturation (%)", self.main_window.controller.super_saturation_rate)
         # add header
         header = AllTableHeader("Sigmoid Fit Parameters")
@@ -272,7 +272,7 @@ class ButtonsWidget(QWidget):
         if confirmVarDialog.exec_() == QDialog.Accepted:
             (sig, temp, dd1, iKappa1, dd2, iKappa2, solu) = confirmVarDialog.getData()
             self.main_window.update_kappa_values(sig, temp, dd1, iKappa1, dd2, iKappa2, solu)
-            self.main_window.calculate_kappa_value()
+            self.main_window.calculate_all_kappa_values()
 
 
 class AlignmentAndSigmoidFitWidget(QWidget):
@@ -316,7 +316,6 @@ class RectFigureCanvas(FigureCanvas):
             self.flush_events()
 
 
-
 class SquareFigureCanvas(FigureCanvas):
     def __init__(self, main_window=None):
         fig = Figure(facecolor=settings.GRAPH_BACKGROUND_COLOR)
@@ -338,20 +337,21 @@ class SquareFigureCanvas(FigureCanvas):
             self.draw()
             self.flush_events()
 
+
 class KappaVarConfirmDialog(QDialog):
-    def __init__(self,sigma,temp,dd1,iKappa1,dd2,iKapp2,solu,mainWindow = None):
+    def __init__(self, sigma, temp, dd1, i_kappa_1, dd2, i_kappa_2, solu, main_window=None):
         super(self.__class__, self).__init__()
-        self.mainWindow = mainWindow
+        self.mainWindow = main_window
         self.formLayout = QFormLayout()
         self.sigmaLine = QLineEdit(str(sigma))
         self.tempLine = QLineEdit(str(temp))
         self.dd1Line = QLineEdit(str(dd1))
-        self.iKappa1Line = QLineEdit(str(iKappa1))
+        self.iKappa1Line = QLineEdit(str(i_kappa_1))
         self.dd2Line = QLineEdit(str(dd2))
-        self.iKappa2Line = QLineEdit(str(iKapp2))
+        self.iKappa2Line = QLineEdit(str(i_kappa_2))
         self.soluLine = QLineEdit(str(solu))
         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        self.formLayout.addRow(self.tr("&Sigma"),self.sigmaLine)
+        self.formLayout.addRow(self.tr("&Sigma"), self.sigmaLine)
         self.formLayout.addRow(self.tr("&Temperature"), self.tempLine)
         self.formLayout.addRow(self.tr("&dry diameter(1)"), self.dd1Line)
         self.formLayout.addRow(self.tr("&iKappa(1)"), self.iKappa1Line)

@@ -277,7 +277,7 @@ class KappaGraphWidget(QWidget):
         self.setFixedWidth(parent_width * 3 / 4)
         self.setFixedHeight(parent_height)
         self.kappa_graph_view.resize(self.width(), self.height())
-        self.controlWidget.resize(self.width(), self.height())
+        self.control_widget.resize(self.width(), self.height())
 
     def __init__(self, main_window=None):
         super(self.__class__, self).__init__(main_window)
@@ -286,9 +286,9 @@ class KappaGraphWidget(QWidget):
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.kappa_graph_view = KappaFigureCanvas()
-        self.controlWidget = KappaControlTabWidget(main_window)
+        self.control_widget = KappaControlTabWidget(main_window)
         self.layout.addWidget(self.kappa_graph_view)
-        self.layout.addWidget(self.controlWidget)
+        self.layout.addWidget(self.control_widget)
 
     def update_figure(self,figure):
         self.kappa_graph_view.update_figure(figure)
@@ -308,12 +308,15 @@ class KappaControlTabWidget(QWidget):
         self.layout.setContentsMargins(0, 10, 60, 10)
 
         self.show_parameters_button = CustomButton("Parameters", main_window)
+        self.toggle_k_point_status_button = CustomButton("Disable", main_window)
         self.toggle_average_all_k_points_button = CustomButton("Ave Points", main_window)
 
         self.show_parameters_button.clicked.connect(self.on_click_show_parameters)
         self.toggle_average_all_k_points_button.clicked.connect(self.on_click_toggle_all_average_k_points)
+        self.toggle_k_point_status_button.clicked.connect(self.on_click_toggle_k_point_status_button)
 
         self.layout.addWidget(self.show_parameters_button)
+        self.layout.addWidget(self.toggle_k_point_status_button)
         self.layout.addWidget(self.toggle_average_all_k_points_button)
 
         self.setLayout(self.layout)
@@ -347,8 +350,11 @@ class KappaControlTabWidget(QWidget):
             self.toggle_average_all_k_points_button.setText("Ave Points")
             self.main_window.centralWidget().info_widget.show_data_for_all_k_points()
         # reset certain attributes of kappa to draw correctly
-        self.main_window.controller.current_point = 0
-        self.main_window.controller.draw_kappa_graph()
+        self.main_window.controller.current_point = None
+        self.main_window.controller.update_kappa_info_and_graph()
+
+    def on_click_toggle_k_point_status_button(self):
+        self.main_window.controller.toggle_exclude_include_kappa_point()
 
 
 class KappaFigureCanvas(FigureCanvas):
