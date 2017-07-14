@@ -245,6 +245,7 @@ class KappaControlTabWidget(QWidget):
         self.show_parameters_button.resize(self.width(), self.height())
         self.toggle_average_all_k_points_button.resize(self.width(), self.height())
         self.toggle_k_point_status_button.resize(self.width(),self.height())
+        self.export_data_button.resize(self.width(),self.height())
 
     def __init__(self, main_window=None):
         self.main_window = main_window
@@ -255,14 +256,17 @@ class KappaControlTabWidget(QWidget):
         self.show_parameters_button = CustomButton("Parameters", main_window)
         self.toggle_k_point_status_button = CustomButton("Disable", main_window)
         self.toggle_average_all_k_points_button = CustomButton("Ave Points", main_window)
+        self.export_data_button = CustomButton("Export To CSV", main_window)
 
         self.show_parameters_button.clicked.connect(self.on_click_show_parameters)
         self.toggle_average_all_k_points_button.clicked.connect(self.on_click_toggle_all_average_k_points)
         self.toggle_k_point_status_button.clicked.connect(self.on_click_toggle_k_point_status_button)
+        self.export_data_button.clicked.connect(self.on_click_export_data_button)
 
         self.layout.addWidget(self.show_parameters_button)
         self.layout.addWidget(self.toggle_k_point_status_button)
         self.layout.addWidget(self.toggle_average_all_k_points_button)
+        self.layout.addWidget(self.export_data_button)
 
         self.setLayout(self.layout)
         self.setAutoFillBackground(True)
@@ -302,6 +306,9 @@ class KappaControlTabWidget(QWidget):
 
     def on_click_toggle_k_point_status_button(self):
         self.main_window.controller.toggle_exclude_include_kappa_point()
+
+    def on_click_export_data_button(self):
+        self.main_window.controller.export_to_csv()
 
 
 class KappaFigureCanvas(FigureCanvas):

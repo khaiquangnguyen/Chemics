@@ -1,10 +1,11 @@
 import re
 import pandas
 from datetime import *
-from scipy import signal
+# from scipy import signal
+# from scipy import stats
+# import FileDialog
 import numpy
 from scipy import *
-from scipy import stats
 from GUI import *
 import scipy.constants
 import matplotlib.pyplot as plt
@@ -14,7 +15,6 @@ import scipy.optimize as opt
 import time
 from PySide import QtGui
 from Exceptions import *
-import FileDialog
 import Tkinter
 import copy
 import gc
@@ -1028,7 +1028,6 @@ class Controller():
         """
         Calculate the kappa values for every scan.
         """
-        # TODO: export the kappa data to excel
         if self.kappa_excel is None:
             self.kappa_excel = pandas.read_csv("kCal.csv", header=None)
         lookup = self.kappa_excel
@@ -1160,6 +1159,8 @@ class Controller():
         self.calculate_average_kappa_values()
         self.draw_kappa_graph()
         self.view.update_kappa_info_and_graph()
+
+    # --------------------- Graphs -----------------------------
 
     def draw_kappa_graph(self):
         if self.klines_data is None:
@@ -1347,6 +1348,29 @@ class Controller():
         else:
             self.kappa_points_is_included_list[(dp, ss)] = True
         self.update_kappa_info_and_graph()
+
+    def export_to_csv(self):
+        file_name = "kappa_" + self.experiment_date.replace("/",".") + ".xlsx"
+        kappa_dict = self.kappa_calculate_dict
+        key_list = self.kappa_points_data_list
+        usability_list = self.kappa_points_is_included_list
+        data = []
+        for a_key in key_list:
+            a_row = []
+            if kappa_dict[a_key[1]]:
+                for a_scan_data in kappa_dict[a_key[1]]:
+                    if a_scan_data[0] == a_key[0]:
+                        a_row.append(a_key[1])
+                        a_row.append(a_scan_data[0])
+                        a_row.append(a_scan_data[1])
+                        a_row.append(a_scan_data[2])
+                        a_row.append(a_scan_data[3])
+                        break
+                data.append(a_row)
+        data = numpy.array(data)
+        df = pandas.DataFrame(data,columns = ["Super Saturation(%)","dp(nm)","K/app","K/ana","deviation(%"])
+        df.to_excel(file_name, sheet_name='Kappa', index=False)
+        self.view.show_error_dialog("Export to "+file_name + " is successful!")
 
     ##############################################
     #
