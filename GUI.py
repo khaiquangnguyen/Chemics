@@ -236,7 +236,6 @@ class View(QMainWindow):
             else:
                 self.centralWidget().graph_widget.control_widget.toggle_k_point_status_button.setText("Enable")
 
-
     def get_concentration(self):
         return_value = self.controller.flow_rate
         while True:

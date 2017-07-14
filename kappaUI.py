@@ -96,6 +96,7 @@ class AllKappaPointsDataTable(QTableWidget):
 
         kappa_dict = self.main_window.controller.kappa_calculate_dict
         key_list = self.main_window.controller.kappa_points_data_list
+        usability_list = self.main_window.controller.kappa_points_is_included_list
         for a_key in key_list:
             if kappa_dict[a_key[1]]:
                 for aSS in kappa_dict[a_key[1]]:
@@ -105,25 +106,28 @@ class AllKappaPointsDataTable(QTableWidget):
                         app = aSS[1]
                         ana = aSS[2]
                         devi = aSS[3]
-                        self.add_message(ss, dp, app, ana, devi)
+                        if usability_list[(dp,ss)]:
+                            self.add_message(ss, dp, app, ana, devi)
+                        else:
+                            self.add_message(ss, dp, app, ana, devi, settings.NEGATIVE_USABILITY_COLOR)
                         break
 
-    def add_message(self, ss, dp, app, ana, devi):
+    def add_message(self, ss, dp, app, ana, devi,color = None):
         ss = ('% .2f' % ss)
         dp = ('% .4f' % dp)
         app = ('% .4f' % app)
         ana = ('% .4f' % ana)
         devi = ('% .4f' % devi)
         self.insertRow(self.rowCount())
-        ss = KappaTableItem(ss)
+        ss = KappaTableItem(ss,color)
         self.setCellWidget(self.rowCount() - 1, 0, ss)
-        dp = KappaTableItem(dp)
+        dp = KappaTableItem(dp,color)
         self.setCellWidget(self.rowCount() - 1, 1, dp)
-        app = KappaTableItem(app)
+        app = KappaTableItem(app,color)
         self.setCellWidget(self.rowCount() - 1, 2, app)
-        ana = KappaTableItem(ana)
+        ana = KappaTableItem(ana,color)
         self.setCellWidget(self.rowCount() - 1, 3, ana)
-        devi = KappaTableItem(devi)
+        devi = KappaTableItem(devi,color)
         self.setCellWidget(self.rowCount() - 1, 4, devi)
 
     def toggle_color(self,row):
@@ -210,6 +214,7 @@ class AverageKappaPointsDataTable(QTableWidget):
     def toggle_color(self,row):
         for i in range(self.columnCount()):
             self.cellWidget(row+1,i).toggle_color()
+
 
 class KappaGraphWidget(QWidget):
     def resize(self, parent_width, parent_height):

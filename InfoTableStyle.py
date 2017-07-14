@@ -10,7 +10,7 @@ import time
 
 
 class AlignmentTableItem(QWidget):
-    def __init__(self,field,message, color = None):
+    def __init__(self, field, message, color=None):
         QWidget.__init__(self)
         self.layout = QVBoxLayout()
         margin = self.height() / 400
@@ -21,7 +21,7 @@ class AlignmentTableItem(QWidget):
 
 
 class AlignmentInnerTableItem(QWidget):
-    def __init__(self,field,message, color):
+    def __init__(self, field, message, color):
         QWidget.__init__(self)
         self.layout = QGridLayout()
         self.layout.setHorizontalSpacing(5)
@@ -39,17 +39,14 @@ class AlignmentInnerTableItem(QWidget):
 
 
 class KappaTableItem(QWidget):
-    def __init__(self, message):
+    def __init__(self, message, color=None):
         QWidget.__init__(self)
         self.layout = QHBoxLayout()
-        self.info_text = InfoText(message)
+        self.info_text = InfoText(message, color)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addWidget(self.info_text)
         self.setLayout(self.layout)
         self.setAutoFillBackground(True)
-        palette = QPalette()
-        palette.setColor(QPalette.Base, settings.NEGATIVE_USABILITY_COLOR)
-        self.setPalette(palette)
 
     def toggle_color(self):
         self.info_text.toggle_color()
@@ -74,14 +71,14 @@ class AllTableHeader(QWidget):
         self.setPalette(palette)
 
         font = QFont()
-        size = max(10, self.height() * 1/5)
+        size = max(10, self.height() * 1 / 5)
         font.setPointSize(size)
         self.setFont(font)
 
-    def resizeEvent(self,event):
+    def resizeEvent(self, event):
         font = self.font()
         font.setStyleStrategy(QFont.PreferAntialias or QFont.PreferQuality)
-        size = max(10, self.height() * 1/5)
+        size = max(10, self.height() * 1 / 5)
         font.setPointSize(size)
         self.setFont(font)
 
@@ -90,8 +87,8 @@ class AllTableHeader(QWidget):
 
 
 class FieldText(QLabel):
-    def __init__(self,message):
-        QLabel.__init__(self,message)
+    def __init__(self, message):
+        QLabel.__init__(self, message)
         self.setAutoFillBackground(True)
         palette = QPalette()
         palette.setColor(QPalette.Base, settings.infoAreaFieldColor)
@@ -114,11 +111,11 @@ class FieldText(QLabel):
 
 
 class InfoText(QLabel):
-    def __init__(self, message, color = None):
+    def __init__(self, message, color=None):
         QLabel.__init__(self, message)
         self.setAutoFillBackground(True)
         palette = QPalette()
-        if not color:
+        if color is None:
             palette.setColor(QPalette.Base, settings.infoAreaItemColor)
         else:
             palette.setColor(QPalette.Base, color)
@@ -140,4 +137,3 @@ class InfoText(QLabel):
         palette = self.palette()
         palette.setColor(QPalette.Base, settings.TABLE_ROW_HIGHLIGHT_COLOR)
         self.setPalette(palette)
-
