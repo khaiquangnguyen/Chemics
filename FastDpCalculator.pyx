@@ -149,8 +149,7 @@ def correct_charges(np.ndarray[DTYPE_t] particle_diameter_list,
                 if upperBinBound > chargeList[n][3] >= lowerBinBound:
                     cn_fixed_list[j] = cn_fixed_list[j] + moveTripletCounts
                     if chargeList[n][3] < asymp:
-                        ccn_fixed_list[j] = ccn_fixed_list[j] + moveTripletCounts * \
-                                                                          ccn_list[j] / cn_list[j]
+                        ccn_fixed_list[j] = ccn_fixed_list[j] + moveTripletCounts * ccn_list[j] / cn_list[j]
                     else:
                         ccn_fixed_list[j] = ccn_fixed_list[j] + moveTripletCounts
                     break

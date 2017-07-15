@@ -648,14 +648,16 @@ class Controller():
     ##############################################
 
     def correct_charges(self):
+        self.ccn_list = remove_zeros(self.ccn_list)
+        self.cn_list = remove_zeros(self.cn_list)
         remove_small_ccn(self.ccn_list, self.min_ccn)
         self.particle_diameter_list = numpy.asarray(self.particle_diameter_list)
-        self.cn_list = numpy.asarray(self.cn_list)
-        self.ccn_list = numpy.asarray(self.ccn_list)
-        self.cn_fixed_list = numpy.asarray(self.cn_fixed_list)
-        self.ccn_fixed_list = numpy.asarray(self.ccn_fixed_list)
-        self.g_cn_list = numpy.asarray(self.g_cn_list)
-        self.g_ccn_list = numpy.asarray(self.g_ccn_list)
+        self.cn_list = numpy.asarray(self.cn_list,dtype=float64)
+        self.ccn_list = numpy.asarray(self.ccn_list,dtype=float64)
+        self.cn_fixed_list = numpy.asarray(self.cn_fixed_list,dtype=float64)
+        self.ccn_fixed_list = numpy.asarray(self.ccn_fixed_list,dtype=float64)
+        self.g_cn_list = numpy.asarray(self.g_cn_list,dtype=float64)
+        self.g_ccn_list = numpy.asarray(self.g_ccn_list,dtype=float64)
         self.cn_fixed_list = self.cn_list[:]
         self.ccn_fixed_list = self.ccn_list[:]
         self.g_ccn_list = self.ccn_fixed_list[:]
@@ -670,6 +672,7 @@ class Controller():
                 self.ccnc_sig_list.append(self.ccn_fixed_list[i] / self.cn_fixed_list[i])
         except:
             self.ccnc_sig_list = None
+            self.usable_for_sigmoid_fit_list[self.current_scan] = False
             raise SigmoidFitCorrectChargesError()
 
     def get_parameters_for_sigmoid_fit(self, min_dp=None, min_dp_asym=None, max_dp_asym=None):
@@ -853,7 +856,6 @@ class Controller():
             self.max_dp_asym_list.append(0)
             self.ccnc_sig_list_list.append(self.ccnc_sig_list)
         else:
-            # Store processed_data
             self.usable_for_kappa_cal_list[self.current_scan] = True
             self.min_dp_list.append(self.min_dp)
             self.min_dp_asym_list.append(self.min_dp_asym)
@@ -1535,7 +1537,10 @@ class Controller():
         self.draw_concentration_over_scan_time_graph()
         if self.finish_scan_alignment_and_auto_sig_fit:
             self.draw_all_scans_alignment_summary_graph()
-            self.draw_complete_sigmoid_graph()
+            if self.usable_for_sigmoid_fit_list[self.current_scan]:
+                self.draw_complete_sigmoid_graph()
+            else:
+                self.draw_ccn_cn_ratio_over_diameter_graph()
             self.view.update_scan_information_after_sigmoid_fit()
         else:
             self.draw_ccn_cn_ratio_over_diameter_graph()
