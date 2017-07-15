@@ -1631,8 +1631,8 @@ def main():
     view = View(controller)
     controller.view = view
     # easiest test. Demonstration files with perfect data
-    files = ['C:\Users\KKK\OneDrive\Researches\Chemics\Examples\AS_Calibration_SMPS.txt',
-             'C:\Users\KKK\OneDrive\Researches\Chemics\Examples\CCN data 100203092813.csv']
+    # files = ['C:\Users\KKK\OneDrive\Researches\Chemics\Examples\AS_Calibration_SMPS.txt',
+    #          'C:\Users\KKK\OneDrive\Researches\Chemics\Examples\CCN data 100203092813.csv']
 
     #  real test 1
 
@@ -1641,8 +1641,8 @@ def main():
     #         "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426175740.csv",
     #         "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\100 ppb.txt"]
     #
-    controller.files = files
-    controller.run()
+    # controller.files = files
+    # controller.run()
     view.show_ui()
 
 
