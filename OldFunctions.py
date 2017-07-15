@@ -327,7 +327,7 @@ def draw_all_scans_alignment_summary_graph(self):
     A graph of peak alignment, and also allow interaction to select peak to process
     """
     # for i in range(len(self.min_pos_CCNC_list)):
-    #     if self.min_pos_CCNC_list[i] and self.min_pos_SMPS_list[i] and self.usable_for_sigmoid_fit_list[i]:
+    #     if self.min_pos_CCNC_list[i] and self.min_pos_SMPS_list[i] and self.is_usable_for_sigmoid_fit_list[i]:
     #         temp_smps_all_scans_list.append(self.min_pos_SMPS_list[i])
     #         temp_ccnc_all_scans_list.append(self.min_pos_CCNC_list[i])
     #     else:
@@ -338,8 +338,8 @@ def draw_all_scans_alignment_summary_graph(self):
     #             temp_smps_all_scans_list.append(10)
     #             temp_ccnc_all_scans_list.append(10)
     # colors = []
-    # for i in range(len(self.usable_for_sigmoid_fit_list)):
-    #     if self.usable_for_sigmoid_fit_list[i]:
+    # for i in range(len(self.is_usable_for_sigmoid_fit_list)):
+    #     if self.is_usable_for_sigmoid_fit_list[i]:
     #         colors.append("#43A047")
     #     else:
     #         colors.append("#FF0000")
@@ -374,13 +374,13 @@ def draw_all_scans_alignment_summary_graph(self):
     #     legend.get_frame().set_facecolor('#9E9E9E')
     #     self.all_scans_alignment_bars = ax.bar(range(1, self.number_of_scan + 1), self.shift_factor_list,
     #                                            color="#43A047", picker=True, align='center')
-    #     for i in range(len(self.usable_for_sigmoid_fit_list)):
-    #         if not self.usable_for_sigmoid_fit_list[i]:
+    #     for i in range(len(self.is_usable_for_sigmoid_fit_list)):
+    #         if not self.is_usable_for_sigmoid_fit_list[i]:
     #             self.all_scans_alignment_bars[i].set_facecolor('#111111')
-    #     self.all_scans_alignment_graph = figure
+    #     self.all_scans_alignment_figure = figure
     #     self.all_scans_alignment_ax = ax
     #
-    # self.view.update_temp_and_min_figure(self.all_scans_alignment_graph)
+    # self.view.update_temp_and_min_figure(self.all_scans_alignment_figure)
 
 
 

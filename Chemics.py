@@ -27,64 +27,37 @@ matplotlib.style.use('ggplot')
 
 
 class Controller():
-    def __init__(self, mode=True):
-        """"
-        The controller of the program. Also works doubly as the model.
-        """
-
-        self.kappa_graph = None
-        self.kappa_ax = None
-        self.is_show_all_k_lines = False
-        self.temperature_graph = None
-        self.temperature_axis = None
-        self.t1_line = None
-        self.t2_line = None
-        self.t3_line = None
-        self.k_lines_list = []
-        self.kappa_points = None
-        self.concentration_over_scan_time_graph = None
-        self.concentration_over_scan_time_axis = None
-        self.scan_time_figure_smps_line = None
-        self.scan_time_figure_ccnc_line = None
-
-        self.ccn_cn_ratio_graph = None
-        self.ccn_cn_ratio_ax = None
-        self.ccn_cn_ratio_corrected_points = None
-        self.sigmoid_line = None
-
-        self.sigmoid_fit_graph = None
-        self.sigmoid_fit_ax = None
-        self.normalized_concentration_points = None
-        self.ccn_cn_points = None
-
-        self.min_compare_graph = None
-
-        self.ccnc_sig_list_list = []
-
-        self.view = None
+    def __init__(self,view = None):
+        self.view = view
+        self.cancelling_progress_bar = False
+        # smps and ccnc files
         self.files = None
+        # smps files
         self.smps_txt_files = []
+        # ccnc files
         self.ccnc_csv_files = []
+        # data directly from the smps and ccnc files
+        self.raw_data = None
+        # data from smps and ccn files after matching smps and ccnc data
+        self.processed_data = None
+        # ccnc = Cloud Condensation Nuclei Counter
+        self.ccnc_data = None
+        # smps = Scanning Mobility Particle Sizer
+        self.smps_data = None
         self.current_scan = 0
         self.number_of_scan = 0
         self.scan_start_time_list = None
         self.scan_end_time_list = None
         self.experiment_date = None
         self.scan_duration = 0
-        # ccnc = Cloud Condensation Nuclei Counter
-        self.ccnc_data = None
-        # smps = Scanning Mobility Particle Sizer
-        self.smps_data = None
         self.particle_diameter_list = None
         self.normalized_concentration_list = None
         self.super_saturation_list = []
-        self.processed_data = None
-        self.raw_data = None
-        self.current_point = None
+        self.is_usable_for_sigmoid_fit_list = []
+        self.min_pos_SMPS_list = []
+        self.min_pos_CCNC_list = []
+        self.shift_factor_list = []
         self.finish_scan_alignment_and_auto_sig_fit = False
-        self.cancelling_progress_bar = False
-        self.usable_for_sigmoid_fit_list = []
-
         self.flow_rate = 0.3
         self.ccn_list = None
         self.cn_list = None
@@ -92,7 +65,6 @@ class Controller():
         self.cn_fixed_list = None
         self.g_cn_list = None
         self.g_ccn_list = None
-        self.ccnc_sig_list = []
         self.ccn_normalized_list = []
         self.diameter_midpoint_list = []
         self.ccn_cn_sim_list = []
@@ -100,6 +72,20 @@ class Controller():
         self.temp2 = []
         self.temp3 = []
 
+        # for concentration over scan time graph
+        self.concentration_over_scan_time_figure = None
+        self.concentration_over_scan_time_ax = None
+        self.concentration_over_scan_time_smps_points = None
+        self.concentration_over_scan_time_ccnc_points = None  # for scans alignment graph
+
+        # for drawing temperature graph
+        self.temperature_figure = None
+        self.temperature_ax = None
+        self.t1_line = None
+        self.t2_line = None
+        self.t3_line = None
+
+        # variables for sigmoid fit
         self.b = 0
         self.d = 0
         self.c = 0
@@ -123,10 +109,27 @@ class Controller():
         self.dp50_list = []
         self.dp50_wet_list = []
         self.dp50_plus_20_list = []
+        self.unfinished_sigmoid_fit_scans_list = []
+        self.ccnc_sig_list = []
+        self.ccnc_sig_list_list = []
 
-        self.min_pos_SMPS_list = []
-        self.min_pos_CCNC_list = []
+        # for ccn/cn graph and sigmoid fit graph
+        self.ccn_cn_ratio_figure = None
+        self.ccn_cn_ratio_ax = None
+        self.sigmoid_fit_figure = None
+        self.sigmoid_fit_ax = None
+        self.ccn_cn_points = None
+        self.normalized_concentration_points = None
+        self.ccn_cn_ratio_corrected_points = None
+        self.sigmoid_line = None
 
+        # for all scans summary graph
+        self.all_scans_alignment_figure = None
+        self.all_scans_alignment_ax = None
+        self.all_scans_alignment_bars = []
+        self.all_scans_alignment_visited_list = []
+
+        # variables for calculating kappa.
         self.sigma = 0.072
         self.temp = 298.15
         self.aParam = 0.00000869251 * self.sigma / self.temp
@@ -142,25 +145,31 @@ class Controller():
         self.anaKappa = 0
         self.trueSC = 0
         self.kappa_excel = None
-        self.shift_factor_list = []
-        self.invalid_k_points_list = []
         self.kappa_points_data_list = []  # format of data is (dp,ss)
         self.klines_data = None
+
+        # for drawing kappa graph
+        self.kappa_figure = None
+        self.kappa_ax = None
+        self.is_show_all_k_lines = False
+        self.k_lines_list = []
+        self.kappa_points = None
         self.max_kappa = None
         self.min_kappa = None
         self.is_show_all_k_points = True
         self.kappa_calculate_dict = {}
         self.alpha_pinene_dict = {}
         self.scan_position_in_data = []
-        self.usable_for_kappa_cal_list = []
-        self.clone = None
-        self.all_scans_alignment_graph = None
-        self.all_scans_alignment_ax = None
-        self.all_scans_alignment_bars = []
-        self.all_scans_alignment_visited = []
-        self.graph_current_selection = None
+        self.is_usable_for_kappa_cal_list = []
+        # the point of graph
+        self.current_kappa_point = None
+        # the index of the kappa point currently selected
+        self.current_kappa_point_index = None
+        # whether a kappa point is included in calculating the average k
         self.kappa_points_is_included_list = {}  # format of key is (dp,ss)
-        self.unfinished_sigmoid_fit_scans_list = []
+
+
+
 
     ##############################################
     #
@@ -436,8 +445,8 @@ class Controller():
         scan are at the same time location.
         :return:
         """
-        self.usable_for_kappa_cal_list = []
-        self.usable_for_sigmoid_fit_list = []
+        self.is_usable_for_kappa_cal_list = []
+        self.is_usable_for_sigmoid_fit_list = []
         self.min_pos_CCNC_list = []
         self.min_pos_SMPS_list = []
         num_additional_data_point = int(self.scan_duration / 2)
@@ -455,8 +464,8 @@ class Controller():
             if min_pos_smps == -1:
                 self.min_pos_SMPS_list.append(None)
                 self.min_pos_CCNC_list.append(None)
-                self.usable_for_sigmoid_fit_list.append(False)
-                self.usable_for_kappa_cal_list.append(False)
+                self.is_usable_for_sigmoid_fit_list.append(False)
+                self.is_usable_for_kappa_cal_list.append(False)
                 min_pos_smps = 0
                 min_pos_ccnc = 0
             else:
@@ -467,13 +476,13 @@ class Controller():
                 if min_pos_ccnc == -1:
                     self.min_pos_SMPS_list[-1] = None
                     self.min_pos_CCNC_list.append(None)
-                    self.usable_for_sigmoid_fit_list.append(False)
-                    self.usable_for_kappa_cal_list.append(False)
+                    self.is_usable_for_sigmoid_fit_list.append(False)
+                    self.is_usable_for_kappa_cal_list.append(False)
                     min_pos_smps = 0
                     min_pos_ccnc = 0
                 else:
-                    self.usable_for_kappa_cal_list.append(True)
-                    self.usable_for_sigmoid_fit_list.append(True)
+                    self.is_usable_for_kappa_cal_list.append(True)
+                    self.is_usable_for_sigmoid_fit_list.append(True)
                     shift_factor = shift_factor + min_pos_ccnc - min_pos_smps
                     if current_scan == 0:
                         self.min_pos_CCNC_list.append(min_pos_smps)
@@ -506,8 +515,6 @@ class Controller():
 
     def parse_and_match_smps_ccnc_data(self):
         try:
-            self.reset()
-            self.view.reset()
             self.move_progress_bar_forward(max_value=5)
             self.get_concentration()
             self.move_progress_bar_forward("Processing SMPS and CCNC files...")
@@ -529,7 +536,7 @@ class Controller():
                     or not check_temperature_fluctuation(self.temp2) or not check_temperature_fluctuation(self.temp3)):
                     self.min_pos_CCNC_list[i] = None
                     self.min_pos_SMPS_list[i] = None
-                    self.usable_for_sigmoid_fit_list[i] = False
+                    self.is_usable_for_sigmoid_fit_list[i] = False
             self.move_progress_bar_forward(complete=True)
             self.current_scan = -1
             self.view.update_experiment_information()
@@ -554,7 +561,7 @@ class Controller():
 
     # ----------------------graphs------------------------
     def draw_temperature_graph(self):
-        if self.temperature_axis is None:
+        if self.temperature_ax is None:
             figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
             ax.axes.set_frame_on(False)
             ax.grid(color=GRID_COLOR)
@@ -573,21 +580,21 @@ class Controller():
             self.t3_line, = ax.plot(x, self.temp3, linewidth=5, color=T3_LINE_COLOR, label="T3")
             handles, labels = ax.get_legend_handles_labels()
             legend = ax.legend(handles, labels, facecolor=LEGEND_BG_COLOR, fontsize=LEGEND_FONT_SIZE)
-            self.temperature_graph = figure
-            self.temperature_axis = ax
+            self.temperature_figure = figure
+            self.temperature_ax = ax
         else:
             minY = min(min(self.temp1), min(self.temp2), min(self.temp3)) - 3
             maxY = max(max(self.temp1), max(self.temp2), max(self.temp3)) + 3
-            self.temperature_axis.axes.set_ylim([minY, maxY])
+            self.temperature_ax.axes.set_ylim([minY, maxY])
             self.t1_line.set_ydata(self.temp1)
             self.t2_line.set_ydata(self.temp2)
             self.t3_line.set_ydata(self.temp3)
-        self.view.update_temp_and_min_figure(self.temperature_graph)
+        self.view.update_temp_and_min_figure(self.temperature_figure)
 
     def draw_concentration_over_scan_time_graph(self):
         if len(self.cn_list) != len(self.ccn_list) or len(self.cn_list) == 0 or len(self.ccn_list) == 0:
             return
-        if self.concentration_over_scan_time_axis is None:
+        if self.concentration_over_scan_time_ax is None:
             figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
             ax.axes.set_frame_on(False)
             ax.grid(color=GRID_COLOR)
@@ -597,22 +604,22 @@ class Controller():
             ax.set_xlabel("Scan time(s)", color=LABEL_COLOR, size=LABEL_SIZE)
             ax.set_ylabel("Concentration (1/cm3)", color=LABEL_COLOR, size=LABEL_SIZE)
             x = range(self.scan_duration)
-            self.scan_time_figure_smps_line, = ax.plot(x, self.cn_list, linewidth=4, color=SMPS_LINE_COLOR,
-                                                       label="SMPS")
-            self.scan_time_figure_ccnc_line, = ax.plot(x, self.ccn_list, linewidth=4, color=CCNC_LINE_COLOR,
-                                                       label="CCNC")
+            self.concentration_over_scan_time_smps_points, = ax.plot(x, self.cn_list, linewidth=4, color=SMPS_LINE_COLOR,
+                                                                     label="SMPS")
+            self.concentration_over_scan_time_ccnc_points, = ax.plot(x, self.ccn_list, linewidth=4, color=CCNC_LINE_COLOR,
+                                                                     label="CCNC")
             handles, labels = ax.get_legend_handles_labels()
             legend = ax.legend(handles, labels, facecolor=LEGEND_BG_COLOR, fontsize=LEGEND_FONT_SIZE)
             ax.set_title("SMPS and CCNC concentration over scan time", color=TITLE_COLOR, size=TITLE_SIZE)
-            self.concentration_over_scan_time_axis = ax
-            self.concentration_over_scan_time_graph = figure
+            self.concentration_over_scan_time_ax = ax
+            self.concentration_over_scan_time_figure = figure
         else:
-            self.scan_time_figure_smps_line.set_ydata(self.cn_list)
-            self.scan_time_figure_ccnc_line.set_ydata(self.ccn_list)
+            self.concentration_over_scan_time_smps_points.set_ydata(self.cn_list)
+            self.concentration_over_scan_time_ccnc_points.set_ydata(self.ccn_list)
             lower_lim = min([min(self.ccn_list),min(self.cn_list)])
             upper_lim = max([max(self.ccn_list),max(self.cn_list)])
-            self.concentration_over_scan_time_axis.axes.set_ylim([lower_lim,upper_lim])
-        self.view.update_alignment_and_sigmoid_fit_figures(self.concentration_over_scan_time_graph,
+            self.concentration_over_scan_time_ax.axes.set_ylim([lower_lim, upper_lim])
+        self.view.update_alignment_and_sigmoid_fit_figures(self.concentration_over_scan_time_figure,
                                                            None)
 
     def draw_ccn_cn_ratio_over_diameter_graph(self):
@@ -635,14 +642,14 @@ class Controller():
             handles, labels = ax.get_legend_handles_labels()
             legend = ax.legend(handles, labels, facecolor=LEGEND_BG_COLOR, fontsize=LEGEND_FONT_SIZE)
             self.ccn_cn_ratio_ax = ax
-            self.ccn_cn_ratio_graph = figure
+            self.ccn_cn_ratio_figure = figure
         else:
             yLim = min(2, max(self.ccn_cn_ratio_list)) + 0.2
             self.ccn_cn_ratio_ax.axes.set_ylim([-0.1, yLim])
             self.ccn_cn_ratio_points.set_xdata(self.particle_diameter_list)
             self.ccn_cn_ratio_points.set_ydata(self.ccn_cn_ratio_list)
         self.view.update_alignment_and_sigmoid_fit_figures(None,
-                                                           self.ccn_cn_ratio_graph)
+                                                           self.ccn_cn_ratio_figure)
 
     ##############################################
     #
@@ -675,7 +682,7 @@ class Controller():
                 self.ccnc_sig_list.append(self.ccn_fixed_list[i] / self.cn_fixed_list[i])
         except:
             self.ccnc_sig_list = None
-            self.usable_for_sigmoid_fit_list[self.current_scan] = False
+            self.is_usable_for_sigmoid_fit_list[self.current_scan] = False
             raise SigmoidFitCorrectChargesError()
 
     def get_parameters_for_sigmoid_fit(self, min_dp=None, min_dp_asym=None, max_dp_asym=None):
@@ -774,7 +781,7 @@ class Controller():
                 if self.particle_diameter_list[i] > (self.d + 20):
                     self.dp50_plus_20 = self.drop_size_list[i - 1]
                     break
-            self.usable_for_kappa_cal_list[self.current_scan] = True
+            self.is_usable_for_kappa_cal_list[self.current_scan] = True
         except:
             if self.current_scan not in self.unfinished_sigmoid_fit_scans_list:
                 self.unfinished_sigmoid_fit_scans_list.append(self.current_scan)
@@ -784,7 +791,7 @@ class Controller():
         self.move_progress_bar_forward("Refitting sigmoid line to scan #" + str(self.current_scan + 1),
                                        max_value=2)
         try:
-            if not self.usable_for_sigmoid_fit_list[self.current_scan]:
+            if not self.is_usable_for_sigmoid_fit_list[self.current_scan]:
                 self.view.show_error_dialog("Can't fit sigmoid line to current scan!")
                 raise SigmoidFitLineFitError()
             self.prepare_scan_data()
@@ -803,7 +810,7 @@ class Controller():
             self.fit_sigmoid_line()
             self.move_progress_bar_forward()
         except:
-            self.usable_for_kappa_cal_list[self.current_scan] = False
+            self.is_usable_for_kappa_cal_list[self.current_scan] = False
             self.b_list[self.current_scan] = 0
             self.d_list[self.current_scan] = 0
             self.c_list[self.current_scan] = 0
@@ -814,7 +821,7 @@ class Controller():
             self.min_dp_asym_list[self.current_scan] = 0
             self.max_dp_asym_list[self.current_scan] = 0
         else:
-            self.usable_for_kappa_cal_list[self.current_scan] = True
+            self.is_usable_for_kappa_cal_list[self.current_scan] = True
             self.min_dp_list[self.current_scan] = self.min_dp
             self.min_dp_asym_list[self.current_scan] = self.min_dp_asym
             self.max_dp_asym_list[self.current_scan] = self.max_dp_asym
@@ -839,7 +846,7 @@ class Controller():
         optimize a single run
         """
         try:
-            if not self.usable_for_sigmoid_fit_list[self.current_scan]:
+            if not self.is_usable_for_sigmoid_fit_list[self.current_scan]:
                 raise SigmoidFitCorrectChargesError     # this scan is not usable, so we raise a serious error
             self.ccnc_sig_list = []
             self.prepare_scan_data()
@@ -847,7 +854,7 @@ class Controller():
             self.get_parameters_for_sigmoid_fit()
             self.fit_sigmoid_line()
         except Exception as e:
-            self.usable_for_kappa_cal_list[self.current_scan] = False
+            self.is_usable_for_kappa_cal_list[self.current_scan] = False
             self.b_list.append(0)
             self.d_list.append(0)
             self.c_list.append(0)
@@ -859,7 +866,7 @@ class Controller():
             self.max_dp_asym_list.append(0)
             self.ccnc_sig_list_list.append(self.ccnc_sig_list)
         else:
-            self.usable_for_kappa_cal_list[self.current_scan] = True
+            self.is_usable_for_kappa_cal_list[self.current_scan] = True
             self.min_dp_list.append(self.min_dp)
             self.min_dp_asym_list.append(self.min_dp_asym)
             self.max_dp_asym_list.append(self.max_dp_asym)
@@ -914,7 +921,7 @@ class Controller():
             self.ccn_cn_ratio_points, = ax.plot(self.particle_diameter_list, self.ccn_cn_ratio_list, 'o',
                                                 color=CCNC_SMPS_POINT_COLOR,
                                                 mew=0.5, ms=9, label="CCNC/SMPS")
-            if self.usable_for_sigmoid_fit_list[self.current_scan]:
+            if self.is_usable_for_sigmoid_fit_list[self.current_scan]:
                 self.normalized_concentration_points, = plt.plot(self.diameter_midpoint_list, self.ccn_normalized_list,
                                                              linewidth=4, color=NORMALIZED_CONCENTRATION_POINT_COLOR,
                                                              label="dN/dLogDp")
@@ -923,19 +930,19 @@ class Controller():
                                                           color=CCNC_SMPS_RATIO_CORRECTED_POINT_COLOR, mew=0.5,
                                                           mec="#0D47A1",
                                                           ms=9, label="CCNC/SMPS (Corrected)")
-            if self.usable_for_kappa_cal_list[self.current_scan]:
+            if self.is_usable_for_kappa_cal_list[self.current_scan]:
                 self.sigmoid_line, = ax.plot(self.particle_diameter_list, self.ccn_cn_sim_list, linewidth=5,
                                              color=SIGMOID_LINE_COLOR, label="Sigmodal Fit")
             handles, labels = ax.get_legend_handles_labels()
             legend = ax.legend(handles, labels, fontsize=LEGEND_FONT_SIZE, facecolor=LEGEND_BG_COLOR)
-            self.sigmoid_fit_graph = figure
+            self.sigmoid_fit_figure = figure
             self.sigmoid_fit_ax = ax
         else:
             yLim = min(2, max(self.ccnc_sig_list)) + 0.2
             self.sigmoid_fit_ax.axes.set_ylim([-0.1, yLim])
             self.ccn_cn_ratio_points.set_xdata(self.particle_diameter_list)
             self.ccn_cn_ratio_points.set_ydata(self.ccn_cn_ratio_list)
-            if self.usable_for_sigmoid_fit_list[self.current_scan]:
+            if self.is_usable_for_sigmoid_fit_list[self.current_scan]:
                 if self.normalized_concentration_points is None:
                     self.normalized_concentration_points, = plt.plot(self.diameter_midpoint_list,
                                                                      self.ccn_normalized_list,
@@ -960,7 +967,7 @@ class Controller():
                 if self.ccn_cn_ratio_corrected_points is not None:
                     self.ccn_cn_ratio_corrected_points.set_xdata([])
                     self.ccn_cn_ratio_corrected_points.set_ydata([])
-            if self.usable_for_kappa_cal_list[self.current_scan]:
+            if self.is_usable_for_kappa_cal_list[self.current_scan]:
                 if self.sigmoid_line is None:
                     self.sigmoid_line, = self.sigmoid_fit_ax.plot(self.particle_diameter_list, self.ccn_cn_sim_list,
                                                                   linewidth=5, color='#EF5350', label="Sigmodal Fit")
@@ -972,12 +979,12 @@ class Controller():
                     self.sigmoid_line.set_xdata([])
                     self.sigmoid_line.set_ydata([])
 
-        self.view.update_alignment_and_sigmoid_fit_figures(None, self.sigmoid_fit_graph)
+        self.view.update_alignment_and_sigmoid_fit_figures(None, self.sigmoid_fit_figure)
 
     def draw_all_scans_alignment_summary_graph(self):
         if self.all_scans_alignment_ax is None:
             for i in range(self.number_of_scan):
-                self.all_scans_alignment_visited.append(False)
+                self.all_scans_alignment_visited_list.append(False)
 
             figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
             ax.axes.set_frame_on(False)
@@ -997,37 +1004,37 @@ class Controller():
             legend = ax.legend(handles, labels, fontsize=LEGEND_FONT_SIZE, facecolor=LEGEND_BG_COLOR)
             self.all_scans_alignment_bars = ax.bar(range(1, self.number_of_scan + 1), self.shift_factor_list,
                                                    color=SCAN_SUMMARY_USABLE_SCAN_COLOR, picker=True, align='center')
-            for i in range(len(self.usable_for_sigmoid_fit_list)):
-                if not self.usable_for_sigmoid_fit_list[i] or not self.usable_for_kappa_cal_list[i]:
+            for i in range(len(self.is_usable_for_sigmoid_fit_list)):
+                if not self.is_usable_for_sigmoid_fit_list[i] or not self.is_usable_for_kappa_cal_list[i]:
                     self.all_scans_alignment_bars[i].set_facecolor(SCAN_SUMMARY_UNUSABLE_SCAN_COLOR)
             for i in self.unfinished_sigmoid_fit_scans_list:
                 self.all_scans_alignment_bars[i].set_facecolor(UNDECIDED_USABILITY_COLOR)
-            self.all_scans_alignment_visited[self.current_scan] = True
-            for i in range(len(self.all_scans_alignment_visited)):
-                if self.all_scans_alignment_visited[i]:
+            self.all_scans_alignment_visited_list[self.current_scan] = True
+            for i in range(len(self.all_scans_alignment_visited_list)):
+                if self.all_scans_alignment_visited_list[i]:
                     self.all_scans_alignment_bars[i].set_alpha(1)
                 else:
                     self.all_scans_alignment_bars[i].set_alpha(0.3)
             self.all_scans_alignment_bars[self.current_scan].set_facecolor(SCAN_SUMMARY_HIGHLIGHT_COLOR)
-            self.all_scans_alignment_graph = figure
+            self.all_scans_alignment_figure = figure
             self.all_scans_alignment_ax = ax
         else:
-            for i in range(len(self.usable_for_sigmoid_fit_list)):
-                if not self.usable_for_sigmoid_fit_list[i] or not self.usable_for_kappa_cal_list[i]:
+            for i in range(len(self.is_usable_for_sigmoid_fit_list)):
+                if not self.is_usable_for_sigmoid_fit_list[i] or not self.is_usable_for_kappa_cal_list[i]:
                     self.all_scans_alignment_bars[i].set_facecolor(SCAN_SUMMARY_UNUSABLE_SCAN_COLOR)
                 else:
                     self.all_scans_alignment_bars[i].set_facecolor(SCAN_SUMMARY_USABLE_SCAN_COLOR)
             for i in self.unfinished_sigmoid_fit_scans_list:
                 self.all_scans_alignment_bars[i].set_facecolor(UNDECIDED_USABILITY_COLOR)
-            self.all_scans_alignment_visited[self.current_scan] = True
-            for i in range(len(self.all_scans_alignment_visited)):
-                if self.all_scans_alignment_visited[i]:
+            self.all_scans_alignment_visited_list[self.current_scan] = True
+            for i in range(len(self.all_scans_alignment_visited_list)):
+                if self.all_scans_alignment_visited_list[i]:
                     self.all_scans_alignment_bars[i].set_alpha(1)
                 else:
                     self.all_scans_alignment_bars[i].set_alpha(0.3)
             self.all_scans_alignment_bars[self.current_scan].set_facecolor(SCAN_SUMMARY_HIGHLIGHT_COLOR)
 
-        self.view.update_temp_and_min_figure(self.all_scans_alignment_graph)
+        self.view.update_temp_and_min_figure(self.all_scans_alignment_figure)
 
     def on_pick(self, event):
         for i in range(len(self.all_scans_alignment_bars)):
@@ -1083,7 +1090,7 @@ class Controller():
         firstAKappa = 0
         scCalcs = False
         for i in range(len(self.dp50_list)):
-            if not self.usable_for_kappa_cal_list[i]:
+            if not self.is_usable_for_kappa_cal_list[i]:
                 continue
             ss = float(self.dp50_list[i][1])
             dp50 = float(self.dp50_list[i][0])
@@ -1228,8 +1235,8 @@ class Controller():
                     self.kappa_points_data_list.append((self.alpha_pinene_dict[key][0], key))
         self.kappa_points_data_list.sort(key=lambda tup: tup[0], reverse=True)
         self.kappa_points_data_list.sort(key=lambda tup: tup[1], reverse=True)
-        if self.current_point is None:
-            self.current_point = len(self.kappa_points_data_list) - 1
+        if self.current_kappa_point_index is None:
+            self.current_kappa_point_index = len(self.kappa_points_data_list) - 1
         k_points_x_list = []
         k_points_y_list = []
         all_k_points_color_list = []
@@ -1317,14 +1324,14 @@ class Controller():
             # Graph all the kappa points
             self.kappa_points = ax.scatter(k_points_x_list, k_points_y_list, s=300, c=all_k_points_color_list, picker=5,
                                            label="kappa points")
-            x = k_points_x_list[self.current_point]
-            y = k_points_y_list[self.current_point]
+            x = k_points_x_list[self.current_kappa_point_index]
+            y = k_points_y_list[self.current_kappa_point_index]
             # graph the current selection point
-            self.graph_current_selection, = ax.plot(x, y, 'o', color=KAPPA_CURRENT_SELECTION_COLOR,
-                                                    mew=0.5, ms=18, label="current selection")
+            self.current_kappa_point, = ax.plot(x, y, 'o', color=KAPPA_CURRENT_SELECTION_COLOR,
+                                                mew=0.5, ms=18, label="current selection")
             handles, labels = ax.get_legend_handles_labels()
             legend = ax.legend(handles, labels, facecolor=LEGEND_BG_COLOR, fontsize=LEGEND_FONT_SIZE)
-            self.kappa_graph = figure
+            self.kappa_figure = figure
             self.kappa_ax = ax
 
         else:
@@ -1336,10 +1343,10 @@ class Controller():
                                         color=TITLE_COLOR, size=TITLE_SIZE)
             self.kappa_points.set_offsets(numpy.c_[k_points_x_list, k_points_y_list])
             self.kappa_points.set_color(all_k_points_color_list)
-            x = k_points_x_list[self.current_point]
-            y = k_points_y_list[self.current_point]
-            self.graph_current_selection.set_xdata(x)
-            self.graph_current_selection.set_ydata(y)
+            x = k_points_x_list[self.current_kappa_point_index]
+            y = k_points_y_list[self.current_kappa_point_index]
+            self.current_kappa_point.set_xdata(x)
+            self.current_kappa_point.set_ydata(y)
 
     def on_key_release_kappa_graph(self, event):
         """
@@ -1348,27 +1355,27 @@ class Controller():
         :return:
         """
         key = event.key()
-        if self.current_point is None:
-            self.current_point = len(self.kappa_points_data_list) - 1
+        if self.current_kappa_point_index is None:
+            self.current_kappa_point_index = len(self.kappa_points_data_list) - 1
         # left arrow key
         elif (key == 16777234):
-            self.current_point = min(len(self.kappa_points_data_list) - 1, self.current_point + 1)
+            self.current_kappa_point_index = min(len(self.kappa_points_data_list) - 1, self.current_kappa_point_index + 1)
         # right arrow key
         elif (key == 16777236):
-            self.current_point = max(0, self.current_point - 1)
+            self.current_kappa_point_index = max(0, self.current_kappa_point_index - 1)
         # up arrow key
         elif (key == 16777235):
-            curr_ss = self.kappa_points_data_list[self.current_point][1]
+            curr_ss = self.kappa_points_data_list[self.current_kappa_point_index][1]
             for i in range(len(self.kappa_points_data_list) - 1, -1, -1):
                 if self.kappa_points_data_list[i][1] > curr_ss:
-                    self.current_point = i
+                    self.current_kappa_point_index = i
                     break
         # down arrow key
         elif (key == 16777237):
-            curr_ss = self.kappa_points_data_list[self.current_point][1]
+            curr_ss = self.kappa_points_data_list[self.current_kappa_point_index][1]
             for i in range(len(self.kappa_points_data_list)):
                 if self.kappa_points_data_list[i][1] < curr_ss:
-                    self.current_point = i
+                    self.current_kappa_point_index = i
                     break
         self.update_kappa_info_and_graph()
 
@@ -1378,7 +1385,7 @@ class Controller():
         :param event:
         :return:
         """
-        self.current_point = event.ind[0]
+        self.current_kappa_point_index = event.ind[0]
         self.update_kappa_info_and_graph()
 
     def toggle_exclude_include_kappa_point(self):
@@ -1387,8 +1394,8 @@ class Controller():
         Otherwise, exclude it.
         :return:
         """
-        ss = self.kappa_points_data_list[self.current_point][1]
-        dp = self.kappa_points_data_list[self.current_point][0]
+        ss = self.kappa_points_data_list[self.current_kappa_point_index][1]
+        dp = self.kappa_points_data_list[self.current_kappa_point_index][0]
         if self.kappa_points_is_included_list[(dp, ss)]:
             self.kappa_points_is_included_list[(dp, ss)] = False
         else:
@@ -1478,8 +1485,8 @@ class Controller():
         except:
             self.min_pos_CCNC_list[self.current_scan] = None
             self.min_pos_SMPS_list[self.current_scan] = None
-            self.usable_for_sigmoid_fit_list[self.current_scan] = False
-            self.usable_for_kappa_cal_list[self.current_scan] = False
+            self.is_usable_for_sigmoid_fit_list[self.current_scan] = False
+            self.is_usable_for_kappa_cal_list[self.current_scan] = False
 
     def shift_data_by_one_second(self, forward=True):
         try:
@@ -1487,7 +1494,7 @@ class Controller():
             if self.finish_scan_alignment_and_auto_sig_fit:
                 return
             # invalid scan. Can't shift
-            if not self.usable_for_sigmoid_fit_list[self.current_scan] or self.min_pos_SMPS_list[self.current_scan] \
+            if not self.is_usable_for_sigmoid_fit_list[self.current_scan] or self.min_pos_SMPS_list[self.current_scan] \
                     is None or self.min_pos_CCNC_list[self.current_scan] is None:
                 return
             shift_factor = self.shift_factor_list[self.current_scan]
@@ -1529,20 +1536,20 @@ class Controller():
                 return
         # is aligning the CCNC and SMPS data of each scan
         if self.finish_scan_alignment_and_auto_sig_fit is False:
-            if self.usable_for_sigmoid_fit_list[self.current_scan] is True:
-                self.usable_for_sigmoid_fit_list[self.current_scan] = False
+            if self.is_usable_for_sigmoid_fit_list[self.current_scan] is True:
+                self.is_usable_for_sigmoid_fit_list[self.current_scan] = False
             elif self.min_pos_CCNC_list[self.current_scan] and self.min_pos_CCNC_list[self.current_scan]:
-                self.usable_for_sigmoid_fit_list[self.current_scan] = True
+                self.is_usable_for_sigmoid_fit_list[self.current_scan] = True
             else:
                 self.view.show_error_dialog("You can't enable this scan! This scan is not usable!")
             self.update_view()
         # is checking sigmoid fit
         else:
-            if self.usable_for_sigmoid_fit_list[self.current_scan]:
-                if self.usable_for_kappa_cal_list[self.current_scan]:
-                    self.usable_for_kappa_cal_list[self.current_scan] = False
+            if self.is_usable_for_sigmoid_fit_list[self.current_scan]:
+                if self.is_usable_for_kappa_cal_list[self.current_scan]:
+                    self.is_usable_for_kappa_cal_list[self.current_scan] = False
                 else:
-                    self.usable_for_kappa_cal_list[self.current_scan] = True
+                    self.is_usable_for_kappa_cal_list[self.current_scan] = True
             else:
                 self.view.show_error_dialog("You can't enable this scan! This scan is not usable!")
             self.update_view()
@@ -1570,75 +1577,38 @@ class Controller():
         self.view.centralWidget().setFocus()
 
     def reset(self):
-        i = 1
         gc.collect()
-        if self.min_compare_graph:
-            self.min_compare_graph.clf()
-            plt.close(self.min_compare_graph)
-            self.min_compare_graph = None
-        if self.kappa_graph:
-            self.kappa_graph.clf()
-            plt.close(self.kappa_graph)
-            self.kappa_graph = None
-        self.current_point = None
-        self.finish_scan_alignment_and_auto_sig_fit = False
-        self.cancelling_progress_bar = False
-        self.flow_rate = 0.3
-        self.ccn_list = None
-        self.cn_list = None
-        self.ccn_fixed_list = None
-        self.cn_fixed_list = None
-        self.g_cn_list = None
-        self.g_ccn_list = None
-        self.ccnc_sig_list = []
-        self.ccn_normalized_list = []
-        self.diameter_midpoint_list = []
-        self.ccn_cn_sim_list = []
-        self.b = 0
-        self.d = 0
-        self.c = 0
-        self.min_ccn = 4
-        self.min_dp = 0
-        self.max_dp = 0
-        self.max_dp_asym = 0
-        self.min_dp_asym = 0
-        self.dp50 = 0
-        self.super_saturation_rate = 0
-        self.dp50_less_count = 0
-        self.dp50_more_count = 0
-        self.dp50_wet = 0
-        self.dp50_plus_20 = 0
-        self.min_dp_list = []
-        self.min_dp_asym_list = []
-        self.max_dp_asym_list = []
-        self.b_list = []
-        self.d_list = []
-        self.c_list = []
-        self.dp50_list = []
-        self.dp50_wet_list = []
-        self.dp50_plus_20_list = []
-        self.sigma = 0.072
-        self.temp = 298.15
-        self.aParam = 0.00000869251 * self.sigma / self.temp
-        self.dd = 280
-        self.iKappa = 0.00567
-        self.sc = 0
-        self.asc = 0
-        self.dd2 = 100
-        self.iKappa2 = 0.6
-        self.solubility = 0.03
-        self.sc2 = 0
-        self.appKappa = 0
-        self.anaKappa = 0
-        self.trueSC = 0
-        self.kappa_excel = None
-        self.shift_factor_list = []
-        self.kappa_calculate_dict = {}
-        self.alpha_pinene_dict = {}
-        self.scan_position_in_data = []
-        self.usable_for_kappa_cal_list = []
-        self.invalid_k_points_list = []
-        self.kappa_points_data_list = []
+        # clear memory of concentration over scan time graph
+        if self.concentration_over_scan_time_figure:
+            self.concentration_over_scan_time_figure.clf()
+            plt.close(self.concentration_over_scan_time_figure)
+            self.concentration_over_scan_time_figure = None
+        # clear memory of ccn/cn graph
+        if self.ccn_cn_ratio_figure:
+            self.ccn_cn_ratio_figure.clf()
+            plt.close(self.ccn_cn_ratio_figure)
+            self.ccn_cn_ratio_figure = None
+        # clear memory of temperature graph
+        if self.temperature_figure:
+            self.temperature_figure.clf()
+            plt.close(self.temperature_figure)
+            self.temperature_figure = None
+        # clear memory of sigmoid graph
+        if self.sigmoid_fit_figure:
+            self.sigmoid_fit_figure.clf()
+            plt.close(self.sigmoid_fit_figure)
+            self.sigmoid_fit_figure = None
+        # clear memory of scan alignment summary grpah
+        if self.all_scans_alignment_figure:
+            self.all_scans_alignment_figure.clf()
+            plt.close(self.all_scans_alignment_figure)
+            self.all_scans_alignment_figure = None
+        # clear memory of kappa figure
+        if self.kappa_figure:
+            self.kappa_figure.clf()
+            plt.close(self.kappa_figure)
+            self.kappa_figure = None
+        self.__init__(self.view)
         gc.collect()
 
     # ---------------------progress bar-------------------------
@@ -1657,20 +1627,20 @@ class Controller():
 
 
 def main():
-    controller = Controller(False)
+    controller = Controller()
     view = View(controller)
     controller.view = view
     # easiest test. Demonstration files with perfect data
-    # files = ['C:\Users\KKK\OneDrive\Researches\Chemics\Examples\AS_Calibration_SMPS.txt',
-    #          'C:\Users\KKK\OneDrive\Researches\Chemics\Examples\CCN data 100203092813.csv']
+    files = ['C:\Users\KKK\OneDrive\Researches\Chemics\Examples\AS_Calibration_SMPS.txt',
+             'C:\Users\KKK\OneDrive\Researches\Chemics\Examples\CCN data 100203092813.csv']
 
     #  real test 1
 
-    files = ["C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426155738.csv",
-            "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426165739.csv",
-            "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426175740.csv",
-            "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\100 ppb.txt"]
-
+    # files = ["C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426155738.csv",
+    #         "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426165739.csv",
+    #         "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426175740.csv",
+    #         "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\100 ppb.txt"]
+    #
     controller.files = files
     controller.run()
     view.show_ui()

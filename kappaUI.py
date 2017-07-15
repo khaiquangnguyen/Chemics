@@ -301,7 +301,7 @@ class KappaControlTabWidget(QWidget):
             self.main_window.centralWidget().info_widget.show_data_for_all_k_points()
             self.toggle_k_point_status_button.show()
         # reset certain attributes of kappa to draw correctly
-        self.main_window.controller.current_point = None
+        self.main_window.controller.current_kappa_point_index = None
         self.main_window.controller.update_kappa_info_and_graph()
 
     def on_click_toggle_k_point_status_button(self):

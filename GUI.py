@@ -111,6 +111,8 @@ class View(QMainWindow):
         dialog = QFileDialog()
         files = dialog.getOpenFileNames()[0]
         if files:
+            self.controller.reset()
+            self.reset()
             self.controller.files = files
             self.controller.run()
 
@@ -193,7 +195,7 @@ class View(QMainWindow):
         if self.controller.min_pos_SMPS_list[curr_scan] is None or self.controller.min_pos_CCNC_list[curr_scan] is None:
             self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable")
         else:
-            if (self.controller.usable_for_sigmoid_fit_list[curr_scan]):
+            if (self.controller.is_usable_for_sigmoid_fit_list[curr_scan]):
                 self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Disable Scan")
             else:
                 self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
@@ -207,7 +209,7 @@ class View(QMainWindow):
         if self.controller.min_pos_SMPS_list[curr_scan] is None or self.controller.min_pos_CCNC_list[curr_scan] is None:
             self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
         else:
-            if self.controller.usable_for_kappa_cal_list[curr_scan] and self.controller.usable_for_sigmoid_fit_list[
+            if self.controller.is_usable_for_kappa_cal_list[curr_scan] and self.controller.is_usable_for_sigmoid_fit_list[
                                                                                                             curr_scan]:
                 self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Disable Scan")
             else:
@@ -226,12 +228,12 @@ class View(QMainWindow):
         self.controller.solubility = solu
 
     def update_kappa_info_and_graph(self):
-        self.centralWidget().graph_widget.update_figure(self.controller.kappa_graph)
+        self.centralWidget().graph_widget.update_figure(self.controller.kappa_figure)
         self.centralWidget().info_widget.update_data()
         self.centralWidget().resize()
-        self.centralWidget().info_widget.information_table.toggle_color(self.controller.current_point)
-        ss = self.controller.kappa_points_data_list[self.controller.current_point][1]
-        dp = self.controller.kappa_points_data_list[self.controller.current_point][0]
+        self.centralWidget().info_widget.information_table.toggle_color(self.controller.current_kappa_point_index)
+        ss = self.controller.kappa_points_data_list[self.controller.current_kappa_point_index][1]
+        dp = self.controller.kappa_points_data_list[self.controller.current_kappa_point_index][0]
         if self.controller.is_show_all_k_points:
             status = self.controller.kappa_points_is_included_list[(dp, ss)]
             if status:

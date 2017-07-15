@@ -76,7 +76,7 @@ class ScanInformationTable(QTableWidget):
         self.setCellWidget(self.rowCount() - 1, 0, header)
         # add table cells
         current_scan = self.main_window.controller.current_scan
-        if self.main_window.controller.usable_for_sigmoid_fit_list[current_scan]:
+        if self.main_window.controller.is_usable_for_sigmoid_fit_list[current_scan]:
             self.add_message("Usability for Sigmoid Fit", "Positive")
         else:
             self.add_message("Usability for Sigmoid Fit", "Negative", color=settings.NEGATIVE_USABILITY_COLOR)
@@ -95,7 +95,7 @@ class ScanInformationTable(QTableWidget):
         self.setCellWidget(self.rowCount() - 1, 0, header)
         current_scan = self.main_window.controller.current_scan
         # add table cell
-        if self.main_window.controller.usable_for_sigmoid_fit_list[current_scan]:
+        if self.main_window.controller.is_usable_for_sigmoid_fit_list[current_scan]:
             self.add_message("Usability for Sigmoid Fit", "Positive")
         else:
             self.add_message("Usability for Sigmoid Fit", "Negative", color=settings.NEGATIVE_USABILITY_COLOR)
@@ -110,8 +110,8 @@ class ScanInformationTable(QTableWidget):
         # add table cells
         if current_scan in self.main_window.controller.unfinished_sigmoid_fit_scans_list:
             self.add_message("Usability for Kappa", "Undecided",color=settings.UNDECIDED_USABILITY_COLOR)
-        elif self.main_window.controller.usable_for_kappa_cal_list[current_scan] and \
-                self.main_window.controller.usable_for_sigmoid_fit_list[current_scan]:
+        elif self.main_window.controller.is_usable_for_kappa_cal_list[current_scan] and \
+                self.main_window.controller.is_usable_for_sigmoid_fit_list[current_scan]:
             self.add_message("Usability for Kappa", "Positive")
         else:
             self.add_message("Usability for Kappa", "Negative", color=settings.NEGATIVE_USABILITY_COLOR)
