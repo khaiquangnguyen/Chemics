@@ -86,12 +86,10 @@ class View(QMainWindow):
         """
         show the update
         """
-        updateDialog = QMessageBox()
-        if update == 1:
+        if update > VERSION:
+            updateDialog = QMessageBox()
             updateDialog.setText("The program has an update. Please download the update for the program.")
-        else:
-            updateDialog.setText("The program is up-to-experiment_date.")
-        updateDialog.exec_()
+            updateDialog.exec_()
 
     def submit_feedback(self):
         """
@@ -100,7 +98,7 @@ class View(QMainWindow):
         webbrowser.open("https://goo.gl/forms/X9OB6AQSJSiKScBs2")
 
     def check_for_update(self):
-        response = urllib2.urlopen('http://khaiquangnguyen.github.io/chemics_update.html')
+        response = urllib2.urlopen('https://github.com/khaiquangnguyen/Chemics/blob/master/APP_VERSION')
         html = response.read()
         update = int(html[0])
         self.show_update_dialog(update)
