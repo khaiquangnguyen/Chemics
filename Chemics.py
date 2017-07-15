@@ -609,6 +609,9 @@ class Controller():
         else:
             self.scan_time_figure_smps_line.set_ydata(self.cn_list)
             self.scan_time_figure_ccnc_line.set_ydata(self.ccn_list)
+            lower_lim = min([min(self.ccn_list),min(self.cn_list)])
+            upper_lim = max([max(self.ccn_list),max(self.cn_list)])
+            self.concentration_over_scan_time_axis.axes.set_ylim([lower_lim,upper_lim])
         self.view.update_alignment_and_sigmoid_fit_figures(self.concentration_over_scan_time_graph,
                                                            None)
 
@@ -908,18 +911,19 @@ class Controller():
             ax.set_title("CCNC/SMPS over Dry Diameter and Sigmoid Line", color=TITLE_COLOR, size=TITLE_SIZE)
             yLim = min(2, max(self.ccnc_sig_list)) + 0.2
             ax.axes.set_ylim([-0.1, yLim])
-            self.normalized_concentration_points, = plt.plot(self.diameter_midpoint_list, self.ccn_normalized_list,
-                                                             linewidth=4, color=NORMALIZED_CONCENTRATION_POINT_COLOR,
-                                                             label="dN/dLogDp")
             self.ccn_cn_ratio_points, = ax.plot(self.particle_diameter_list, self.ccn_cn_ratio_list, 'o',
                                                 color=CCNC_SMPS_POINT_COLOR,
                                                 mew=0.5, ms=9, label="CCNC/SMPS")
-            self.ccn_cn_ratio_corrected_points, = ax.plot(self.particle_diameter_list, self.ccnc_sig_list, 'o',
+            if self.usable_for_sigmoid_fit_list[self.current_scan]:
+                self.normalized_concentration_points, = plt.plot(self.diameter_midpoint_list, self.ccn_normalized_list,
+                                                             linewidth=4, color=NORMALIZED_CONCENTRATION_POINT_COLOR,
+                                                             label="dN/dLogDp")
+
+                self.ccn_cn_ratio_corrected_points, = ax.plot(self.particle_diameter_list, self.ccnc_sig_list, 'o',
                                                           color=CCNC_SMPS_RATIO_CORRECTED_POINT_COLOR, mew=0.5,
                                                           mec="#0D47A1",
                                                           ms=9, label="CCNC/SMPS (Corrected)")
-            if self.usable_for_kappa_cal_list[self.current_scan] and \
-                    self.usable_for_sigmoid_fit_list[self.current_scan]:
+            if self.usable_for_kappa_cal_list[self.current_scan]:
                 self.sigmoid_line, = ax.plot(self.particle_diameter_list, self.ccn_cn_sim_list, linewidth=5,
                                              color=SIGMOID_LINE_COLOR, label="Sigmodal Fit")
             handles, labels = ax.get_legend_handles_labels()
@@ -929,22 +933,42 @@ class Controller():
         else:
             yLim = min(2, max(self.ccnc_sig_list)) + 0.2
             self.sigmoid_fit_ax.axes.set_ylim([-0.1, yLim])
-            self.normalized_concentration_points.set_xdata(self.diameter_midpoint_list)
-            self.normalized_concentration_points.set_ydata(self.ccn_normalized_list)
             self.ccn_cn_ratio_points.set_xdata(self.particle_diameter_list)
             self.ccn_cn_ratio_points.set_ydata(self.ccn_cn_ratio_list)
-            self.ccn_cn_ratio_corrected_points.set_xdata(self.particle_diameter_list)
-            self.ccn_cn_ratio_corrected_points.set_ydata(self.ccnc_sig_list)
-            if self.usable_for_kappa_cal_list[self.current_scan] and \
-                    self.usable_for_sigmoid_fit_list[self.current_scan]:
-                if self.sigmoid_line is not None:
-                    self.sigmoid_line.set_xdata(self.particle_diameter_list)
-                    self.sigmoid_line.set_ydata(self.ccn_cn_sim_list)
+            if self.usable_for_sigmoid_fit_list[self.current_scan]:
+                if self.normalized_concentration_points is None:
+                    self.normalized_concentration_points, = plt.plot(self.diameter_midpoint_list,
+                                                                     self.ccn_normalized_list,
+                                                                     linewidth=4,
+                                                                     color=NORMALIZED_CONCENTRATION_POINT_COLOR,
+                                                                     label="dN/dLogDp")
                 else:
+                    self.normalized_concentration_points.set_xdata(self.diameter_midpoint_list)
+                    self.normalized_concentration_points.set_ydata(self.ccn_normalized_list)
+                if self.ccn_cn_ratio_corrected_points is None:
+                    self.ccn_cn_ratio_corrected_points, = ax.plot(self.particle_diameter_list, self.ccnc_sig_list, 'o',
+                                                                  color=CCNC_SMPS_RATIO_CORRECTED_POINT_COLOR, mew=0.5,
+                                                                  mec="#0D47A1",
+                                                                  ms=9, label="CCNC/SMPS (Corrected)")
+                else:
+                    self.ccn_cn_ratio_corrected_points.set_xdata(self.particle_diameter_list)
+                    self.ccn_cn_ratio_corrected_points.set_ydata(self.ccnc_sig_list)
+            else:
+                if self.normalized_concentration_points is not None:
+                    self.normalized_concentration_points.set_xdata([])
+                    self.normalized_concentration_points.set_ydata([])
+                if self.ccn_cn_ratio_corrected_points is not None:
+                    self.ccn_cn_ratio_corrected_points.set_xdata([])
+                    self.ccn_cn_ratio_corrected_points.set_ydata([])
+            if self.usable_for_kappa_cal_list[self.current_scan]:
+                if self.sigmoid_line is None:
                     self.sigmoid_line, = self.sigmoid_fit_ax.plot(self.particle_diameter_list, self.ccn_cn_sim_list,
                                                                   linewidth=5, color='#EF5350', label="Sigmodal Fit")
+                else:
+                    self.sigmoid_line.set_xdata(self.particle_diameter_list)
+                    self.sigmoid_line.set_ydata(self.ccn_cn_sim_list)
             else:
-                if self.sigmoid_line:
+                if self.sigmoid_line is not None:
                     self.sigmoid_line.set_xdata([])
                     self.sigmoid_line.set_ydata([])
 
@@ -1537,10 +1561,7 @@ class Controller():
         self.draw_concentration_over_scan_time_graph()
         if self.finish_scan_alignment_and_auto_sig_fit:
             self.draw_all_scans_alignment_summary_graph()
-            if self.usable_for_sigmoid_fit_list[self.current_scan]:
-                self.draw_complete_sigmoid_graph()
-            else:
-                self.draw_ccn_cn_ratio_over_diameter_graph()
+            self.draw_complete_sigmoid_graph()
             self.view.update_scan_information_after_sigmoid_fit()
         else:
             self.draw_ccn_cn_ratio_over_diameter_graph()

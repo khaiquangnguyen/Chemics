@@ -316,6 +316,9 @@ class RectFigureCanvas(FigureCanvas):
             h = self.height()
             self.setFixedHeight(h / 2)
             self.setFixedHeight(h)
+            self.draw()
+            self.flush_events()
+
         else:
             self.draw()
             self.flush_events()
@@ -338,6 +341,9 @@ class SquareFigureCanvas(FigureCanvas):
             h = self.height()
             self.setFixedHeight(h / 2)
             self.setFixedHeight(h)
+            self.draw()
+            self.flush_events()
+
         else:
             self.draw()
             self.flush_events()
