@@ -253,7 +253,7 @@ class ButtonsWidget(QWidget):
 
     def on_click_fit_sigmoid_line(self):
         self.main_window.controller.correct_charges_and_fit_sigmoid_all_scans()
-        if self.main_window.controller.finish_scan_alignment:
+        if self.main_window.controller.finish_scan_alignment_and_auto_sig_fit:
             self.sigmoid_fit_button.hide()
             self.layout.addWidget(self.update_sigmoid_fit_parameters, 2, 1, 3, 1)
             self.layout.addWidget(self.calc_kappa_button, 2, 5, 3, 1)

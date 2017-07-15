@@ -29,7 +29,12 @@ class SigmoidFitGetParameterError(Exception):
         pass
 
 
-class SigmoidLineFitError(Exception):
+class SigmoidFitLineFitError(Exception):
+    def __init__(self):
+        pass
+
+
+class SigmoidFitCorrectChargesError(Exception):
     def __init__(self):
         pass
 
