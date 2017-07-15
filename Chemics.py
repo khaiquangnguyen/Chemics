@@ -160,6 +160,7 @@ class Controller():
         self.all_scans_alignment_visited = []
         self.graph_current_selection = None
         self.kappa_points_is_included_list = {}  # format of key is (dp,ss)
+        self.unfinished_sigmoid_fit_scans_list = []
 
     ##############################################
     #
@@ -722,11 +723,14 @@ class Controller():
             self.b = get_ave_none_zero(asymsList)
             self.usable_for_kappa_cal_list[self.current_scan] = True
         except:
+            self.unfinished_sigmoid_fit_scans_list.append(self.current_scan)
             raise SigmoidFitGetParameterError()
 
     def fit_sigmoid_line(self):
-        # TODO: show why some runs fail
         try:
+            # TODO: make one scan fails to test the whether we can refit
+            if self.current_scan == 1:
+                raise SigmoidLineFitError()
             xList = []
             yList = []
             for i in range(len(self.particle_diameter_list)):
@@ -753,6 +757,7 @@ class Controller():
                     break
             self.usable_for_kappa_cal_list[self.current_scan] = True
         except:
+            self.unfinished_sigmoid_fit_scans_list.append(self.current_scan)
             raise SigmoidLineFitError()
 
     def refitting_sigmoid_line(self, min_dry_diameter, min_dry_diameter_asymptote, max_dry_diameter_asymptote):
@@ -770,7 +775,6 @@ class Controller():
             self.move_progress_bar_forward()
         except:
             self.usable_for_kappa_cal_list[self.current_scan] = False
-            self.usable_for_sigmoid_fit_list[self.current_scan] = False
             self.b_list[self.current_scan] = 0
             self.d_list[self.current_scan] = 0
             self.c_list[self.current_scan] = 0
@@ -958,6 +962,8 @@ class Controller():
             for i in range(len(self.usable_for_sigmoid_fit_list)):
                 if not self.usable_for_sigmoid_fit_list[i] or not self.usable_for_kappa_cal_list[i]:
                     self.all_scans_alignment_bars[i].set_facecolor(SCAN_SUMMARY_UNUSABLE_SCAN_COLOR)
+            for i in self.unfinished_sigmoid_fit_scans_list:
+                self.all_scans_alignment_bars[i].set_facecolor(UNDECIDED_USABILITY_COLOR)
             self.all_scans_alignment_visited[self.current_scan] = True
             for i in range(len(self.all_scans_alignment_visited)):
                 if self.all_scans_alignment_visited[i]:
@@ -973,6 +979,8 @@ class Controller():
                     self.all_scans_alignment_bars[i].set_facecolor(SCAN_SUMMARY_UNUSABLE_SCAN_COLOR)
                 else:
                     self.all_scans_alignment_bars[i].set_facecolor(SCAN_SUMMARY_USABLE_SCAN_COLOR)
+            for i in self.unfinished_sigmoid_fit_scans_list:
+                self.all_scans_alignment_bars[i].set_facecolor(UNDECIDED_USABILITY_COLOR)
             self.all_scans_alignment_visited[self.current_scan] = True
             for i in range(len(self.all_scans_alignment_visited)):
                 if self.all_scans_alignment_visited[i]:
@@ -1508,7 +1516,7 @@ class Controller():
         self.prepare_scan_data()
         self.draw_concentration_over_scan_time_graph()
         if self.finish_scan_alignment:
-            if self.usable_for_sigmoid_fit_list[self.current_scan]:
+            if self.usable_for_kappa_cal_list[self.current_scan]:
                 self.draw_complete_sigmoid_graph()
             else:
                 self.draw_ccn_cn_ratio_over_diameter_graph()

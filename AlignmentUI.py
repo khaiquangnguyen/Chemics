@@ -108,7 +108,9 @@ class ScanInformationTable(QTableWidget):
         self.insertRow(self.rowCount())
         self.setCellWidget(self.rowCount() - 1, 0, header)
         # add table cells
-        if self.main_window.controller.usable_for_kappa_cal_list[current_scan] and \
+        if current_scan in self.main_window.controller.unfinished_sigmoid_fit_scans_list:
+            self.add_message("Usability for Kappa", "Undecided",color=settings.UNDECIDED_USABILITY_COLOR)
+        elif self.main_window.controller.usable_for_kappa_cal_list[current_scan] and \
                 self.main_window.controller.usable_for_sigmoid_fit_list[current_scan]:
             self.add_message("Usability for Kappa", "Positive")
         else:
@@ -258,6 +260,9 @@ class ButtonsWidget(QWidget):
 
     def on_click_calculate_kappa(self):
         controller = self.main_window.controller
+        if len(controller.unfinished_sigmoid_fit_scans_list) > 0:
+            controller.view.show_error_dialog("There are scans with no sigmoid fit. Please go back and finish them manually!")
+            return
         kappaVars = (
             controller.sigma, controller.temp, controller.dd, controller.iKappa, controller.dd2, controller.iKappa2,
             controller.solubility)
