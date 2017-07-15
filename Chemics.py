@@ -881,10 +881,6 @@ class Controller():
             self.current_scan = -1
             self.move_progress_bar_forward(complete=True)
             self.finish_scan_alignment_and_auto_sig_fit = True
-            self.unfinished_sigmoid_fit_scans_list.append(1)
-            self.unfinished_sigmoid_fit_scans_list.append(6)
-            self.usable_for_kappa_cal_list[1] = False
-            self.usable_for_kappa_cal_list[6] = False
             self.switch_to_scan(0)
         except ProgressBarInterruptException:
             self.view.show_error_dialog("The sigmoid fitting process is cancelled!")
@@ -1638,8 +1634,17 @@ def main():
     controller = Controller(False)
     view = View(controller)
     controller.view = view
-    files = [u'C:\\Users\\KKK\\OneDrive\\Researches\\Chemics\\Examples\\AS_Calibration_SMPS.txt',
-             u'C:\\Users\\KKK\\OneDrive\\Researches\\Chemics\\Examples\\CCN data 100203092813.csv']
+    # easiest test. Demonstration files with perfect data
+    # files = ['C:\Users\KKK\OneDrive\Researches\Chemics\Examples\AS_Calibration_SMPS.txt',
+    #          'C:\Users\KKK\OneDrive\Researches\Chemics\Examples\CCN data 100203092813.csv']
+
+    #  real test 1
+
+    files = ["C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426155738.csv",
+            "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426165739.csv",
+            "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426175740.csv",
+            "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\100 ppb.txt"]
+
     controller.files = files
     controller.run()
     view.show_ui()

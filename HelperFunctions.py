@@ -179,6 +179,8 @@ def get_min_index(a_list, threshold=5):
     # TODO: improve this method
     first_max = 0
     max_pos = 0
+    if sum(a_list) == 0:
+        return -1
     max_pos = peakutils.indexes(a_list, thres=0.5, min_dist=len(a_list) / 10)
     if len(max_pos) == 0:
         return -1
