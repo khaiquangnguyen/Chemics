@@ -98,7 +98,7 @@ class View(QMainWindow):
         webbrowser.open("https://goo.gl/forms/X9OB6AQSJSiKScBs2")
 
     def check_for_update(self):
-        response = urllib2.urlopen('https://github.com/khaiquangnguyen/Chemics/blob/master/APP_VERSION')
+        response = urllib2.urlopen('https://raw.githubusercontent.com/khaiquangnguyen/Chemics/master/APP_VERSION.html')
         html = response.read()
         update = int(html[0])
         self.show_update_dialog(update)
