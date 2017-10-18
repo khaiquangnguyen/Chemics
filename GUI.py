@@ -79,7 +79,7 @@ class View(QMainWindow):
         show the UI of the program.
         """
         self.show()
-        self.check_for_update()
+        # self.check_for_update()
         qt_app.exec_()
 
     def show_update_dialog(self, update=1):

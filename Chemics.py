@@ -1635,14 +1635,16 @@ def main():
     #          'C:\Users\KKK\OneDrive\Researches\Chemics\Examples\CCN data 100203092813.csv']
 
     #  real test 1
-
-    # files = ["C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426155738.csv",
-    #         "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426165739.csv",
-    #         "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426175740.csv",
-    #         "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\100 ppb.txt"]
+    files = ["C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426155738.csv",
+            "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426165739.csv",
+            "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426175740.csv",
+            "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\100 ppb.txt"]
     #
-    # controller.files = files
-    # controller.run()
+
+    # files = ['D:\Lansing\2-\component\alpha-pinene-acetone\6November2010\run1\ccnc.csv',
+    #          'D:\Lansing\2-component\alpha-pinene-acetone\6November2010\run1\smps.txt']
+    controller.files = files
+    controller.run()
     view.show_ui()
 
 
