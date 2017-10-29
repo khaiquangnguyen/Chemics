@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+###############################
+#
+# IMPORT STATEMENTS
+#
+###############################
+>>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
 
 import sys
 import os
@@ -12,20 +20,41 @@ from AlignmentUI import *
 from KappaUI import *
 import webbrowser
 import urllib2
+<<<<<<< HEAD
 
 matplotlib.use('Qt4Agg')
 matplotlib.rcParams['backend.qt4']='PySide'
 
 
+=======
+from timeit import default_timer as timer
+
+matplotlib.use('Qt4Agg')
+matplotlib.rcParams['backend.qt4'] = 'PySide'
+qt_app = QApplication(sys.argv)
+
+###############################
+#
+# VARIABLES
+#
+###############################
+>>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
 
 qt_app = QApplication(sys.argv)
 width = 0
 height = 0
-VERSION = 101
+VERSION = 1
+
 
 class MainWindow(QMainWindow):
 
+<<<<<<< HEAD
     def __init__(self,controller):
+=======
+
+class View(QMainWindow):
+    def __init__(self, controller):
+>>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
         global VERSION
         QMainWindow.__init__(self)
         self.progress = 0
@@ -38,6 +67,7 @@ class MainWindow(QMainWindow):
         width = self.width()
         height = self.height()
 
+<<<<<<< HEAD
         # Add Menu
         menubar = self.menuBar()
         fileMenu = menubar.addMenu('&File')
@@ -66,6 +96,24 @@ class MainWindow(QMainWindow):
         fileMenu.addAction(exitAction)
 
         #set central widget
+=======
+        # Add navigation menu
+        navigation_bar = self.menuBar()
+        file_button = navigation_bar.addMenu('&File')
+        select_button = QAction('&Select Files', self)
+        select_button.setShortcut('Ctrl+O')
+        select_button.setStatusTip('Select the files which contains the processed_data files')
+        select_button.triggered.connect(self.select_files)
+        file_button.addAction(select_button)
+        feedback_button = QAction('&Feedback', self)
+        feedback_button.triggered.connect(self.submit_feedback)
+        navigation_bar.addAction(feedback_button)
+        exit_button = QAction('&Exit', self)
+        exit_button.setShortcut('Ctrl+Q')
+        exit_button.setStatusTip('Exit application')
+        exit_button.triggered.connect(self.close)
+        file_button.addAction(exit_button)
+>>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
         self.setCentralWidget(ControlPanel(self))
         self.showMaximized()
 
@@ -78,8 +126,10 @@ class MainWindow(QMainWindow):
 
     def show_UI(self):
         self.show()
+        # self.check_for_update()
         qt_app.exec_()
 
+<<<<<<< HEAD
     def showUpdateDialog(self, update = 1):
         """ show the update"""
         updateDialog = QMessageBox()
@@ -88,15 +138,30 @@ class MainWindow(QMainWindow):
         else:
             updateDialog.setText("The program is up-to-date.")
         updateDialog.exec_()
+=======
+    def show_update_dialog(self, update=1):
+        """
+        show the update
+        """
+        if update > VERSION:
+            updateDialog = QMessageBox()
+            updateDialog.setText("The program has an update. Please download the update for the program.")
+            updateDialog.exec_()
+>>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
 
     def feedbackSelection(self):
         """
         Submit feedback by showing a google form
         """
-        webbrowser.open("https://goo.gl/forms/Cf6YQtdOXAqGx21U2")
+        webbrowser.open("https://goo.gl/forms/X9OB6AQSJSiKScBs2")
 
+<<<<<<< HEAD
     def updateSelection(self):
         response = urllib2.urlopen('http://khaiquangnguyen.github.io/chemics_update.html')
+=======
+    def check_for_update(self):
+        response = urllib2.urlopen('https://raw.githubusercontent.com/khaiquangnguyen/Chemics/master/APP_VERSION.html')
+>>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
         html = response.read()
         update = int(html[0])
         self.showUpdateDialog(update)
@@ -108,10 +173,16 @@ class MainWindow(QMainWindow):
         dialog = QFileDialog()
         files = dialog.getOpenFileNames()[0]
         if files:
+            self.controller.reset()
+            self.reset()
             self.controller.files = files
             self.controller.run()
 
+<<<<<<< HEAD
     def makeProgress(self, message = None, maxValue = None, complete = False, value = 1):
+=======
+    def move_progress_bar_forward(self, message=None, max_value=None, complete=False, value=1):
+>>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
         """
         Progress the progress dialog bar
         :param maxValue: the maximum of the progress dialog. Used to signal reset progress dialog
@@ -130,6 +201,7 @@ class MainWindow(QMainWindow):
                 self.progressDialog.setWindowModality(Qt.WindowModal)
                 self.progressDialog.show()
             else:
+<<<<<<< HEAD
                 self.progressDialog = QProgressDialog("Tasks in progress...", "Cancel", 0, maxValue, self)
                 self.progressDialog.canceled.connect(self.cancelProgress)
                 self.progressDialog.setWindowModality(Qt.WindowModal)
@@ -140,6 +212,18 @@ class MainWindow(QMainWindow):
                 if complete == True:
                     self.progressDialog.setValue(self.progressDialog.maximum())
                     self.progressDialog.reset()
+=======
+                self.progress_dialog = QProgressDialog("Tasks in progress...", "Cancel", 0, max_value, self)
+                self.progress_dialog.canceled.connect(self.cancel_progress_bar)
+                self.progress_dialog.setWindowModality(Qt.WindowModal)
+                self.progress_dialog.show()
+
+        else:
+            if self.progress_dialog is not None:
+                if complete is True:
+                    self.progress_dialog.setValue(self.progress_dialog.maximum())
+                    self.progress_dialog.reset()
+>>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
                 else:
                     if message is not None:
                         self.progressDialog.setLabelText(message)
@@ -147,7 +231,11 @@ class MainWindow(QMainWindow):
                     self.progressDialog.setValue(self.progress)
                 qApp.processEvents()
 
+<<<<<<< HEAD
     def showError(self, errorMessage = 'Unknown Error!'):
+=======
+    def show_error_dialog(self, error_message='Unknown Error!'):
+>>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
         """
         Show the error message
         :param errorMessage: The message to show in the error message
@@ -160,16 +248,25 @@ class MainWindow(QMainWindow):
         warning.setText(errorMessage)
         warning.exec_()
 
+<<<<<<< HEAD
     def cancelProgress(self):
         """
         Action when the cancel button of the progress bar is clicked
         """
         self.controller.cancelProgress()
 
+=======
+    def cancel_progress_bar(self):
+        """
+        Action when the cancelling_progress_bar button of the progress bar is clicked
+        """
+        self.controller.cancel_progress_bar()
+>>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
 
     def resizeEvent(self, resizeEvent):
         self.centralWidget().resize()
 
+<<<<<<< HEAD
     def update_dp_dnlog_figures(self, adjustedFigure, diaFigure):
         self.centralWidget().graphWidget.dpAndDnlogView.dpView.updateFigure(adjustedFigure)
         self.centralWidget().graphWidget.dpAndDnlogView.dNlogView.updateFigure(diaFigure)
@@ -194,6 +291,51 @@ class MainWindow(QMainWindow):
 
     def reset(self):
         self.centralWidget().switchToPeak()
+=======
+    def update_alignment_and_sigmoid_fit_figures(self, scan_time_figure, sigmoid_figure):
+        self.centralWidget().graph_widget.alignment_and_sigmoid_fit_view.alignment_view.update_figure(scan_time_figure)
+        self.centralWidget().graph_widget.alignment_and_sigmoid_fit_view.sigmoid_fit_view.update_figure(sigmoid_figure)
+
+    def update_temp_and_min_figure(self, new_figure):
+        self.centralWidget().graph_widget.temp_and_alignment_view.update_figure(new_figure)
+
+    def calculate_all_kappa_values(self):
+        self.centralWidget().switch_to_kappa_widget()
+        self.controller.calculate_all_kappa_values()
+        self.controller.update_kappa_info_and_graph()
+
+    def update_experiment_information(self):
+        self.centralWidget().info_widget.information_table.update_experiment_information()
+
+    def update_scan_information(self):
+        self.centralWidget().info_widget.information_table.update_scan_information()
+        curr_scan = self.controller.current_scan
+        if self.controller.min_pos_SMPS_list[curr_scan] is None or self.controller.min_pos_CCNC_list[curr_scan] is None:
+            self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable")
+        else:
+            if (self.controller.is_usable_for_sigmoid_fit_list[curr_scan]):
+                self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Disable Scan")
+            else:
+                self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
+
+    def update_scan_information_after_sigmoid_fit(self):
+        self.centralWidget().info_widget.information_table.update_scan_information_after_sigmoid_fit()
+        curr_scan = self.controller.current_scan
+        if curr_scan in self.controller.unfinished_sigmoid_fit_scans_list:
+            self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Disable Scan")
+            return
+        if self.controller.min_pos_SMPS_list[curr_scan] is None or self.controller.min_pos_CCNC_list[curr_scan] is None:
+            self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
+        else:
+            if self.controller.is_usable_for_kappa_cal_list[curr_scan] and self.controller.is_usable_for_sigmoid_fit_list[
+                                                                                                            curr_scan]:
+                self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Disable Scan")
+            else:
+                self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
+
+    def reset(self):
+        self.centralWidget().switch_to_scan_widget()
+>>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
 
     def updateKappaVars(self,sigma,temp,dd1,i1,dd2,i2,solu):
         self.controller.sigma = sigma
@@ -204,6 +346,7 @@ class MainWindow(QMainWindow):
         self.controller.iKappa2 = i2
         self.controller.solubility = solu
 
+<<<<<<< HEAD
     def updateKappaGraph(self):
         self.centralWidget().graphWidget.graphView.updateFigure(self.controller.kappaGraph)
 
@@ -215,15 +358,49 @@ class MainWindow(QMainWindow):
                 returnValue = float(input[0])
                 break
         return returnValue
+=======
+    def update_kappa_info_and_graph(self):
+        self.centralWidget().graph_widget.update_figure(self.controller.kappa_figure)
+        self.centralWidget().info_widget.update_data()
+        self.centralWidget().resize()
+        self.centralWidget().info_widget.information_table.toggle_color(self.controller.current_kappa_point_index)
+        ss = self.controller.kappa_points_data_list[self.controller.current_kappa_point_index][1]
+        dp = self.controller.kappa_points_data_list[self.controller.current_kappa_point_index][0]
+        if self.controller.is_show_all_k_points:
+            status = self.controller.kappa_points_is_included_list[(dp, ss)]
+            if status:
+                self.centralWidget().graph_widget.control_widget.toggle_k_point_status_button.setText("Disable")
+            else:
+                self.centralWidget().graph_widget.control_widget.toggle_k_point_status_button.setText("Enable")
+        self.centralWidget().setFocus()
+
+    def get_concentration(self):
+        return_value = self.controller.flow_rate
+        while True:
+            input = QInputDialog.getDouble(self, self.tr("Get Flow Rate"), self.tr("Flow Rate (L/min)"), 0.3,
+                                           decimals=5)
+            if input[1] is True:
+                return_value = float(input[0])
+                break
+        return return_value
+
+
+#######################################################
+#
+# CONTROL PANEL CLASS. CONTAINS ALL THE CONTROL BUTTONS OF THE UI
+#
+#######################################################
+>>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
 
 class ControlPanel(QWidget):
-    def __init__(self, mainWindow = None):
+    def __init__(self, main_window=None):
         QWidget.__init__(self)
         # addSubWidget
-        self.mainWindow = mainWindow
+        self.main_window = main_window
         self.layout = QHBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
+<<<<<<< HEAD
         self.infoWidget = PeakTextDataWidget(self.mainWindow)
         self.graphWidget = PeakGraphWidget(self.mainWindow)
         self.layout.addWidget(self.infoWidget)
@@ -251,6 +428,33 @@ class ControlPanel(QWidget):
         self.graphWidget = PeakGraphWidget(self.mainWindow)
         self.layout.addWidget(self.infoWidget)
         self.layout.addWidget(self.graphWidget)
+=======
+        self.info_widget = ScanInformationWidget(self.main_window)
+        self.graph_widget = ScanGraphsWidget(self.main_window)
+        self.layout.addWidget(self.info_widget)
+        self.layout.addWidget(self.graph_widget)
+        self.setLayout(self.layout)
+
+    def resize(self):
+        self.info_widget.resize(self.width(), self.height())
+        self.graph_widget.resize(self.width(), self.height())
+
+    def switch_to_kappa_widget(self):
+        self.clear_layout(self.layout)
+        self.info_widget = KappaInformationAndDataWidget(self.main_window)
+        self.graph_widget = KappaGraphWidget(self.main_window)
+        self.layout.addWidget(self.info_widget)
+        self.layout.addWidget(self.graph_widget)
+        self.setLayout(self.layout)
+        self.resize()
+
+    def switch_to_scan_widget(self):
+        self.clear_layout(self.layout)
+        self.info_widget = ScanInformationWidget(self.main_window)
+        self.graph_widget = ScanGraphsWidget(self.main_window)
+        self.layout.addWidget(self.info_widget)
+        self.layout.addWidget(self.graph_widget)
+>>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
         self.setLayout(self.layout)
         self.resize()
 
@@ -264,5 +468,9 @@ class ControlPanel(QWidget):
                 else:
                     self.clearLayout(item.layout())
 
-
-
+    def keyReleaseEvent(self, event):
+        # finish kappa
+        if self.main_window.controller.kappa_ax:
+            self.main_window.controller.on_key_release_kappa_graph(event)
+        else:
+            self.main_window.controller.on_key_release(event)
