@@ -4,14 +4,22 @@
 #
 ###############################
 
+
+import socket
+import matplotlib
+matplotlib.use('Qt4Agg')
+matplotlib.rcParams['backend.qt4'] = 'PySide'
+import sys
+from PySide.QtGui import *
+from PySide.QtCore import *
+import settings
+import matplotlib
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from AlignmentUI import *
 from KappaUI import *
 import webbrowser
 import urllib2
-import socket
-
-matplotlib.use('Qt4Agg')
-matplotlib.rcParams['backend.qt4'] = 'PySide'
 # qt_app = QApplication(sys.argv)
 
 ###############################

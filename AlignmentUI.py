@@ -1,5 +1,8 @@
+from InfoTableStyle import *
 from InputDialog import *
-
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+from CustomButton import *
 class ScanInformationWidget(QWidget):
     def __init__(self, main_window=None):
         super(self.__class__, self).__init__(main_window)
@@ -315,7 +318,6 @@ class RectFigureCanvas(FigureCanvas):
 
 class SquareFigureCanvas(FigureCanvas):
     def __init__(self, main_window=None):
-        self.main_window = main_window
         fig = Figure(facecolor=settings.GRAPH_BACKGROUND_COLOR)
         super(self.__class__, self).__init__(fig)
 
