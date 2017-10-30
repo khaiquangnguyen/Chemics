@@ -82,7 +82,7 @@ class View(QMainWindow):
     def check_for_update(self):
         try:
             response = urllib2.urlopen(
-                'https://raw.githubusercontent.com/khaiquangnguyen/Chemics/master/APP_VERSION.html', timeout=50)
+                'https://raw.githubusercontent.com/khaiquangnguyen/Chemics/master/APP_VERSION.html')
             html = response.read()
             update = int(html[0])
             self.show_update_dialog(update)
