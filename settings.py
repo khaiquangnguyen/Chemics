@@ -1,3 +1,39 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+dpViewFileName = "dp.png"
+dnLogFileName = "dn.png"
+fullGraphFileName = "smps_ccnc.png"
+singlePeakFileName = "currPeak"
+maxPeak = 14
+
+graphBackgroundColor = "#424242"
+
+infoAreaBackgroundColor = "#616161"
+infoAreaItemColor = "#E0E0E0"
+infoAreaItemBackgroundColor = "#424242"
+infoAreaFontColor = "#212121"
+infoAreaFieldColor = "#9E9E9E"
+controlAreaBackgroundColor = "#212121"
+buttonColor = "#FAFAFA"
+
+simpleButtonColor = "#EEEEEE"
+simpleButtonTextColor = "#000000"
+specialButtonColor = "#EEEEEE"
+
+
+infoAreaHeaderColor = "#212121"
+infoAreaHeaderFontColor = "#EEEEEE"
+
+infoAreaHeaderFont = None
+infoAreaItemFont = None
+ButtonFont = None
+
+
+
+
+=======
+>>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
 infoAreaBackgroundColor = "#616161"
 infoAreaItemColor = "#E0E0E0"
 infoAreaItemBackgroundColor = "#424242"
@@ -58,3 +94,7 @@ KAPPA_UNUSABLE_POINT_COLOR = '#EF5350'
 KAPPA_CURRENT_SELECTION_COLOR = '#50ef5d'
 
 TABLE_ROW_HIGHLIGHT_COLOR = '#50ef5d'
+<<<<<<< HEAD
+=======
+>>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
+>>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
