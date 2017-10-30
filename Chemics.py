@@ -1,24 +1,10 @@
-import re
-import pandas
-from datetime import *
-# from scipy import signal
-# from scipy import stats
-# import FileDialog
-import numpy
-from scipy import *
+
 from GUI import *
-import scipy.constants
 import matplotlib.pyplot as plt
 import matplotlib
-import settings
 import scipy.optimize as opt
-import time
-from PySide import QtGui
 from Exceptions import *
-import Tkinter
-import copy
 import gc
-from timeit import default_timer as timer
 from HelperFunctions import *
 import FastDpCalculator
 from settings import *
@@ -28,7 +14,7 @@ import matplotlib.patches as mpatches
 matplotlib.style.use('ggplot')
 
 
-class Controller():
+class Controller:
     def __init__(self,view = None):
         self.view = view
         self.cancelling_progress_bar = False
@@ -318,14 +304,9 @@ class Controller():
 
         try:
             # Steps the get the CCNC count
-            ccnList = []
-            aveSizeList = []
-            extraCCNList = []
-            extraAveSizeList = []
             sizeList = [0.625] + [0.875]
             size = 1.25
             binPos = 25
-            aSSList = []
             # Calculate the size of each bin
             for i in range(0, 18):
                 sizeList.append(size)
@@ -1399,6 +1380,10 @@ class Controller():
         :return:
         """
         self.current_kappa_point_index = event.ind[0]
+        self.update_kappa_info_and_graph()
+
+    def on_select_kappa_points_through_info_table(self,row):
+        self.current_kappa_point_index = row-1
         self.update_kappa_info_and_graph()
 
     def toggle_exclude_include_kappa_point(self):

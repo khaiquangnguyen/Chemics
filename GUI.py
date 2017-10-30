@@ -4,20 +4,10 @@
 #
 ###############################
 
-import sys
-import os
-from PySide.QtGui import *
-from PySide.QtCore import *
-import settings
-import matplotlib
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-import time
 from AlignmentUI import *
 from KappaUI import *
 import webbrowser
 import urllib2
-from timeit import default_timer as timer
 
 matplotlib.use('Qt4Agg')
 matplotlib.rcParams['backend.qt4'] = 'PySide'

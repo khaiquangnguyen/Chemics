@@ -1,15 +1,9 @@
 from InfoTableStyle import *
 from CustomButton import *
-import sys
-import os
 from PySide.QtGui import *
-from PySide.QtCore import *
 import settings
-import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-import time
-from timeit import default_timer as timer
 
 
 class KappaInformationAndDataWidget(QWidget):
@@ -78,6 +72,10 @@ class AllKappaPointsDataTable(QTableWidget):
         palette = QPalette()
         palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
         self.setPalette(palette)
+        self.cellClicked.connect(self.on_cell_clicked)
+
+    def on_cell_clicked(self,row,column):
+        self.main_window.controller.on_select_kappa_points_through_info_table(row)
 
     def update_data(self):
         for i in range(self.rowCount()):
@@ -150,11 +148,14 @@ class AverageKappaPointsDataTable(QTableWidget):
         self.main_window = main_window
         self.setAutoFillBackground(True)
         palette = QPalette()
-        self.SelectItems
         palette.setColor(QPalette.Base, settings.infoAreaBackgroundColor)
         palette.setColor(QPalette.Highlight, settings.NEGATIVE_USABILITY_COLOR)
         palette.setColor(QPalette.HighlightedText, settings.NEGATIVE_USABILITY_COLOR)
         self.setPalette(palette)
+        self.cellClicked.connect(self.on_cell_clicked)
+
+    def on_cell_clicked(self,row,column):
+        self.main_window.controller.on_select_kappa_points_through_info_table(row)
 
     def update_data(self):
         for i in range(self.rowCount()):
@@ -244,8 +245,8 @@ class KappaControlTabWidget(QWidget):
         self.setFixedWidth(parent_width)
         self.show_parameters_button.resize(self.width(), self.height())
         self.toggle_average_all_k_points_button.resize(self.width(), self.height())
-        self.toggle_k_point_status_button.resize(self.width(),self.height())
-        self.export_data_button.resize(self.width(),self.height())
+        self.toggle_k_point_status_button.resize(self.width(), self.height())
+        self.export_data_button.resize(self.width(), self.height())
 
     def __init__(self, main_window=None):
         self.main_window = main_window
