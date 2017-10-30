@@ -23,7 +23,7 @@ matplotlib.rcParams['backend.qt4'] = 'PySide'
 qt_app = QApplication(sys.argv)
 width = 0
 height = 0
-VERSION = 1
+VERSION = 2
 
 
 class View(QMainWindow):

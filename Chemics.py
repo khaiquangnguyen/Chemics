@@ -1,4 +1,3 @@
-
 from GUI import *
 import matplotlib.pyplot as plt
 import matplotlib
@@ -10,12 +9,11 @@ import FastDpCalculator
 from settings import *
 import matplotlib.patches as mpatches
 
-
 matplotlib.style.use('ggplot')
 
 
 class Controller:
-    def __init__(self,view = None):
+    def __init__(self, view=None):
         self.view = view
         self.cancelling_progress_bar = False
         # smps and ccnc files
@@ -155,9 +153,6 @@ class Controller:
         self.current_kappa_point_index = None
         # whether a kappa point is included in calculating the average k
         self.kappa_points_is_included_list = {}  # format of key is (dp,ss)
-
-
-
 
     ##############################################
     #
@@ -588,21 +583,26 @@ class Controller:
             ax.set_xlabel("Scan time(s)", color=LABEL_COLOR, size=LABEL_SIZE)
             ax.set_ylabel("Concentration (1/cm3)", color=LABEL_COLOR, size=LABEL_SIZE)
             x = range(self.scan_duration)
-            self.concentration_over_scan_time_smps_points, = ax.plot(x, self.cn_list, linewidth=4, color=SMPS_LINE_COLOR,
+            self.concentration_over_scan_time_smps_points, = ax.plot(x, self.cn_list, linewidth=4,
+                                                                     color=SMPS_LINE_COLOR,
                                                                      label="SMPS")
-            self.concentration_over_scan_time_ccnc_points, = ax.plot(x, self.ccn_list, linewidth=4, color=CCNC_LINE_COLOR,
+            self.concentration_over_scan_time_ccnc_points, = ax.plot(x, self.ccn_list, linewidth=4,
+                                                                     color=CCNC_LINE_COLOR,
                                                                      label="CCNC")
             handles, labels = ax.get_legend_handles_labels()
-            legend = ax.legend(handles, labels, loc = 2, fontsize=LEGEND_FONT_SIZE)
+            legend = ax.legend(handles, labels, loc=2, fontsize=LEGEND_FONT_SIZE)
             legend.get_frame().set_alpha(0.3)
             ax.set_title("SMPS and CCNC concentration over scan time", color=TITLE_COLOR, size=TITLE_SIZE)
+            lower_lim = min([min(self.ccn_list), min(self.cn_list)])
+            upper_lim = max([max(self.ccn_list), max(self.cn_list)])
+            ax.set_ylim([lower_lim, upper_lim])
             self.concentration_over_scan_time_ax = ax
             self.concentration_over_scan_time_figure = figure
         else:
             self.concentration_over_scan_time_smps_points.set_ydata(self.cn_list)
             self.concentration_over_scan_time_ccnc_points.set_ydata(self.ccn_list)
-            lower_lim = min([min(self.ccn_list),min(self.cn_list)])
-            upper_lim = max([max(self.ccn_list),max(self.cn_list)])
+            lower_lim = min([min(self.ccn_list), min(self.cn_list)])
+            upper_lim = max([max(self.ccn_list), max(self.cn_list)])
             self.concentration_over_scan_time_ax.axes.set_ylim([lower_lim, upper_lim])
         self.view.update_alignment_and_sigmoid_fit_figures(self.concentration_over_scan_time_figure,
                                                            None)
@@ -625,7 +625,7 @@ class Controller:
             yLim = min(2, max(self.ccn_cn_ratio_list)) + 0.2
             ax.axes.set_ylim([-0.1, yLim])
             handles, labels = ax.get_legend_handles_labels()
-            legend = ax.legend(handles, labels, loc = 5, fontsize=LEGEND_FONT_SIZE)
+            legend = ax.legend(handles, labels, loc=5, fontsize=LEGEND_FONT_SIZE)
             legend.get_frame().set_alpha(0.3)
             self.ccn_cn_ratio_ax = ax
             self.ccn_cn_ratio_figure = figure
@@ -648,12 +648,12 @@ class Controller:
         self.cn_list = remove_zeros(self.cn_list)
         remove_small_ccn(self.ccn_list, self.min_ccn)
         self.particle_diameter_list = numpy.asarray(self.particle_diameter_list)
-        self.cn_list = numpy.asarray(self.cn_list,dtype=float64)
-        self.ccn_list = numpy.asarray(self.ccn_list,dtype=float64)
-        self.cn_fixed_list = numpy.asarray(self.cn_fixed_list,dtype=float64)
-        self.ccn_fixed_list = numpy.asarray(self.ccn_fixed_list,dtype=float64)
-        self.g_cn_list = numpy.asarray(self.g_cn_list,dtype=float64)
-        self.g_ccn_list = numpy.asarray(self.g_ccn_list,dtype=float64)
+        self.cn_list = numpy.asarray(self.cn_list, dtype=float64)
+        self.ccn_list = numpy.asarray(self.ccn_list, dtype=float64)
+        self.cn_fixed_list = numpy.asarray(self.cn_fixed_list, dtype=float64)
+        self.ccn_fixed_list = numpy.asarray(self.ccn_fixed_list, dtype=float64)
+        self.g_cn_list = numpy.asarray(self.g_cn_list, dtype=float64)
+        self.g_ccn_list = numpy.asarray(self.g_ccn_list, dtype=float64)
         self.cn_fixed_list = self.cn_list[:]
         self.ccn_fixed_list = self.ccn_list[:]
         self.g_ccn_list = self.ccn_fixed_list[:]
@@ -823,7 +823,7 @@ class Controller:
             for i in range(len(self.unfinished_sigmoid_fit_scans_list)):
                 if self.unfinished_sigmoid_fit_scans_list[i] == self.current_scan:
                     self.unfinished_sigmoid_fit_scans_list = self.unfinished_sigmoid_fit_scans_list[:i] \
-                                                             + self.unfinished_sigmoid_fit_scans_list[i+1:]
+                                                             + self.unfinished_sigmoid_fit_scans_list[i + 1:]
                     break
             self.update_view()
 
@@ -833,7 +833,7 @@ class Controller:
         """
         try:
             if not self.is_usable_for_sigmoid_fit_list[self.current_scan]:
-                raise SigmoidFitCorrectChargesError     # this scan is not usable, so we raise a serious error
+                raise SigmoidFitCorrectChargesError  # this scan is not usable, so we raise a serious error
             self.ccnc_sig_list = []
             self.prepare_scan_data()
             self.correct_charges()
@@ -909,13 +909,14 @@ class Controller:
                                                 mew=0.5, ms=9, label="CCNC/SMPS")
             if self.is_usable_for_sigmoid_fit_list[self.current_scan]:
                 self.normalized_concentration_points, = plt.plot(self.diameter_midpoint_list, self.ccn_normalized_list,
-                                                             linewidth=4, color=NORMALIZED_CONCENTRATION_POINT_COLOR,
-                                                             label="dN/dLogDp")
+                                                                 linewidth=4,
+                                                                 color=NORMALIZED_CONCENTRATION_POINT_COLOR,
+                                                                 label="dN/dLogDp")
 
                 self.ccn_cn_ratio_corrected_points, = ax.plot(self.particle_diameter_list, self.ccnc_sig_list, 'o',
-                                                          color=CCNC_SMPS_RATIO_CORRECTED_POINT_COLOR, mew=0.5,
-                                                          mec="#0D47A1",
-                                                          ms=9, label="CCNC/SMPS (Corrected)")
+                                                              color=CCNC_SMPS_RATIO_CORRECTED_POINT_COLOR, mew=0.5,
+                                                              mec="#0D47A1",
+                                                              ms=9, label="CCNC/SMPS (Corrected)")
             if self.is_usable_for_kappa_cal_list[self.current_scan]:
                 self.sigmoid_line, = ax.plot(self.particle_diameter_list, self.ccn_cn_sim_list, linewidth=5,
                                              color=SIGMOID_LINE_COLOR, label="Sigmodal Fit")
@@ -940,10 +941,12 @@ class Controller:
                     self.normalized_concentration_points.set_xdata(self.diameter_midpoint_list)
                     self.normalized_concentration_points.set_ydata(self.ccn_normalized_list)
                 if self.ccn_cn_ratio_corrected_points is None:
-                    self.ccn_cn_ratio_corrected_points, = self.sigmoid_fit_ax.plot(self.particle_diameter_list, self.ccnc_sig_list, 'o',
-                                                                  color=CCNC_SMPS_RATIO_CORRECTED_POINT_COLOR, mew=0.5,
-                                                                  mec="#0D47A1",
-                                                                  ms=9, label="CCNC/SMPS (Corrected)")
+                    self.ccn_cn_ratio_corrected_points, = self.sigmoid_fit_ax.plot(self.particle_diameter_list,
+                                                                                   self.ccnc_sig_list, 'o',
+                                                                                   color=CCNC_SMPS_RATIO_CORRECTED_POINT_COLOR,
+                                                                                   mew=0.5,
+                                                                                   mec="#0D47A1",
+                                                                                   ms=9, label="CCNC/SMPS (Corrected)")
                 else:
                     self.ccn_cn_ratio_corrected_points.set_xdata(self.particle_diameter_list)
                     self.ccn_cn_ratio_corrected_points.set_ydata(self.ccnc_sig_list)
@@ -1009,7 +1012,8 @@ class Controller:
             invalid_patch = mpatches.Patch(color=SCAN_SUMMARY_UNUSABLE_SCAN_COLOR, label='unusable scans')
             undecided_patch = mpatches.Patch(color=UNDECIDED_USABILITY_COLOR, label='undecided scans')
             visted_patch = mpatches.Patch(color=SCAN_SUMMARY_HIGHLIGHT_COLOR, label='visited scans')
-            legend = ax.legend(handles=[valid_patch,invalid_patch,undecided_patch,visted_patch],fontsize=LEGEND_FONT_SIZE, loc = 2)
+            legend = ax.legend(handles=[valid_patch, invalid_patch, undecided_patch, visted_patch],
+                               fontsize=LEGEND_FONT_SIZE, loc=2)
             self.all_scans_alignment_ax = ax
             legend.get_frame().set_alpha(0.3)
         else:
@@ -1060,13 +1064,13 @@ class Controller:
             self.sigma = sigma
         if temp:
             self.temp = temp
-        if dd:
-            self.dd = dd
+        if dd1:
+            self.dd = dd1
         if i_kappa:
             self.iKappa = i_kappa
         if dd2:
             self.dd2 = dd2
-        if iKapp2:
+        if i_kappa_2:
             self.iKappa2 = i_kappa_2
         if solu:
             self.solubility = solu
@@ -1200,7 +1204,7 @@ class Controller:
             meanDev = average(meanDevList)
             devMean = (meanApp - meanAna) / meanApp * 100
             self.alpha_pinene_dict[a_key] = (
-            meanDp, stdDp, meanApp, stdApp, meanAna, stdAna, meanDev, devMean, dp50List)
+                meanDp, stdDp, meanApp, stdApp, meanAna, stdAna, meanDev, devMean, dp50List)
 
     def update_kappa_info_and_graph(self):
         self.calculate_average_kappa_values()
@@ -1353,7 +1357,8 @@ class Controller:
             self.current_kappa_point_index = len(self.kappa_points_data_list) - 1
         # left arrow key
         elif (key == 16777234):
-            self.current_kappa_point_index = min(len(self.kappa_points_data_list) - 1, self.current_kappa_point_index + 1)
+            self.current_kappa_point_index = min(len(self.kappa_points_data_list) - 1,
+                                                 self.current_kappa_point_index + 1)
         # right arrow key
         elif (key == 16777236):
             self.current_kappa_point_index = max(0, self.current_kappa_point_index - 1)
@@ -1382,8 +1387,8 @@ class Controller:
         self.current_kappa_point_index = event.ind[0]
         self.update_kappa_info_and_graph()
 
-    def on_select_kappa_points_through_info_table(self,row):
-        self.current_kappa_point_index = row-1
+    def on_select_kappa_points_through_info_table(self, row):
+        self.current_kappa_point_index = row - 1
         self.update_kappa_info_and_graph()
 
     def toggle_exclude_include_kappa_point(self):
@@ -1401,7 +1406,7 @@ class Controller:
         self.update_kappa_info_and_graph()
 
     def export_to_csv(self):
-        file_name = "kappa_" + self.experiment_date.replace("/",".") + ".xlsx"
+        file_name = "kappa_" + self.experiment_date.replace("/", ".") + ".xlsx"
         kappa_dict = self.kappa_calculate_dict
         key_list = self.kappa_points_data_list
         usability_list = self.kappa_points_is_included_list
@@ -1419,9 +1424,9 @@ class Controller:
                         break
                 data.append(a_row)
         data = numpy.array(data)
-        df = pandas.DataFrame(data,columns = ["Super Saturation(%)","dp(nm)","K/app","K/ana","deviation(%"])
+        df = pandas.DataFrame(data, columns=["Super Saturation(%)", "dp(nm)", "K/app", "K/ana", "deviation(%"])
         df.to_excel(file_name, sheet_name='Kappa', index=False)
-        self.view.show_error_dialog("Export to "+file_name + " is successful!")
+        self.view.show_error_dialog("Export to " + file_name + " is successful!")
 
     ##############################################
     #
@@ -1631,14 +1636,14 @@ def main():
     view = View(controller)
     controller.view = view
     # easiest test. Demonstration files with perfect data
-    files = ["C:\Users\quang\OneDrive\Researches\Chemics\Examples\smps.txt",
-             "C:\Users\quang\OneDrive\Researches\Chemics\Examples\ccnc.csv"]
+    # files = ["C:\Users\quang\OneDrive\Researches\Chemics\Examples\smps.txt",
+    #          "C:\Users\quang\OneDrive\Researches\Chemics\Examples\ccnc.csv"]
 
     #  real test 1
-    # files = ["C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426155738.csv",
-    #         "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426165739.csv",
-    #         "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\CCN data 110426175740.csv",
-    #         "C:\\Users\KKK\OneDrive\\Researches\Chemics\\test files\\test_1\\100 ppb.txt"]
+    files = ["C:\Users\quang\OneDrive\Researches\Chemics\\tests\\test_1\ccnc1.csv",
+             "C:\Users\quang\OneDrive\Researches\Chemics\\tests\\test_1\ccnc2.csv",
+             "C:\Users\quang\OneDrive\Researches\Chemics\\tests\\test_1\ccnc3.csv",
+             "C:\Users\quang\OneDrive\Researches\Chemics\\tests\\test_1\smps.txt"]
     #
 
     # files = ['D:\Lansing\2-\component\alpha-pinene-acetone\6November2010\run1\ccnc.csv',
