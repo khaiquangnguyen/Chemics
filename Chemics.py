@@ -22,6 +22,8 @@ from timeit import default_timer as timer
 from HelperFunctions import *
 import FastDpCalculator
 from settings import *
+import matplotlib.patches as mpatches
+
 
 matplotlib.style.use('ggplot')
 
@@ -580,6 +582,7 @@ class Controller():
             self.t3_line, = ax.plot(x, self.temp3, linewidth=5, color=T3_LINE_COLOR, label="T3")
             handles, labels = ax.get_legend_handles_labels()
             legend = ax.legend(handles, labels, fontsize=LEGEND_FONT_SIZE)
+            legend.get_frame().set_alpha(0.3)
             self.temperature_figure = figure
             self.temperature_ax = ax
         else:
@@ -609,7 +612,8 @@ class Controller():
             self.concentration_over_scan_time_ccnc_points, = ax.plot(x, self.ccn_list, linewidth=4, color=CCNC_LINE_COLOR,
                                                                      label="CCNC")
             handles, labels = ax.get_legend_handles_labels()
-            legend = ax.legend(handles, labels, fontsize=LEGEND_FONT_SIZE)
+            legend = ax.legend(handles, labels, loc = 2, fontsize=LEGEND_FONT_SIZE)
+            legend.get_frame().set_alpha(0.3)
             ax.set_title("SMPS and CCNC concentration over scan time", color=TITLE_COLOR, size=TITLE_SIZE)
             self.concentration_over_scan_time_ax = ax
             self.concentration_over_scan_time_figure = figure
@@ -640,7 +644,8 @@ class Controller():
             yLim = min(2, max(self.ccn_cn_ratio_list)) + 0.2
             ax.axes.set_ylim([-0.1, yLim])
             handles, labels = ax.get_legend_handles_labels()
-            legend = ax.legend(handles, labels, fontsize=LEGEND_FONT_SIZE)
+            legend = ax.legend(handles, labels, loc = 5, fontsize=LEGEND_FONT_SIZE)
+            legend.get_frame().set_alpha(0.3)
             self.ccn_cn_ratio_ax = ax
             self.ccn_cn_ratio_figure = figure
         else:
@@ -916,7 +921,7 @@ class Controller():
             ax.set_xlabel("Dry diameter(nm)", color=LABEL_COLOR, size=LABEL_SIZE)
             ax.set_ylabel("CCNC/SMPS ratio and dN/dLogDp", color=LABEL_COLOR, size=LABEL_SIZE)
             ax.set_title("CCNC/SMPS over Dry Diameter and Sigmoid Line", color=TITLE_COLOR, size=TITLE_SIZE)
-            yLim = min(2, max(self.ccnc_sig_list)) + 0.2
+            yLim = min(2, max(self.ccn_cn_ratio_list)) + 0.2
             ax.axes.set_ylim([-0.1, yLim])
             self.ccn_cn_ratio_points, = ax.plot(self.particle_diameter_list, self.ccn_cn_ratio_list, 'o',
                                                 color=CCNC_SMPS_POINT_COLOR,
@@ -934,11 +939,12 @@ class Controller():
                 self.sigmoid_line, = ax.plot(self.particle_diameter_list, self.ccn_cn_sim_list, linewidth=5,
                                              color=SIGMOID_LINE_COLOR, label="Sigmodal Fit")
             handles, labels = ax.get_legend_handles_labels()
-            legend = ax.legend(handles, labels, fontsize=LEGEND_FONT_SIZE)
+            legend = ax.legend(handles, labels, loc=5, fontsize='small')
+            legend.get_frame().set_alpha(0.3)
             self.sigmoid_fit_figure = figure
             self.sigmoid_fit_ax = ax
         else:
-            yLim = min(2, max(self.ccnc_sig_list)) + 0.2
+            yLim = min(2, max(self.ccn_cn_ratio_list)) + 0.2
             self.sigmoid_fit_ax.axes.set_ylim([-0.1, yLim])
             self.ccn_cn_ratio_points.set_xdata(self.particle_diameter_list)
             self.ccn_cn_ratio_points.set_ydata(self.ccn_cn_ratio_list)
@@ -953,7 +959,7 @@ class Controller():
                     self.normalized_concentration_points.set_xdata(self.diameter_midpoint_list)
                     self.normalized_concentration_points.set_ydata(self.ccn_normalized_list)
                 if self.ccn_cn_ratio_corrected_points is None:
-                    self.ccn_cn_ratio_corrected_points, = ax.plot(self.particle_diameter_list, self.ccnc_sig_list, 'o',
+                    self.ccn_cn_ratio_corrected_points, = self.sigmoid_fit_ax.plot(self.particle_diameter_list, self.ccnc_sig_list, 'o',
                                                                   color=CCNC_SMPS_RATIO_CORRECTED_POINT_COLOR, mew=0.5,
                                                                   mec="#0D47A1",
                                                                   ms=9, label="CCNC/SMPS (Corrected)")
@@ -978,6 +984,9 @@ class Controller():
                 if self.sigmoid_line is not None:
                     self.sigmoid_line.set_xdata([])
                     self.sigmoid_line.set_ydata([])
+            handles, labels = self.sigmoid_fit_ax.get_legend_handles_labels()
+            legend = self.sigmoid_fit_ax.legend(handles, labels, loc=5, fontsize='small')
+            legend.get_frame().set_alpha(0.3)
 
         self.view.update_alignment_and_sigmoid_fit_figures(None, self.sigmoid_fit_figure)
 
@@ -1000,8 +1009,6 @@ class Controller():
             ax.set_ylabel("CCNC Shift (s)", color=LABEL_COLOR, size=LABEL_SIZE)
             ax.set_title("All Scans Shift", color=TITLE_COLOR, size=TITLE_SIZE)
             figure.canvas.mpl_connect('pick_event', self.on_pick)
-            handles, labels = ax.get_legend_handles_labels()
-            legend = ax.legend(handles, labels, fontsize=LEGEND_FONT_SIZE)
             self.all_scans_alignment_bars = ax.bar(range(1, self.number_of_scan + 1), self.shift_factor_list,
                                                    color=SCAN_SUMMARY_USABLE_SCAN_COLOR, picker=True, align='center')
             for i in range(len(self.is_usable_for_sigmoid_fit_list)):
@@ -1017,7 +1024,13 @@ class Controller():
                     self.all_scans_alignment_bars[i].set_alpha(0.3)
             self.all_scans_alignment_bars[self.current_scan].set_facecolor(SCAN_SUMMARY_HIGHLIGHT_COLOR)
             self.all_scans_alignment_figure = figure
+            valid_patch = mpatches.Patch(color=SCAN_SUMMARY_USABLE_SCAN_COLOR, label='usable scans')
+            invalid_patch = mpatches.Patch(color=SCAN_SUMMARY_UNUSABLE_SCAN_COLOR, label='unusable scans')
+            undecided_patch = mpatches.Patch(color=UNDECIDED_USABILITY_COLOR, label='undecided scans')
+            visted_patch = mpatches.Patch(color=SCAN_SUMMARY_HIGHLIGHT_COLOR, label='visited scans')
+            legend = ax.legend(handles=[valid_patch,invalid_patch,undecided_patch,visted_patch],fontsize=LEGEND_FONT_SIZE)
             self.all_scans_alignment_ax = ax
+            legend.get_frame().set_alpha(0.3)
         else:
             for i in range(len(self.is_usable_for_sigmoid_fit_list)):
                 if not self.is_usable_for_sigmoid_fit_list[i] or not self.is_usable_for_kappa_cal_list[i]:
