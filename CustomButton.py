@@ -30,6 +30,6 @@ class CustomButton(QPushButton):
         self.setFixedHeight(parent_height / 3)
         self.setFixedWidth(parent_width / 9)
         font = QFont()
-        size = max(1,self.height() * 2 / 11)
+        size = max(1,self.width() / 14)
         font.setPointSize(size)
         self.setFont(font)

@@ -71,14 +71,14 @@ class AllTableHeader(QWidget):
         self.setPalette(palette)
 
         font = QFont()
-        size = max(10, self.height() * 1 / 5)
+        size = max(10, self.height()  / 3)
         font.setPointSize(size)
         self.setFont(font)
 
     def resizeEvent(self, event):
         font = self.font()
         font.setStyleStrategy(QFont.PreferAntialias or QFont.PreferQuality)
-        size = max(10, self.height() * 1 / 5)
+        size = max(10, self.height() / 3)
         font.setPointSize(size)
         self.setFont(font)
 
@@ -96,13 +96,13 @@ class FieldText(QLabel):
         self.setPalette(palette)
         self.setContentsMargins(5, 0, 0, 0)
         font = QFont()
-        size = max(4, self.height() * 2 / 10)
+        size = max(4, self.height() /3)
         font.setPointSize(size)
         self.setFont(font)
 
     def resizeEvent(self, event):
         font = self.font()
-        size = max(10, self.height() * 2 / 10)
+        size = max(10, self.height() /3)
         font.setPointSize(size)
         self.setFont(font)
 
@@ -123,13 +123,13 @@ class InfoText(QLabel):
         self.setPalette(palette)
         self.setContentsMargins(10, 0, 0, 0)
         font = QFont()
-        size = max(4, self.height() * 2 / 10)
+        size = max(4, self.height() /3)
         font.setPointSize(size)
         self.setFont(font)
 
     def resizeEvent(self, event):
         font = self.font()
-        size = max(10, self.height() * 2 / 10)
+        size = max(10, self.height() /3)
         font.setPointSize(size)
         self.setFont(font)
 

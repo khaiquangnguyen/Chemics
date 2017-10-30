@@ -1492,6 +1492,7 @@ class Controller():
         try:
             # can't shift if already pass the alignment step
             if self.finish_scan_alignment_and_auto_sig_fit:
+                self.view.show_error_dialog("Can't shift current run. Already passed the shifting phase!")
                 return
             # invalid scan. Can't shift
             if not self.is_usable_for_sigmoid_fit_list[self.current_scan] or self.min_pos_SMPS_list[self.current_scan] \
@@ -1523,8 +1524,9 @@ class Controller():
             self.draw_concentration_over_scan_time_graph()
             self.draw_ccn_cn_ratio_over_diameter_graph()
             self.draw_temperature_graph()
+            self.view.update_scan_information()
         except:
-            self.view.show_error_dialog("Can't shift processed_data. You should disable this peak!")
+            self.view.show_error_dialog("Can't shift current run. You should disable this run!")
 
     def change_scan_status(self):
         # if the scan is marked as untouched, then clear that mark
