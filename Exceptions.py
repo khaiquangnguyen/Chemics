@@ -4,35 +4,41 @@ class FileNotFoundError(Exception):
         pass
 
 
-class FileProcessingError(Exception):
+class FileParseError(Exception):
     def __init__(self):
         pass
 
 
-class DNlogDataError(Exception):
+class SMPSCountError(Exception):
     def __init__(self):
         pass
 
 
-class DataError(Exception):
+class CCNCCountError(Exception):
     def __init__(self):
         pass
 
 
-class DataMatchingError(Exception):
+class NormalizedConcentrationError(Exception):
     def __init__(self):
         pass
 
 
-class DataPreparationError(Exception):
+class SigmoidFitGetParameterError(Exception):
     def __init__(self):
         pass
 
 
-class OptimizationError(Exception):
+class SigmoidFitLineFitError(Exception):
     def __init__(self):
         pass
 
-class InterruptError(Exception):
+
+class SigmoidFitCorrectChargesError(Exception):
+    def __init__(self):
+        pass
+
+
+class ProgressBarInterruptException(Exception):
     def __init__(self):
         pass
