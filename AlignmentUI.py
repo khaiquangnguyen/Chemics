@@ -1,15 +1,6 @@
-from InfoTableStyle import *
-from CustomButton import *
-import sys
-import os
-from PySide.QtGui import *
-from PySide.QtCore import *
-import settings
-import matplotlib
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-import time
 from InputDialog import *
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+
 
 
 class ScanInformationWidget(QWidget):
@@ -312,7 +303,8 @@ class RectFigureCanvas(FigureCanvas):
         if new_figure is None:
             return
         if self.figure != new_figure:
-            self.figure = new_figure
+            self.figure = \
+                new_figure
             h = self.height()
             self.setFixedHeight(h / 2)
             self.setFixedHeight(h)
