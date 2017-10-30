@@ -8,6 +8,7 @@ from AlignmentUI import *
 from KappaUI import *
 import webbrowser
 import urllib2
+import socket
 
 matplotlib.use('Qt4Agg')
 matplotlib.rcParams['backend.qt4'] = 'PySide'
@@ -58,16 +59,9 @@ class View(QMainWindow):
         self.setCentralWidget(ControlPanel(self))
         self.showMaximized()
 
-        #get update
-        # response = urllib2.urlopen('http://khaiquangnguyen.github.io/chemics_update.html')
-        # html = response.read()
-        # update = int(html[0])
-        # if update == VERSION:
-        #     self.showUpdateDialog()
-
     def show_ui(self):
         self.show()
-        # self.check_for_update()
+        self.check_for_update()
         qt_app.exec_()
 
     def show_update_dialog(self, update=1):
@@ -86,10 +80,22 @@ class View(QMainWindow):
         webbrowser.open("https://goo.gl/forms/X9OB6AQSJSiKScBs2")
 
     def check_for_update(self):
-        response = urllib2.urlopen('https://raw.githubusercontent.com/khaiquangnguyen/Chemics/master/APP_VERSION.html')
-        html = response.read()
-        update = int(html[0])
-        self.showUpdateDialog(update)
+        try:
+            response = urllib2.urlopen(
+                'https://raw.githubusercontent.com/khaiquangnguyen/Chemics/master/APP_VERSION.html', timeout=50)
+            html = response.read()
+            update = int(html[0])
+            self.show_update_dialog(update)
+        except urllib2.URLError, e:
+            # For Python 2.6
+            if isinstance(e.reason, socket.timeout):
+                pass
+            else:
+                # reraise the original error
+                raise
+        except socket.timeout, e:
+            # For Python 2.7
+           pass
 
     def select_files(self):
         """
