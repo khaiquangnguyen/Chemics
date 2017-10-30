@@ -1,17 +1,8 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
 ###############################
 #
 # IMPORT STATEMENTS
 #
 ###############################
-<<<<<<< HEAD
-=======
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
 
 import sys
 import os
@@ -26,16 +17,6 @@ from AlignmentUI import *
 from KappaUI import *
 import webbrowser
 import urllib2
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-
-matplotlib.use('Qt4Agg')
-matplotlib.rcParams['backend.qt4']='PySide'
-
-
-=======
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
 from timeit import default_timer as timer
 
 matplotlib.use('Qt4Agg')
@@ -47,10 +28,6 @@ matplotlib.rcParams['backend.qt4'] = 'PySide'
 # VARIABLES
 #
 ###############################
-<<<<<<< HEAD
-=======
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
 
 qt_app = QApplication(sys.argv)
 width = 0
@@ -58,20 +35,8 @@ height = 0
 VERSION = 1
 
 
-<<<<<<< HEAD
 class View(QMainWindow):
     def __init__(self, controller):
-=======
-class MainWindow(QMainWindow):
-
-<<<<<<< HEAD
-    def __init__(self,controller):
-=======
-
-class View(QMainWindow):
-    def __init__(self, controller):
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
         global VERSION
         QMainWindow.__init__(self)
         self.progress = 0
@@ -84,39 +49,6 @@ class View(QMainWindow):
         width = self.width()
         height = self.height()
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-        # Add Menu
-        menubar = self.menuBar()
-        fileMenu = menubar.addMenu('&File')
-
-        # Add select files button
-        folderSelection = QAction('&Select Files', self)
-        folderSelection.setShortcut('Ctrl+O')
-        folderSelection.setStatusTip('Select the files which contains the data files')
-        folderSelection.triggered.connect(self.folderSelection)
-        fileMenu.addAction(folderSelection)
-
-        feedbackSelection = QAction('&Feedback', self)
-        feedbackSelection.triggered.connect(self.feedbackSelection)
-        menubar.addAction(feedbackSelection)
-
-
-        updateSelection = QAction('&Update', self)
-        updateSelection.triggered.connect(self.updateSelection)
-        menubar.addAction(updateSelection)
-
-        #add exit button
-        exitAction = QAction( '&Exit', self)
-        exitAction.setShortcut('Ctrl+Q')
-        exitAction.setStatusTip('Exit application')
-        exitAction.triggered.connect(self.close)
-        fileMenu.addAction(exitAction)
-
-        #set central widget
-=======
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
         # Add navigation menu
         navigation_bar = self.menuBar()
         file_button = navigation_bar.addMenu('&File')
@@ -133,10 +65,6 @@ class View(QMainWindow):
         exit_button.setStatusTip('Exit application')
         exit_button.triggered.connect(self.close)
         file_button.addAction(exit_button)
-<<<<<<< HEAD
-=======
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
         self.setCentralWidget(ControlPanel(self))
         self.showMaximized()
 
@@ -152,19 +80,6 @@ class View(QMainWindow):
         # self.check_for_update()
         qt_app.exec_()
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-    def showUpdateDialog(self, update = 1):
-        """ show the update"""
-        updateDialog = QMessageBox()
-        if update == 1:
-            updateDialog.setText("The program has an update. Please download the update for the program.")
-        else:
-            updateDialog.setText("The program is up-to-date.")
-        updateDialog.exec_()
-=======
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
     def show_update_dialog(self, update=1):
         """
         show the update
@@ -173,10 +88,6 @@ class View(QMainWindow):
             updateDialog = QMessageBox()
             updateDialog.setText("The program has an update. Please download the update for the program.")
             updateDialog.exec_()
-<<<<<<< HEAD
-=======
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
 
     def submit_feedback(self):
         """
@@ -184,18 +95,8 @@ class View(QMainWindow):
         """
         webbrowser.open("https://goo.gl/forms/X9OB6AQSJSiKScBs2")
 
-<<<<<<< HEAD
     def check_for_update(self):
         response = urllib2.urlopen('https://raw.githubusercontent.com/khaiquangnguyen/Chemics/master/APP_VERSION.html')
-=======
-<<<<<<< HEAD
-    def updateSelection(self):
-        response = urllib2.urlopen('http://khaiquangnguyen.github.io/chemics_update.html')
-=======
-    def check_for_update(self):
-        response = urllib2.urlopen('https://raw.githubusercontent.com/khaiquangnguyen/Chemics/master/APP_VERSION.html')
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
         html = response.read()
         update = int(html[0])
         self.showUpdateDialog(update)
@@ -212,15 +113,7 @@ class View(QMainWindow):
             self.controller.files = files
             self.controller.run()
 
-<<<<<<< HEAD
     def move_progress_bar_forward(self, message=None, max_value=None, complete=False, value=1):
-=======
-<<<<<<< HEAD
-    def makeProgress(self, message = None, maxValue = None, complete = False, value = 1):
-=======
-    def move_progress_bar_forward(self, message=None, max_value=None, complete=False, value=1):
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
         """
         Progress the progress dialog bar
         :param max_value: the maximum of the progress dialog. Used to signal reset progress dialog
@@ -239,21 +132,6 @@ class View(QMainWindow):
                 self.progress_dialog.setWindowModality(Qt.WindowModal)
                 self.progress_dialog.show()
             else:
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-                self.progressDialog = QProgressDialog("Tasks in progress...", "Cancel", 0, maxValue, self)
-                self.progressDialog.canceled.connect(self.cancelProgress)
-                self.progressDialog.setWindowModality(Qt.WindowModal)
-                self.progressDialog.show()
-
-        else:
-            if self.progressDialog is not None:
-                if complete == True:
-                    self.progressDialog.setValue(self.progressDialog.maximum())
-                    self.progressDialog.reset()
-=======
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
                 self.progress_dialog = QProgressDialog("Tasks in progress...", "Cancel", 0, max_value, self)
                 self.progress_dialog.canceled.connect(self.cancel_progress_bar)
                 self.progress_dialog.setWindowModality(Qt.WindowModal)
@@ -264,10 +142,6 @@ class View(QMainWindow):
                 if complete is True:
                     self.progress_dialog.setValue(self.progress_dialog.maximum())
                     self.progress_dialog.reset()
-<<<<<<< HEAD
-=======
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
                 else:
                     if message is not None:
                         self.progress_dialog.setLabelText(message)
@@ -275,15 +149,7 @@ class View(QMainWindow):
                     self.progress_dialog.setValue(self.progress)
                 qApp.processEvents()
 
-<<<<<<< HEAD
     def show_error_dialog(self, error_message='Unknown Error!'):
-=======
-<<<<<<< HEAD
-    def showError(self, errorMessage = 'Unknown Error!'):
-=======
-    def show_error_dialog(self, error_message='Unknown Error!'):
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
         """
         Show the error message
         :param errorMessage: The message to show in the error message
@@ -296,59 +162,15 @@ class View(QMainWindow):
         warning.setText(error_message)
         warning.exec_()
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-    def cancelProgress(self):
-        """
-        Action when the cancel button of the progress bar is clicked
-        """
-        self.controller.cancelProgress()
-
-=======
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
     def cancel_progress_bar(self):
         """
         Action when the cancelling_progress_bar button of the progress bar is clicked
         """
         self.controller.cancel_progress_bar()
-<<<<<<< HEAD
-=======
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
 
     def resizeEvent(self, resizeEvent):
         self.centralWidget().resize()
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-    def update_dp_dnlog_figures(self, adjustedFigure, diaFigure):
-        self.centralWidget().graphWidget.dpAndDnlogView.dpView.updateFigure(adjustedFigure)
-        self.centralWidget().graphWidget.dpAndDnlogView.dNlogView.updateFigure(diaFigure)
-
-    def updateTempOrMinFigure(self, aFigure):
-        self.centralWidget().graphWidget.tempAndMinView.updateFigure(aFigure)
-
-    def calKappa(self):
-        # if self.controller.completedStep >=2:
-        self.controller.calKappa()
-        self.centralWidget().switchToKappa()
-        self.controller.makeKappaGraph()
-
-    def updateGeneralInfo(self):
-        self.centralWidget().infoWidget.infoTable.updateGeneralInfo()
-
-    def updateBasicPeakInfo(self):
-        self.centralWidget().infoWidget.infoTable.updateBasicPeakInfo()
-
-    def updateSigFitPeakInfo(self):
-        self.centralWidget().infoWidget.infoTable.updateSigFitPeakInfo()
-
-    def reset(self):
-        self.centralWidget().switchToPeak()
-=======
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
     def update_alignment_and_sigmoid_fit_figures(self, scan_time_figure, sigmoid_figure):
         self.centralWidget().graph_widget.alignment_and_sigmoid_fit_view.alignment_view.update_figure(scan_time_figure)
         self.centralWidget().graph_widget.alignment_and_sigmoid_fit_view.sigmoid_fit_view.update_figure(sigmoid_figure)
@@ -392,14 +214,8 @@ class View(QMainWindow):
 
     def reset(self):
         self.centralWidget().switch_to_scan_widget()
-<<<<<<< HEAD
 
     def update_kappa_values(self,sigma,temp,dd1,i1,dd2,i2,solu):
-=======
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
-
-    def updateKappaVars(self,sigma,temp,dd1,i1,dd2,i2,solu):
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
         self.controller.sigma = sigma
         self.controller.temp = temp
         self.controller.dd = dd1
@@ -408,22 +224,6 @@ class View(QMainWindow):
         self.controller.iKappa2 = i2
         self.controller.solubility = solu
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-    def updateKappaGraph(self):
-        self.centralWidget().graphWidget.graphView.updateFigure(self.controller.kappaGraph)
-
-    def InputFlowRate(self):
-        returnValue = self.controller.flowRate
-        while True:
-            input = QInputDialog.getDouble(self, self.tr("Get Flow Rate"),self.tr("Q(flow rate)"),0.3)
-            if input[1] == True:
-                returnValue = float(input[0])
-                break
-        return returnValue
-=======
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
     def update_kappa_info_and_graph(self):
         self.centralWidget().graph_widget.update_figure(self.controller.kappa_figure)
         self.centralWidget().info_widget.update_data()
@@ -455,10 +255,6 @@ class View(QMainWindow):
 # CONTROL PANEL CLASS. CONTAINS ALL THE CONTROL BUTTONS OF THE UI
 #
 #######################################################
-<<<<<<< HEAD
-=======
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
 
 class ControlPanel(QWidget):
     def __init__(self, main_window=None):
@@ -468,38 +264,6 @@ class ControlPanel(QWidget):
         self.layout = QHBoxLayout()
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-        self.infoWidget = PeakTextDataWidget(self.mainWindow)
-        self.graphWidget = PeakGraphWidget(self.mainWindow)
-        self.layout.addWidget(self.infoWidget)
-        self.layout.addWidget(self.graphWidget)
-        self.setLayout(self.layout)
-
-    def resize(self):
-        self.infoWidget.resize(self.width(), self.height())
-        self.graphWidget.resize(self.width(),self.height())
-
-    def switchToKappa(self):
-        self.clearLayout(self.layout)
-        self.infoWidget = KappaTextDataWidget(self.mainWindow)
-        self.graphWidget = KappaGraphWidget(self.mainWindow)
-        self.clearLayout(self.layout)
-        self.layout.addWidget(self.infoWidget)
-        self.layout.addWidget(self.graphWidget)
-        self.setLayout(self.layout)
-        self.infoWidget.updateData()
-        self.resize()
-
-    def switchToPeak(self):
-        self.clearLayout(self.layout)
-        self.infoWidget = PeakTextDataWidget(self.mainWindow)
-        self.graphWidget = PeakGraphWidget(self.mainWindow)
-        self.layout.addWidget(self.infoWidget)
-        self.layout.addWidget(self.graphWidget)
-=======
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
         self.info_widget = ScanInformationWidget(self.main_window)
         self.graph_widget = ScanGraphsWidget(self.main_window)
         self.layout.addWidget(self.info_widget)
@@ -525,10 +289,6 @@ class ControlPanel(QWidget):
         self.graph_widget = ScanGraphsWidget(self.main_window)
         self.layout.addWidget(self.info_widget)
         self.layout.addWidget(self.graph_widget)
-<<<<<<< HEAD
-=======
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
->>>>>>> 5ef947266cae82fc465cb122c098c082febbf7b5
         self.setLayout(self.layout)
         self.resize()
 
