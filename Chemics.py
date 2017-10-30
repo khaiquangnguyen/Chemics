@@ -13,7 +13,11 @@ matplotlib.style.use('ggplot')
 
 
 class Controller:
+    """
+    The controller class. This class is to handle all of the functionalities of the program. 
+    """
     def __init__(self, view=None):
+        # the view of the program
         self.view = view
         self.cancelling_progress_bar = False
         # smps and ccnc files
@@ -30,6 +34,10 @@ class Controller:
         self.ccnc_data = None
         # smps = Scanning Mobility Particle Sizer
         self.smps_data = None
+        # other necessaries variables for the program. they should explain themselves easily
+        # however, understanding the naming of the variables requires a decent understanding of the process
+        # behind them. Therefor, I suggest getting a decent understanding of how the underlying process works
+        # before diving into the code
         self.current_scan = 0
         self.number_of_scan = 0
         self.scan_start_time_list = None
@@ -183,6 +191,7 @@ class Controller:
         """
         self.smps_txt_files = []
         self.ccnc_csv_files = []
+        # acquire the smps and ccnc files from the input files
         for a_file in self.files:
             if a_file.lower().endswith('.txt'):
                 self.smps_txt_files.append(a_file)
@@ -195,17 +204,21 @@ class Controller:
             self.smps_txt_files = self.smps_txt_files[0]
             self.ccnc_csv_files = [str(x) for x in self.ccnc_csv_files]
 
+        # parse the smps and ccnc file, reading them in as raw input
+        # there is only one smps file, but multiple ccnc files.
         try:
             self.ccnc_data = process_csv_files(self.ccnc_csv_files)
             self.smps_data = process_text_files(self.smps_txt_files)
             self.experiment_date = self.ccnc_data[0]
             self.scan_start_time_list = self.smps_data[0]
+            # detect the scan uptime and scan downtime. Sum them together to get the total scan time
             for i in range(len(self.smps_data)):
                 if ''.join(self.smps_data[i][0].split()).lower() == "scanuptime(s)":
                     scan_up_time = self.smps_data[i][1]
                     scan_down_time = self.smps_data[i + 1][1]
                     break
             self.scan_duration = int(scan_up_time) + int(scan_down_time)
+            # get the list of all scan start time, and scan end time
             self.scan_end_time_list = []
             for i in range(len(self.scan_start_time_list)):
                 self.scan_end_time_list.append(datetime.strptime(self.scan_start_time_list[i], "%H:%M:%S") + timedelta(
@@ -298,7 +311,7 @@ class Controller:
             raise SMPSCountError()
 
         try:
-            # Steps the get the CCNC count
+            # Steps to get the CCNC count. These values are hard-coded. Dont change them!
             sizeList = [0.625] + [0.875]
             size = 1.25
             binPos = 25
@@ -427,18 +440,26 @@ class Controller:
         self.is_usable_for_sigmoid_fit_list = []
         self.min_pos_CCNC_list = []
         self.min_pos_SMPS_list = []
+        # the number of additional data point to get to compare each smps and ccnc run. Frankly, this is pretty hackist
+        # but the data sucks, so this is the only way. /2 is arbitrary number, so you can change them if you want to
         num_additional_data_point = int(self.scan_duration / 2)
         start_time = 0
         end_time = self.scan_duration
         current_scan = 0
         new_data = [self.raw_data.columns.values.tolist()]
         min_dist = self.scan_duration / 10
+        # ccnc and smps files are mismatched. Therefore, a certain number of data entry must be shifted in the ccnc file
+        # to match the smps file. The shift_factor var is for this
         shift_factor = 0
         self.shift_factor_list = []
         self.number_of_scan = 0
         while True:
+            # get the position of the minimum value in the smps scan.
+            # it is the local minimum value, not absolute minimum, thus requiring
+            # another algorithm to work
             a_scan = numpy.asarray(self.raw_data[start_time:end_time]["SMPS Count"])
             min_pos_smps = get_min_index(a_scan)
+            # if fail to find the minimum, disable the scan
             if min_pos_smps == -1:
                 self.min_pos_SMPS_list.append(None)
                 self.min_pos_CCNC_list.append(None)
@@ -447,10 +468,12 @@ class Controller:
                 min_pos_smps = 0
                 min_pos_ccnc = 0
             else:
+                # similarly, ge the position of the minimum value in the ccnc scan and compare
                 self.min_pos_SMPS_list.append(min_pos_smps + start_time)
                 a_scan = numpy.asarray(
                     self.raw_data[start_time + shift_factor:end_time + num_additional_data_point]["CCNC Count"])
                 min_pos_ccnc = get_min_index(a_scan)
+                # if fail to fine the minium, disable the scan
                 if min_pos_ccnc == -1:
                     self.min_pos_SMPS_list[-1] = None
                     self.min_pos_CCNC_list.append(None)
@@ -459,15 +482,17 @@ class Controller:
                     min_pos_smps = 0
                     min_pos_ccnc = 0
                 else:
+                    # if success, add the run to the list of usable runs
                     self.is_usable_for_kappa_cal_list.append(True)
                     self.is_usable_for_sigmoid_fit_list.append(True)
+                    # increase the shift_factor accordingly
                     shift_factor = shift_factor + min_pos_ccnc - min_pos_smps
                     if current_scan == 0:
                         self.min_pos_CCNC_list.append(min_pos_smps)
                     else:
                         self.min_pos_CCNC_list.append(min_pos_ccnc + start_time + (min_pos_ccnc - min_pos_smps))
             self.shift_factor_list.append(shift_factor)
-
+            # add the accurate data to a new list of data. Simply useful for later
             for i in range(self.scan_duration):
                 scan_time = i + 1
                 real_time = self.raw_data.iat[start_time + i, 1]
@@ -481,10 +506,10 @@ class Controller:
                 new_data.append([scan_time, real_time, dp, smpsCount, ccncCount, aveSize, t1, t2, t3])
             current_scan += 1
             self.number_of_scan += 1
+            # break condition. When there is not enough data, cancel the operation
             if end_time + self.scan_duration + shift_factor >= len(self.raw_data) or current_scan >= len(
                     self.scan_position_in_data):
                 break
-
             start_time = self.scan_position_in_data[current_scan]
             end_time = start_time + self.scan_duration
         headers = new_data.pop(0)
@@ -492,7 +517,13 @@ class Controller:
         self.processed_data = convert_date(self.processed_data)
 
     def parse_and_match_smps_ccnc_data(self):
+        """
+        the entire process of reading, parsing and matching smps and ccnc data. Act as a control 
+        center function. Also handle the majority of progression updates and exception handling
+        :return: 
+        """
         try:
+            # general processing of data
             self.move_progress_bar_forward(max_value=5)
             self.get_concentration()
             self.move_progress_bar_forward("Processing SMPS and CCNC files...")
@@ -505,6 +536,8 @@ class Controller:
             self.match_smps_ccnc_data()
             self.move_progress_bar_forward(complete=True)
             self.move_progress_bar_forward(max_value=self.number_of_scan)
+            # process each scan. Simply extract useful information and store them into
+            # variables for later. Runs which can't be processed with be discarded
             for i in range(0, self.number_of_scan):
                 self.move_progress_bar_forward("Processing scan number " + str(i + 1), value=0)
                 plt.ioff()
@@ -539,6 +572,12 @@ class Controller:
 
     # ----------------------graphs------------------------
     def draw_temperature_graph(self):
+        """
+        Function to draw the temperature graph detailing the delta (t) of each run. 
+        Useful to detect faulty runs.
+        :return: 
+        """
+        # if there is no axes or figure created, then make a new one.
         if self.temperature_ax is None:
             figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
             ax.axes.set_frame_on(False)
@@ -550,6 +589,7 @@ class Controller:
             ax.set_ylabel("Temperature", color=LABEL_COLOR, size=LABEL_SIZE)
             ax.set_title("Temperature over scan time", color=TITLE_COLOR, size=TITLE_SIZE)
             x = range(self.scan_duration)
+            # control the range of the x and y bar. Very useful
             minY = min(min(self.temp1), min(self.temp2), min(self.temp3)) - 3
             maxY = max(max(self.temp1), max(self.temp2), max(self.temp3)) + 3
             ax.axes.set_ylim([minY, maxY])
@@ -561,6 +601,7 @@ class Controller:
             legend.get_frame().set_alpha(0.3)
             self.temperature_figure = figure
             self.temperature_ax = ax
+        #     otherwise, override the ax with a new figure.
         else:
             minY = min(min(self.temp1), min(self.temp2), min(self.temp3)) - 3
             maxY = max(max(self.temp1), max(self.temp2), max(self.temp3)) + 3
@@ -571,8 +612,14 @@ class Controller:
         self.view.update_temp_and_min_figure(self.temperature_figure)
 
     def draw_concentration_over_scan_time_graph(self):
+        """
+        Function to draw the top-left graph. Mainly used to recognize the correctness of the runs
+        :return: 
+        """
+        # if run is invalid, then do nothing
         if len(self.cn_list) != len(self.ccn_list) or len(self.cn_list) == 0 or len(self.ccn_list) == 0:
             return
+        # if there is no figure or ax yet, make a new one
         if self.concentration_over_scan_time_ax is None:
             figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
             ax.axes.set_frame_on(False)
@@ -598,6 +645,7 @@ class Controller:
             ax.set_ylim([lower_lim, upper_lim])
             self.concentration_over_scan_time_ax = ax
             self.concentration_over_scan_time_figure = figure
+        #     otherwise, update the old ax
         else:
             self.concentration_over_scan_time_smps_points.set_ydata(self.cn_list)
             self.concentration_over_scan_time_ccnc_points.set_ydata(self.ccn_list)
@@ -608,6 +656,11 @@ class Controller:
                                                            None)
 
     def draw_ccn_cn_ratio_over_diameter_graph(self):
+        """
+        Draw the top-right graph. Useful to see the matchting of the two data entries from smps and ccnc files
+        :return: 
+        """
+        # if there is no ax, make a new one
         if self.ccn_cn_ratio_ax is None:
             figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
             ax.axes.set_frame_on(False)
@@ -629,6 +682,7 @@ class Controller:
             legend.get_frame().set_alpha(0.3)
             self.ccn_cn_ratio_ax = ax
             self.ccn_cn_ratio_figure = figure
+        #     otherwise, update the old one
         else:
             yLim = min(2, max(self.ccn_cn_ratio_list)) + 0.2
             self.ccn_cn_ratio_ax.axes.set_ylim([-0.1, yLim])
@@ -644,6 +698,15 @@ class Controller:
     ##############################################
 
     def correct_charges(self):
+        """
+        Function to correct the charges. In short, the charges need to be correct due to (some chemical mysteries
+        that I can't even fathom to understand). If I have more time, I will find the documentation for charge correct
+        (or you can just ask professor)
+        This function definitely works as expected (believe me, I have checked very careful). 
+        So if there is any error in the program, it is unlikely to be this one
+        The main speed bottleneck of the program. fixed by using Cython
+        :return: 
+        """
         self.ccn_list = remove_zeros(self.ccn_list)
         self.cn_list = remove_zeros(self.cn_list)
         remove_small_ccn(self.ccn_list, self.min_ccn)
@@ -672,6 +735,14 @@ class Controller:
             raise SigmoidFitCorrectChargesError()
 
     def get_parameters_for_sigmoid_fit(self, min_dp=None, min_dp_asym=None, max_dp_asym=None):
+        """
+        Automatically generate parameters to fit sigmoid lines into the data. If the paramaters are declared
+        then the process will work with the parameter instead of automatically deciding the parameters.
+        :param min_dp: 
+        :param min_dp_asym: 
+        :param max_dp_asym: 
+        :return: 
+        """
         try:
             if min_dp and min_dp_asym and max_dp_asym:
                 self.min_dp = min_dp
@@ -742,6 +813,11 @@ class Controller:
             raise SigmoidFitGetParameterError()
 
     def fit_sigmoid_line(self):
+        """
+        As the name suggest, using the parameters to fit a sigmoid line into the data
+        I use the curve_fit function provided by scipy.optimize library to run this 
+        :return: 
+        """
         try:
             xList = []
             yList = []
@@ -774,6 +850,13 @@ class Controller:
             raise SigmoidFitLineFitError()
 
     def refitting_sigmoid_line(self, min_dry_diameter, min_dry_diameter_asymptote, max_dry_diameter_asymptote):
+        """
+        As the name suggest, this function is for the users to refit a failed sigmoid line. 
+        :param min_dry_diameter: 
+        :param min_dry_diameter_asymptote: 
+        :param max_dry_diameter_asymptote: 
+        :return: 
+        """
         self.move_progress_bar_forward("Refitting sigmoid line to scan #" + str(self.current_scan + 1),
                                        max_value=2)
         try:
@@ -829,7 +912,8 @@ class Controller:
 
     def correct_charges_and_fit_sigmoid_one_scan(self):
         """
-        optimize a single run
+        the control center to correct charges and fit sigmoid line to a single scan. 
+        
         """
         try:
             if not self.is_usable_for_sigmoid_fit_list[self.current_scan]:
@@ -891,6 +975,7 @@ class Controller:
         """
         Make complete graph of the dry diameter after optimization and sigmodal fit
         """
+        # if there is no ax, make a new one
         if self.sigmoid_fit_ax is None:
             figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
             ax.axes.set_frame_on(False)
@@ -925,6 +1010,7 @@ class Controller:
             legend.get_frame().set_alpha(0.3)
             self.sigmoid_fit_figure = figure
             self.sigmoid_fit_ax = ax
+        #     otherwise, use the old one
         else:
             yLim = min(2, max(self.ccn_cn_ratio_list)) + 0.2
             self.sigmoid_fit_ax.axes.set_ylim([-0.1, yLim])
@@ -975,6 +1061,14 @@ class Controller:
         self.view.update_alignment_and_sigmoid_fit_figures(None, self.sigmoid_fit_figure)
 
     def draw_all_scans_alignment_summary_graph(self):
+        """
+        Make a summary graph of all the runs. Used color to show the status of each scan
+        Red represents fail scans. 
+        Blue represents good scans.
+        White represents undecided scans.
+        Green (or yellow? I think I am color blind) represents visited scan
+        :return: 
+        """
         if self.all_scans_alignment_ax is None:
             for i in range(self.number_of_scan):
                 self.all_scans_alignment_visited_list.append(False)
@@ -1035,12 +1129,22 @@ class Controller:
         self.view.update_temp_and_min_figure(self.all_scans_alignment_figure)
 
     def on_pick(self, event):
+        """
+        When a bar on the summary graph is clicked
+        :param event: 
+        :return: 
+        """
         for i in range(len(self.all_scans_alignment_bars)):
             if event.artist == self.all_scans_alignment_bars[i]:
                 if i != self.current_scan:
                     self.switch_to_scan(i)
 
     def on_key_release(self, event):
+        """
+        When a key is pressed while in the summary graph
+        :param event: 
+        :return: 
+        """
         key = event.key()
         # left arrow key
         if key == 16777234 or key == 16777237:
@@ -1214,6 +1318,11 @@ class Controller:
     # --------------------- Graphs -----------------------------
 
     def draw_kappa_graph(self):
+        """
+        Probably the most complicated graph of the whole program. 
+        It needs to preload the kappa lines before actually drawing the kappa points.
+        :return: 
+        """
         if self.klines_data is None:
             self.klines_data = pandas.read_csv("klines.csv", header=1)
         header = self.klines_data.columns
@@ -1388,6 +1497,11 @@ class Controller:
         self.update_kappa_info_and_graph()
 
     def on_select_kappa_points_through_info_table(self, row):
+        """
+        When a kappa point is selected by clicking on the info section representing the point
+        :param row: 
+        :return: 
+        """
         self.current_kappa_point_index = row - 1
         self.update_kappa_info_and_graph()
 
@@ -1406,6 +1520,10 @@ class Controller:
         self.update_kappa_info_and_graph()
 
     def export_to_csv(self):
+        """
+        Export the resulting data to csv. 
+        :return: 
+        """
         file_name = "kappa_" + self.experiment_date.replace("/", ".") + ".xlsx"
         kappa_dict = self.kappa_calculate_dict
         key_list = self.kappa_points_data_list
@@ -1492,6 +1610,11 @@ class Controller:
             self.is_usable_for_kappa_cal_list[self.current_scan] = False
 
     def shift_data_by_one_second(self, forward=True):
+        """
+        Shift the ccnc data by one second. Used to manually align the smps and ccnc data.
+        :param forward: true when + 1 second, false otherwise
+        :return: 
+        """
         try:
             # can't shift if already pass the alignment step
             if self.finish_scan_alignment_and_auto_sig_fit:
@@ -1532,6 +1655,10 @@ class Controller:
             self.view.show_error_dialog("Can't shift current run. You should disable this run!")
 
     def change_scan_status(self):
+        """
+        change the status of a scan from disabled to enabled. Only work with cetain types of scan
+        :return: 
+        """
         # if the scan is marked as untouched, then clear that mark
         for i in range(len(self.unfinished_sigmoid_fit_scans_list)):
             if self.unfinished_sigmoid_fit_scans_list[i] == self.current_scan:
@@ -1569,6 +1696,10 @@ class Controller:
             self.update_view()
 
     def update_view(self):
+        """
+        Update the content of the view after processing
+        :return: 
+        """
         self.prepare_scan_data()
         self.draw_concentration_over_scan_time_graph()
         if self.finish_scan_alignment_and_auto_sig_fit:
@@ -1582,6 +1713,10 @@ class Controller:
         self.view.centralWidget().setFocus()
 
     def reset(self):
+        """
+        Reset the entire UI to work with a new dataset
+        :return: 
+        """
         gc.collect()
         # clear memory of concentration over scan time graph
         if self.concentration_over_scan_time_figure:
@@ -1619,6 +1754,14 @@ class Controller:
     # ---------------------progress bar-------------------------
 
     def move_progress_bar_forward(self, message=None, max_value=None, complete=False, value=1):
+        """
+        move the progress bar forward or create a progress bar. Used to inform the users of the progress
+        :param message: 
+        :param max_value: 
+        :param complete: 
+        :param value: 
+        :return: 
+        """
         self.view.move_progress_bar_forward(message, max_value, complete, value)
         if self.cancelling_progress_bar is True:
             self.cancelling_progress_bar = False
