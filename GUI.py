@@ -27,6 +27,9 @@ VERSION = 2
 
 
 class View(QMainWindow):
+    """
+    The main window (view) of the program
+    """
     def __init__(self, controller):
         global VERSION
         QMainWindow.__init__(self)
@@ -60,13 +63,17 @@ class View(QMainWindow):
         self.showMaximized()
 
     def show_ui(self):
+        """
+        need this function to show the UI to the screen
+        :return: 
+        """
         self.show()
         self.check_for_update()
         qt_app.exec_()
 
     def show_update_dialog(self, update=1):
         """
-        show the update
+        show the update dialog. Inform the user when there is an update available
         """
         if update > VERSION:
             updateDialog = QMessageBox()
@@ -80,6 +87,10 @@ class View(QMainWindow):
         webbrowser.open("https://goo.gl/forms/X9OB6AQSJSiKScBs2")
 
     def check_for_update(self):
+        """
+        Check for update by accessing a file callede APP_VERSION.html on github. Very much hard-coded
+        :return: 
+        """
         try:
             response = urllib2.urlopen(
                 'https://raw.githubusercontent.com/khaiquangnguyen/Chemics/master/APP_VERSION.html')
@@ -99,7 +110,7 @@ class View(QMainWindow):
 
     def select_files(self):
         """
-        Select the files which store the file
+        Show a GUI to select the files which store the data. 
         """
         dialog = QFileDialog()
         files = dialog.getOpenFileNames()[0]
@@ -116,7 +127,6 @@ class View(QMainWindow):
         :param complete: whether the progress is the completion of the whole procedure
         :param message: the message to show on the progress dialog
         """
-
         if max_value is not None:
             self.progress = 0
             if self.progress_dialog is not None:
@@ -165,24 +175,52 @@ class View(QMainWindow):
         self.controller.cancel_progress_bar()
 
     def resizeEvent(self, resizeEvent):
+        """
+        a critical event. When the UI is resized
+        :param resizeEvent: 
+        :return: 
+        """
         self.centralWidget().resize()
 
     def update_alignment_and_sigmoid_fit_figures(self, scan_time_figure, sigmoid_figure):
+        """
+        Update the top-left graph of sigmoid lines
+        :param scan_time_figure: 
+        :param sigmoid_figure: 
+        :return: 
+        """
         self.centralWidget().graph_widget.alignment_and_sigmoid_fit_view.alignment_view.update_figure(scan_time_figure)
         self.centralWidget().graph_widget.alignment_and_sigmoid_fit_view.sigmoid_fit_view.update_figure(sigmoid_figure)
 
     def update_temp_and_min_figure(self, new_figure):
+        """
+        update the bottom graphs of temperature and all scan summary
+        :param new_figure: 
+        :return: 
+        """
         self.centralWidget().graph_widget.temp_and_alignment_view.update_figure(new_figure)
 
     def calculate_all_kappa_values(self):
+        """
+        calculate the kappa value
+        :return: 
+        """
         self.centralWidget().switch_to_kappa_widget()
         self.controller.calculate_all_kappa_values()
         self.controller.update_kappa_info_and_graph()
 
     def update_experiment_information(self):
+        """
+        update the general information of the entire dataset
+        :return: 
+        """
         self.centralWidget().info_widget.information_table.update_experiment_information()
 
     def update_scan_information(self):
+        """
+        update the specific information of each scan at the beginning of the program
+        :return: 
+        """
         self.centralWidget().info_widget.information_table.update_scan_information()
         curr_scan = self.controller.current_scan
         if self.controller.min_pos_SMPS_list[curr_scan] is None or self.controller.min_pos_CCNC_list[curr_scan] is None:
@@ -194,6 +232,10 @@ class View(QMainWindow):
                 self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
 
     def update_scan_information_after_sigmoid_fit(self):
+        """
+        update the specific information of each scan after sigmoid fit
+        :return: 
+        """
         self.centralWidget().info_widget.information_table.update_scan_information_after_sigmoid_fit()
         curr_scan = self.controller.current_scan
         if curr_scan in self.controller.unfinished_sigmoid_fit_scans_list:
@@ -209,9 +251,24 @@ class View(QMainWindow):
                 self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
 
     def reset(self):
+        """
+        reset the entire view
+        :return: 
+        """
         self.centralWidget().switch_to_scan_widget()
 
     def update_kappa_values(self,sigma,temp,dd1,i1,dd2,i2,solu):
+        """
+        update the kappa values
+        :param sigma: 
+        :param temp: 
+        :param dd1: 
+        :param i1: 
+        :param dd2: 
+        :param i2: 
+        :param solu: 
+        :return: 
+        """
         self.controller.sigma = sigma
         self.controller.temp = temp
         self.controller.dd = dd1
@@ -221,6 +278,10 @@ class View(QMainWindow):
         self.controller.solubility = solu
 
     def update_kappa_info_and_graph(self):
+        """
+        update the kappa information and change the graph
+        :return: 
+        """
         self.centralWidget().graph_widget.update_figure(self.controller.kappa_figure)
         self.centralWidget().info_widget.update_data()
         self.centralWidget().resize()
@@ -236,6 +297,10 @@ class View(QMainWindow):
         self.centralWidget().setFocus()
 
     def get_concentration(self):
+        """
+        get the concentration
+        :return: 
+        """
         return_value = self.controller.flow_rate
         while True:
             input = QInputDialog.getDouble(self, self.tr("Get Flow Rate"), self.tr("Flow Rate (L/min)"), 0.3,
