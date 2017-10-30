@@ -1028,7 +1028,7 @@ class Controller():
             invalid_patch = mpatches.Patch(color=SCAN_SUMMARY_UNUSABLE_SCAN_COLOR, label='unusable scans')
             undecided_patch = mpatches.Patch(color=UNDECIDED_USABILITY_COLOR, label='undecided scans')
             visted_patch = mpatches.Patch(color=SCAN_SUMMARY_HIGHLIGHT_COLOR, label='visited scans')
-            legend = ax.legend(handles=[valid_patch,invalid_patch,undecided_patch,visted_patch],fontsize=LEGEND_FONT_SIZE)
+            legend = ax.legend(handles=[valid_patch,invalid_patch,undecided_patch,visted_patch],fontsize=LEGEND_FONT_SIZE, loc = 2)
             self.all_scans_alignment_ax = ax
             legend.get_frame().set_alpha(0.3)
         else:
