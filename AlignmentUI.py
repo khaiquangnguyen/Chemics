@@ -1,7 +1,4 @@
 from InputDialog import *
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-
-
 
 class ScanInformationWidget(QWidget):
     def __init__(self, main_window=None):
@@ -318,6 +315,7 @@ class RectFigureCanvas(FigureCanvas):
 
 class SquareFigureCanvas(FigureCanvas):
     def __init__(self, main_window=None):
+        self.main_window = main_window
         fig = Figure(facecolor=settings.GRAPH_BACKGROUND_COLOR)
         super(self.__class__, self).__init__(fig)
 
