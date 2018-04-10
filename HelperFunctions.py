@@ -3,22 +3,116 @@ import re
 import pandas
 from datetime import *
 import numpy
+import numpy as np
 import peakutils
 from scipy import *
 from scipy import stats
 import tempfile
 import scipy.constants
 from sys import exit
-import settings
+import settings as CONST
 import time
+import matplotlib.pyplot as plt
+import threading
+from PySide.QtCore import *
+import traceback, sys
+
+class WorkerSignals(QObject):
+    '''
+    Defines the signals available from a running worker thread.
+
+    Supported signals are:
+
+    finished
+        No data
+
+    error
+        `tuple` (exctype, value, traceback.format_exc() )
+
+    result
+        `object` data returned from processing, anything
+
+    progress
+        `int` indicating % progress
+
+    '''
+    started = Signal(str)
+    finished = Signal()
+    error = Signal(tuple)
+    progress = Signal(int)
+
+class Worker(QRunnable):
+    '''
+    Worker thread
+
+    Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
+
+    :param callback: The function callback to run on this worker thread. Supplied args and
+                     kwargs will be passed through to the runner.
+    :type callback: function
+    :param args: Arguments to pass to the callback function
+    :param kwargs: Keywords to pass to the callback function
+    '''
+
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+        # Store constructor arguments (re-used for processing)
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+        self.signals = WorkerSignals()
+        kwargs['progress_start'] = self.signals.started
+        kwargs['progress_update'] = self.signals.progress
+
+    def run(self):
+        '''
+        Initialise the runner function with passed args, kwargs.
+        '''
+        try:
+            self.fn(*self.args, **self.kwargs)
+        except:
+            traceback.print_exc()
+            exctype, value = sys.exc_info()[:2]
+            self.signals.error.emit((exctype, value, traceback.format_exc()))
+        finally:
+            self.signals.finished.emit()  # Done
+
+def smooth(a_list, method = "Savitzky-Golay filter"):
+    if method == "Savitzky-Golay filter":
+        try:
+            a_list = scipy.signal.savgol_filter(a_list, 5, 2)
+        except:
+            pass
+    return a_list
+
+def run_new_thread(fn_name, started_fn, finished_fn, progress_fn):
+    worker = Worker(fn_name)
+    worker.signals.started.connect(started_fn)
+    worker.signals.progress.connect(progress_fn)
+    worker.signals.finished.connect(finished_fn)
+    return worker
 
 
-def remove_small_ccn(ccn_list, min_value):
-    for i in range(len(ccn_list)):
-        if ccn_list[i] < min_value:
-            ccn_list[i] = 0
+def fill_zeros_to_end(a_list,length_to_fill):
+    if len(a_list) < length_to_fill:
+        filler_array = numpy.asarray([0] * (length_to_fill - len(a_list)))
+        a_list = numpy.append(a_list,filler_array)
+    return numpy.asarray(a_list)
+
+def fill_zeros_to_begin(a_list,fill_amount):
+    filler_array = numpy.asarray([0] * fill_amount)
+    a_list = numpy.append(filler_array,a_list)
+    return numpy.asarray(a_list)
+
+def resolve_small_ccnc_vals(ccnc_vals):
+    for i in range(len(ccnc_vals)):
+        if ccnc_vals[i] < 4:
+            ccnc_vals[i] = CONST.EPSILON
+    return ccnc_vals
 
 
+def compare_float(a,b, err = 0.01):
+    return abs(a - b) < err
 def get_ave_none_zero(a_list):
     sum = 0
     count = 0
@@ -59,6 +153,19 @@ def get_asym_list(x_list, y_list):
             asym_list[i] = 0
 
     return asym_list
+
+def safe_div(x,y):
+    return 0 if y == 0 else x / y
+
+def create_size_list():
+    # Steps to get the CCNC count. These values are hard-coded. Don't change them!
+    size_list = [0.625] + [0.875]
+    size = 1.25
+    # Calculate the size of each bin
+    for i in range(0, 18):
+        size_list.append(size)
+        size += 0.5
+    return size_list
 
 
 def normalize_list(a_list):
@@ -170,12 +277,87 @@ def process_text_files(file_path):
         return txt_content
 
 
-def get_min_index(a_list, threshold=5):
+def find_ref_index_smps(smps_data,up_time):
+    """
+    Find the reference point of smps data, based on the information that the first peak of smps data is
+    between index 0 and index up_time, and the second peak is between up_time and the last index
+    :param smps_data:
+    :param up_time: the position that seperates the first peak and second peak
+    :return: -1 if can't find min. otherwise, return the reference point
+    """
+    # seperate the list which contains left peak and right peak
+    left_list = smps_data[0:up_time]
+    right_list = smps_data[up_time:]
+    # find the left peak and right peak
+    left_max = numpy.argmax(left_list)
+    right_max = up_time + numpy.argmax(right_list)
+    # get the data between the peaks
+    middle_list = smps_data[left_max:right_max]
+    # then perform agressive smoothing
+    middle_list = scipy.signal.savgol_filter(middle_list, 11, 2)
+    # find the min between the two peaks, which is exactly what we need
+    potential_mins = scipy.signal.argrelmin(middle_list, order=4)
+    if len(potential_mins[0]) == 0:
+        return None
+    ref_index = left_max + potential_mins[0][0]
+    # The reference point should be within a reasonable range of the up_time
+    if abs(up_time - ref_index) > len(smps_data)/20:
+        return None
+    else:
+        return ref_index
+
+
+def find_ref_index_ccnc(ccnc_list, potential_loc):
+    # we are working with a lot of assumptions here
+    # The first one is that the two ref values must be quite close to each other
+    # find absolute max
+    # the potential location is the sum of the smps local minimum and the base shift factor calculated from other
+    # scans
+    ccnc_list = smooth(ccnc_list)
+    first_point = ccnc_list[potential_loc - 1]
+    second_point = ccnc_list[potential_loc]
+    slope = second_point - first_point
+    if slope > max(ccnc_list) /20:
+        return potential_loc - 1
+    else:
+        return potential_loc
+
+
+# def find_ref_index_ccnc(ccnc_list,potential_loc):
+#     # we are working with a lot of assumptions here
+#     # The first one is that the two ref values must be quite close to each other
+#     # find absolute max
+#     # the potential location is the sum of the smps local minimum and the base shift factor calculated from other
+#     # scans
+#     left_max = numpy.argmax(ccnc_list)
+#     # find the right list which contains the lower point.
+#     right_list = ccnc_list[left_max:]
+#     # smooth the hell out of the data
+#     right_list = smooth(right_list)
+#     #find min
+#     potential_mins = scipy.signal.argrelmin(right_list, order=2)
+#     # if find no min, return error
+#     # plt.plot(right_list)
+#     # plt.show()
+#     if len(potential_mins[0]) == 0:
+#         return None
+#     print potential_mins
+#     # now, compare among the potential mins to see if which one has the closest value to the smps low
+#     for i in range(len(potential_mins[0])):
+#         ref_index = left_max + potential_mins[0][i]
+#         # if agree with the potential loc
+#         if abs(ref_index - potential_loc) <= 2:
+#             return ref_index
+#     return None
+
+
+def get_min_index_ccnc_old(a_list,scan_up_time = 0):
     """
     get the position of the smallest value of aParam list
     :param processed_data: the processed_data to process
     :return: the index of the smallest value. -1 if the peak is not usable
     """
+    a_list = numpy.asarray(a_list)
     # TODO: improve this method
     first_max = 0
     max_pos = 0
@@ -227,7 +409,6 @@ def get_min_index(a_list, threshold=5):
     if second_max == 0 or first_max == 0:
         return -1
     return min_pos
-
 
 def convert_date(df):
     dt = df.index
@@ -302,7 +483,6 @@ def find_dp(dp, lambda_air, n):
 def calculate_ave_list(a_list):
     return sum(a_list) / len(a_list)
 
-
 def calculate_moving_average(a_list, n):
     """
     Calculate aParam new list based on the moving average of n elements
@@ -317,16 +497,15 @@ def calculate_moving_average(a_list, n):
     return new_list
 
 
-def remove_zeros(a_list):
+def resolve_zeros(a_list):
     """
     Change all 0 in the list to aParam very small number
     :param a_list: the input list with 0s
     :return: aParam new list with all 0s replaced
     """
-    epsilon = 0.000001
     for i in range(len(a_list)):
         if a_list[i] == 0:
-            a_list[i] = epsilon
+            a_list[i] = CONST.EPSILON
     return a_list
 
 

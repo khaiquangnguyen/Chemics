@@ -21,5 +21,5 @@ setup(
   name = "FastDpCalculator",
   cmdclass = {"build_ext": build_ext},
   ext_modules = ext_modules,
-  include_dirs = [numpy.get_include()]
+  include_dirs = [numpy.get_include()], install_requires=['matplotlib']
 )

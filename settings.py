@@ -1,3 +1,7 @@
+EPSILON = 0.000001
+NUM_OF_CHARGES_CORR = 8
+
+
 infoAreaBackgroundColor = "#616161"
 infoAreaItemColor = "#E0E0E0"
 infoAreaItemBackgroundColor = "#424242"
@@ -58,3 +62,5 @@ KAPPA_UNUSABLE_POINT_COLOR = '#EF5350'
 KAPPA_CURRENT_SELECTION_COLOR = '#50ef5d'
 
 TABLE_ROW_HIGHLIGHT_COLOR = '#50ef5d'
+
+smooth_algos = ["Savitzky-Golay filter"]

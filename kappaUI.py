@@ -1,6 +1,5 @@
 from InfoTableStyle import *
 from CustomButton import *
-from PySide.QtGui import *
 import settings
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
