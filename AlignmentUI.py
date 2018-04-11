@@ -1,5 +1,5 @@
 from InfoTableStyle import *
-from InputDialog import *
+from ModalDialogs import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from CustomButton import *

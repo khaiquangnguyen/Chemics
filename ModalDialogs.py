@@ -4,39 +4,41 @@ import settings
 import copy
 import HelperFunctions
 
-class InputForm(QDialog):
-    def __init__(self,mainWindow = None):
-        super(self.__class__, self).__init__()
-        self.mainWindow = mainWindow
-        self.formLayout = QFormLayout()
-        self.minDpLine = QLineEdit()
-        self.minDpAsymLine = QLineEdit()
-        self.maxDpAsymLine = QLineEdit()
-        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        self.formLayout.addRow(self.tr("&MinDp"),self.minDpLine)
-        self.formLayout.addRow(self.tr("&MinDpAsym"), self.minDpAsymLine)
-        self.formLayout.addRow(self.tr("&MaxDpAsym"), self.maxDpAsymLine)
 
-        self.buttonBox.accepted.connect(self.acceptInput)
-        self.buttonBox.rejected.connect(self.reject)
-
-        self.formLayout.addWidget(self.buttonBox)
-        self.setLayout(self.formLayout)
-
-    def acceptInput(self):
-        try:
-            self.minDp = float(self.minDpLine.text())
-            self.minDpAsym = float(self.minDpAsymLine.text())
-            self.maxDpAsym = float(self.maxDpAsymLine.text())
-            self.accept()
-        except:
-            self.mainWindow.show_error_dialog("Input processed_data not valid.Please input again!")
-
-    def getData(self):
-        return self.minDp,self.minDpAsym, self.maxDpAsym
+# class InputForm(QDialog):
+#     def __init__(self, mainWindow=None):
+#         super(self.__class__, self).__init__()
+#         self.mainWindow = mainWindow
+#         self.formLayout = QFormLayout()
+#         self.minDpLine = QLineEdit()
+#         self.minDpAsymLine = QLineEdit()
+#         self.maxDpAsymLine = QLineEdit()
+#         self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+#         self.formLayout.addRow(self.tr("&MinDp"), self.minDpLine)
+#         self.formLayout.addRow(self.tr("&MinDpAsym"), self.minDpAsymLine)
+#         self.formLayout.addRow(self.tr("&MaxDpAsym"), self.maxDpAsymLine)
+#
+#         self.buttonBox.accepted.connect(self.acceptInput)
+#         self.buttonBox.rejected.connect(self.reject)
+#
+#         self.formLayout.addWidget(self.buttonBox)
+#         self.setLayout(self.formLayout)
+#
+#     def acceptInput(self):
+#         try:
+#             self.minDp = float(self.minDpLine.text())
+#             self.minDpAsym = float(self.minDpAsymLine.text())
+#             self.maxDpAsym = float(self.maxDpAsymLine.text())
+#             self.accept()
+#         except:
+#             self.mainWindow.show_error_dialog("Input processed_data not valid.Please input again!")
+#
+#     def getData(self):
+#         return self.minDp, self.minDpAsym, self.maxDpAsym
+#
 
 class SmoothAlgoDialog(QDialog):
-    def __init__(self,scans,controller):
+    def __init__(self, scans, controller):
         super(self.__class__, self).__init__()
         # the master layout
         form_layout = QFormLayout()
@@ -45,7 +47,7 @@ class SmoothAlgoDialog(QDialog):
         self.setWindowTitle("Select smoothing algorithm")
         # set up the groupbox which contains the graph of the scan
         # we assume that a scan in the middle will look very nice.
-        self.curr_scan_index = len(scans)*2/3
+        self.curr_scan_index = len(scans) * 2 / 3
         while not self.scans[self.curr_scan_index].is_valid():
             self.curr_scan_index += 1
         self.a_good_scan = None
@@ -85,22 +87,22 @@ class SmoothAlgoDialog(QDialog):
         form_layout.addWidget(button_boxes)
         self.setLayout(form_layout)
         # Set the original size
-        self.resize(1000,600)
+        self.resize(1000, 600)
         # let's load up a scan
         self.process_a_scan()
         CONST.smooth_algos = []
 
     def next_scan(self):
-        self.curr_scan_index = min(len(self.scans)-1,self.curr_scan_index +1)
+        self.curr_scan_index = min(len(self.scans) - 1, self.curr_scan_index + 1)
         self.process_a_scan()
 
     def prev_scan(self):
-        self.curr_scan_index  = max(0,self.curr_scan_index -1)
+        self.curr_scan_index = max(0, self.curr_scan_index - 1)
         self.process_a_scan()
 
     def process_a_scan(self):
-            # We will deep copy it, so that we don't modify it
-        self.a_good_scan = copy.deepcopy( self.scans[self.curr_scan_index])
+        # We will deep copy it, so that we don't modify it
+        self.a_good_scan = copy.deepcopy(self.scans[self.curr_scan_index])
         # We got to produce the right amount of data first
         self.original_graph.update_graph(self.a_good_scan)
         self.smooth_graph.update_graph(self.a_good_scan, smooth_ccnc=True)
@@ -108,11 +110,12 @@ class SmoothAlgoDialog(QDialog):
 
     def to_next(self):
         self.accept()
-        next_dialog = SetBaseShiftDialog(self.scans,self.controller)
+        next_dialog = SetBaseShiftDialog(self.scans, self.controller)
         next_dialog.exec_()
 
+
 class SetBaseShiftDialog(QDialog):
-    def __init__(self,scans,controller):
+    def __init__(self, scans, controller):
         super(self.__class__, self).__init__()
         # the master layout
         form_layout = QFormLayout()
@@ -170,24 +173,24 @@ class SetBaseShiftDialog(QDialog):
         form_layout.addWidget(button_boxes)
         self.setLayout(form_layout)
         # Set the original size
-        self.resize(1000,600)
+        self.resize(1000, 600)
         # let's load up a scan
 
     def next_scan(self):
-        self.curr_scan_index = min(len(self.scans)-1,self.curr_scan_index +1)
+        self.curr_scan_index = min(len(self.scans) - 1, self.curr_scan_index + 1)
         self.process_a_scan()
 
     def prev_scan(self):
-        self.curr_scan_index = max(0,self.curr_scan_index -1)
+        self.curr_scan_index = max(0, self.curr_scan_index - 1)
         self.process_a_scan()
 
     def process_a_scan(self):
-            # We will deep copy it, so that we don't modify it
+        # We will deep copy it, so that we don't modify it
         self.a_good_scan = copy.deepcopy(self.scans[self.curr_scan_index])
         self.a_good_scan.set_shift_factor(self.curr_shift_factor)
-    # We got to produce the right amount of data first
+        # We got to produce the right amount of data first
         self.a_good_scan.generate_processed_data()
-        self.original_graph.update_graph(self.a_good_scan,smooth_ccnc=True)
+        self.original_graph.update_graph(self.a_good_scan, smooth_ccnc=True)
         self.shift_graph.update_graph(self.a_good_scan)
         self.curr_scan_text.setText("Currently showing scan " + str(self.curr_scan_index))
 
@@ -211,9 +214,9 @@ class SetBaseShiftDialog(QDialog):
         dialog.setWindowTitle("Confirm Auto Alignment")
         dialog.setText("Are you sure you want to let the program to automatically align the data?")
         dialog.setIcon(QMessageBox.Question)
-        Cancel = dialog.addButton("Cancel", QMessageBox.RejectRole)
-        Confirm = dialog.addButton("Confirm", QMessageBox.AcceptRole)
+        cancel_button = dialog.addButton("Cancel", QMessageBox.RejectRole)
+        confirm_button = dialog.addButton("Confirm", QMessageBox.AcceptRole)
         dialog.exec_()
-        if dialog.clickedButton() == Confirm:
+        if dialog.clickedButton() == confirm_button:
             self.controller.set_base_shift_factor(self.curr_shift_factor)
             self.controller.align_smps_ccnc_data()

@@ -56,6 +56,7 @@ class MainView(QMainWindow):
         # create menu
         self.create_menus()
         # create central widgets
+        self.central_widget_alignment = None
         self.create_central_widget()
         # create left dock widget for information related stuff
         self.create_left_docker()
