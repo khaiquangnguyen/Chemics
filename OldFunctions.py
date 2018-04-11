@@ -597,3 +597,115 @@ class KappaParamsDataTable(QTableWidget):
 
     def toggle_color(self,row):
         pass
+
+    #
+    # def switch_to_kappa_widget(self):
+    #     self.clear_layout(self.layout)
+    #     self.info_widget = KappaInformationAndDataWidget(self.main_window)
+    #     self.graph_widget = KappaGraphWidget(self.main_window)
+    #     self.layout.addWidget(self.info_widget)
+    #     self.layout.addWidget(self.graph_widget)
+    #     self.setLayout(self.layout)
+    #     self.resize()
+    #
+    # def switch_to_scan_widget(self):
+    #     self.clear_layout(self.layout)
+    #     self.info_widget = ScanInformationWidget(self.main_window)
+    #     self.graph_widget = ScanGraphsWidget(self.main_window)
+    #     self.layout.addWidget(self.info_widget)
+    #     self.layout.addWidget(self.graph_widget)
+    #     self.setLayout(self.layout)
+    #     self.resize()
+    #
+    # def clear_layout(self, layout):
+    #     if layout is not None:
+    #         while layout.count():
+    #             item = layout.takeAt(0)
+    #             widget = item.widget()
+    #             if widget is not None:
+    #                 widget.deleteLater()
+    #             else:
+    #                 self.clear_layout(item.layout())
+    #
+    # def keyReleaseEvent(self, event):
+    #     # finish kappa
+    #     if self.main_window.controller.kappa_ax:
+    #         self.main_window.controller.on_key_release_kappa_graph(event)
+    #     else:
+    #         self.main_window.controller.on_key_release(event)
+#
+# class CentralWidgetKappaCalc(QWidget):
+#     def __init__(self, parent, raw_conc_time_graph, smoothed_conc_time_graph, ratio_dp_graph, temp_graph):
+#         QWidget.__init__(self)
+#         # Add widgets
+#         # init the necessary contents
+#         self.raw_conc_time_graph = raw_conc_time_graph
+#         self.smoothed_conc_time_graph = smoothed_conc_time_graph
+#         self.ratio_dp_graph = ratio_dp_graph
+#         self.temp_graph = temp_graph
+#         self.h_splitter_1 = QSplitter(Qt.Horizontal)
+#         self.h_splitter_1.addWidget(self.smoothed_conc_time_graph)
+#         self.h_splitter_1.addWidget(self.raw_conc_time_graph)
+#         self.h_splitter_2 = QSplitter(Qt.Horizontal)
+#         self.h_splitter_2.addWidget(self.ratio_dp_graph)
+#         self.h_splitter_2.addWidget(self.temp_graph)
+#         self.v_splitter = QSplitter(Qt.Vertical)
+#         self.v_splitter.addWidget(self.h_splitter_1,self.h_splitter_2)
+#
+#     def switch_to_kappa_widget(self):
+#         self.clear_layout(self.layout)
+#         self.info_widget = KappaInformationAndDataWidget(self.main_window)
+#         self.graph_widget = KappaGraphWidget(self.main_window)
+#         self.layout.addWidget(self.info_widget)
+#         self.layout.addWidget(self.graph_widget)
+#         self.setLayout(self.layout)
+#         self.resize()
+#
+#     def switch_to_scan_widget(self):
+#         self.clear_layout(self.layout)
+#         self.info_widget = ScanInformationWidget(self.main_window)
+#         self.graph_widget = ScanGraphsWidget(self.main_window)
+#         self.layout.addWidget(self.info_widget)
+#         self.layout.addWidget(self.graph_widget)
+#         self.setLayout(self.layout)
+#         self.resize()
+#
+#     def clear_layout(self, layout):
+#         if layout is not None:
+#             while layout.count():
+#                 item = layout.takeAt(0)
+#                 widget = item.widget()
+#                 if widget is not None:
+#                     widget.deleteLater()
+#                 else:
+#                     self.clear_layout(item.layout())
+#
+#     def keyReleaseEvent(self, event):
+#         # finish kappa
+#         if self.main_window.controller.kappa_ax:
+#             self.main_window.controller.on_key_release_kappa_graph(event)
+#         else:
+#             self.main_window.controller.on_key_release(event)
+
+
+    # def check_for_update(self):
+    #     """
+    #     Check for update by accessing a file callede APP_VERSION.html on github. Very much hard-coded
+    #     :return:
+    #     """
+    #     try:
+    #         response = urllib2.urlopen(
+    #             'https://raw.githubusercontent.com/khaiquangnguyen/Chemics/master/APP_VERSION.html')
+    #         html = response.read()
+    #         update = int(html[0])
+    #         self.show_update_dialog(update)
+    #     except urllib2.URLError, e:
+    #         # For Python 2.6
+    #         if isinstance(e.reason, socket.timeout):
+    #             pass
+    #         else:
+    #             # reraise the original error
+    #             raise
+    #     except socket.timeout, e:
+    #         # For Python 2.7
+    #         pass

@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="52680c79-2416-4816-9b69-b1aa9e4f4874" name="Default" comment="">
-<<<<<<< HEAD
-=======
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/kappa_02.03.10.xlsx" afterPath="$PROJECT_DIR$/kappa_02.03.10.xlsx" />
+    <list default="true" id="3135eaf7-983d-4f1c-afd9-5dc79b7d928a" name="Default" comment="">
+      <change type="MOVED" beforePath="$PROJECT_DIR$/InputDialog.py" afterPath="$PROJECT_DIR$/ModalDialogs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/Chemics.iml" afterPath="$PROJECT_DIR$/.idea/Chemics.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/Excalibur.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/Excalibur.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Chemics.py" afterPath="$PROJECT_DIR$/Chemics.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/GUI.py" afterPath="$PROJECT_DIR$/GUI.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/KappaVarConfirmDialog.py" afterPath="$PROJECT_DIR$/KappaVarConfirmDialog.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/AlignmentUI.py" afterPath="$PROJECT_DIR$/AlignmentUI.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Graphs.py" afterPath="$PROJECT_DIR$/Graphs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MainView.py" afterPath="$PROJECT_DIR$/MainView.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OldFunctions.py" afterPath="$PROJECT_DIR$/OldFunctions.py" />
     </list>
-    <ignored path="Chemics.iws" />
-    <ignored path=".idea/workspace.xml" />
-    <ignored path=".idea/dataSources.local.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -22,412 +20,165 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-<<<<<<< HEAD
-=======
-    <SUITE FILE_PATH="coverage/Chemics$AlignmentUI.coverage" NAME="AlignmentUI Coverage Results" MODIFIED="1499871573569" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Chemics$testFunction.coverage" NAME="testFunction Coverage Results" MODIFIED="1465934603876" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Chemics$Chemics.coverage" NAME="Chemics Coverage Results" MODIFIED="1503608917882" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
-    <SUITE FILE_PATH="coverage/Chemics$GUI.coverage" NAME="GUI Coverage Results" MODIFIED="1467044667222" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Chemics$Chemics.coverage" NAME="Chemics Coverage Results" MODIFIED="1490758485299" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Chemics$testFunction.coverage" NAME="testFunction Coverage Results" MODIFIED="1465934603876" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Chemics$test.coverage" NAME="test Coverage Results" MODIFIED="1465372719716" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-  </component>
-  <component name="CreatePatchCommitExecutor">
-    <option name="PATCH_PATH" value="" />
-  </component>
-  <component name="DatabaseView">
-    <option name="SHOW_INTERMEDIATE" value="true" />
-    <option name="GROUP_SCHEMA" value="true" />
-    <option name="GROUP_CONTENTS" value="false" />
-    <option name="SORT_POSITIONED" value="false" />
-    <option name="SHOW_TABLE_DETAILS" value="true" />
-    <option name="SHOW_EMPTY_GROUPS" value="false" />
-    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
-  </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
-  <component name="FavoritesManager">
-    <favorites_list name="Chemics" />
+    <SUITE FILE_PATH="coverage/Chemics$MainView.coverage" NAME="MainView Coverage Results" MODIFIED="1523407656603" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="Chemics.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Chemics.py">
-          <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
-            <state relative-caret-position="171">
-              <caret line="769" column="40" lean-forward="true" selection-start-line="769" selection-start-column="40" selection-end-line="769" selection-end-column="40" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-                <element signature="e#507#594#1" expanded="true" />
-                <element signature="e#5020#5089#1" expanded="true" />
-                <element signature="e#5227#5300#1" expanded="true" />
-                <element signature="e#7556#7616#1" expanded="true" />
-                <element signature="e#8106#8182#1" expanded="true" />
-                <element signature="e#14629#14705#1" expanded="true" />
-                <element signature="e#17910#18013#1" expanded="true" />
-                <element signature="e#20515#20579#1" expanded="true" />
-                <element signature="e#20780#20936#1" expanded="true" />
-                <element signature="e#22414#22475#1" expanded="true" />
-                <element signature="e#22751#22800#1" expanded="true" />
-                <element signature="e#27571#27664#1" expanded="true" />
-                <element signature="e#30951#31028#1" expanded="true" />
-                <element signature="e#32753#32846#1" expanded="true" />
-                <element signature="e#34399#34491#1" expanded="true" />
-                <element signature="e#36001#36052#1" expanded="true" />
-                <element signature="e#37750#37849#1" expanded="true" />
-                <element signature="e#40077#40141#1" expanded="true" />
-                <element signature="e#40295#40358#1" expanded="true" />
-                <element signature="e#40457#40546#1" expanded="true" />
-                <element signature="e#45816#45869#1" expanded="true" />
-                <element signature="e#46535#46602#1" expanded="true" />
-                <element signature="e#47048#49188#0" expanded="false" />
-                <element signature="e#47048#47116#1" expanded="true" />
-                <element signature="e#49286#49421#1" expanded="true" />
-                <element signature="e#51158#51233#1" expanded="true" />
-                <element signature="e#52108#52189#1" expanded="true" />
-                <element signature="e#53970#54043#1" expanded="true" />
-                <element signature="e#54413#54516#1" expanded="true" />
-                <element signature="e#60164#60243#1" expanded="true" />
-                <element signature="e#64269#64644#0" expanded="false" />
-                <element signature="e#64688#64862#0" expanded="false" />
-                <element signature="e#64688#64766#1" expanded="true" />
-                <element signature="e#64931#67097#0" expanded="false" />
-                <element signature="e#64931#65028#1" expanded="true" />
-                <element signature="e#67447#69966#0" expanded="false" />
-                <element signature="e#67447#67565#1" expanded="true" />
-=======
-            <state relative-caret-position="921">
-              <caret line="1641" column="5" lean-forward="true" selection-start-line="1641" selection-start-column="5" selection-end-line="1641" selection-end-column="5" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-                <element signature="e#605#5392#0" expanded="true" />
-                <element signature="e#5600#5820#0" expanded="true" />
-                <element signature="e#5600#5765#1" expanded="false" />
-                <element signature="e#5858#8885#0" expanded="true" />
-                <element signature="e#5858#6553#1" expanded="false" />
-                <element signature="e#6997#7185#0" expanded="false" />
-                <element signature="e#7513#7725#0" expanded="false" />
-                <element signature="e#7602#7725#0" expanded="false" />
-                <element signature="e#7916#8068#0" expanded="false" />
-                <element signature="e#8081#8179#0" expanded="false" />
-                <element signature="e#8256#8663#0" expanded="false" />
-                <element signature="e#8482#8615#0" expanded="false" />
-                <element signature="e#8939#9378#1" expanded="false" />
-                <element signature="e#9404#9896#0" expanded="false" />
-                <element signature="e#9460#9574#0" expanded="false" />
-                <element signature="e#9533#9574#0" expanded="false" />
-                <element signature="e#10016#10273#1" expanded="false" />
-                <element signature="e#11375#11505#0" expanded="false" />
-                <element signature="e#11429#11505#0" expanded="false" />
-                <element signature="e#12174#17478#0" expanded="false" />
-                <element signature="e#12533#12582#0" expanded="false" />
-                <element signature="e#12693#12901#0" expanded="false" />
-                <element signature="e#12786#12853#0" expanded="false" />
-                <element signature="e#12969#13064#0" expanded="false" />
-                <element signature="e#13353#17478#0" expanded="false" />
-                <element signature="e#13720#14934#0" expanded="false" />
-                <element signature="e#13794#13846#0" expanded="false" />
-                <element signature="e#14261#14490#0" expanded="false" />
-                <element signature="e#15096#15154#0" expanded="false" />
-                <element signature="e#15467#15765#0" expanded="false" />
-                <element signature="e#15765#15841#0" expanded="false" />
-                <element signature="e#15948#16212#0" expanded="false" />
-                <element signature="e#16274#17321#0" expanded="false" />
-                <element signature="e#16648#16877#0" expanded="false" />
-                <element signature="e#17794#18214#1" expanded="false" />
-                <element signature="e#21760#24354#0" expanded="true" />
-                <element signature="e#22981#23133#0" expanded="false" />
-                <element signature="e#24033#24164#0" expanded="false" />
-                <element signature="e#24223#24348#0" expanded="false" />
-                <element signature="e#24499#25900#0" expanded="false" />
-                <element signature="e#25927#26271#0" expanded="false" />
-                <element signature="e#26406#28541#0" expanded="true" />
-                <element signature="e#28604#30415#0" expanded="true" />
-                <element signature="e#30609#32193#0" expanded="true" />
-                <element signature="e#32829#33353#0" expanded="false" />
-                <element signature="e#32919#33257#0" expanded="false" />
-                <element signature="e#33120#33257#0" expanded="false" />
-                <element signature="e#33206#33257#0" expanded="false" />
-                <element signature="e#33312#33353#0" expanded="false" />
-                <element signature="e#33512#33660#0" expanded="false" />
-                <element signature="e#33568#33642#0" expanded="false" />
-                <element signature="e#33772#34055#0" expanded="false" />
-                <element signature="e#33837#34055#0" expanded="false" />
-                <element signature="e#33901#34055#0" expanded="false" />
-                <element signature="e#34399#34745#0" expanded="false" />
-                <element signature="e#34455#34534#0" expanded="false" />
-                <element signature="e#34662#34745#0" expanded="false" />
-                <element signature="e#35477#36996#0" expanded="true" />
-                <element signature="e#35606#35789#0" expanded="false" />
-                <element signature="e#35689#35789#0" expanded="false" />
-                <element signature="e#35880#35961#0" expanded="false" />
-                <element signature="e#37118#40026#0" expanded="true" />
-                <element signature="e#40092#41692#0" expanded="true" />
-                <element signature="e#41759#42709#0" expanded="true" />
-                <element signature="e#42841#48427#0" expanded="true" />
-                <element signature="e#50546#50746#0" expanded="false" />
-                <element signature="e#52993#53066#1" expanded="false" />
-                <element signature="e#54449#54551#0" expanded="false" />
-                <element signature="e#54586#54650#0" expanded="false" />
-                <element signature="e#54981#55117#0" expanded="false" />
-                <element signature="e#55035#55117#0" expanded="false" />
-                <element signature="e#55395#55609#0" expanded="false" />
-                <element signature="e#55973#56187#0" expanded="false" />
-                <element signature="e#56465#56592#0" expanded="false" />
-                <element signature="e#56724#57060#0" expanded="false" />
-                <element signature="e#56874#57060#0" expanded="false" />
-                <element signature="e#59478#66227#0" expanded="true" />
-                <element signature="e#69844#73281#0" expanded="true" />
-                <element signature="e#71140#71331#0" expanded="false" />
-                <element signature="e#74713#75083#0" expanded="false" />
-                <element signature="e#75439#77049#0" expanded="true" />
-                <element signature="e#77095#77279#0" expanded="true" />
-                <element signature="e#77095#77173#1" expanded="false" />
-                <element signature="e#77316#77828#0" expanded="true" />
-                <element signature="e#77859#79291#0" expanded="true" />
-                <element signature="e#79463#79683#0" expanded="true" />
-                <element signature="e#79597#79683#0" expanded="false" />
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-<<<<<<< HEAD
-      <file leaf-file-name="HelperFunctions.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/HelperFunctions.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4142">
-              <caret line="264" column="27" lean-forward="false" selection-start-line="264" selection-start-column="27" selection-end-line="264" selection-end-column="27" />
-              <folding>
-                <element signature="e#6346#6415#2" expanded="true" />
-              </folding>
-=======
-      <file leaf-file-name="FastDpCalculator.pyx" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/FastDpCalculator.pyx">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3663">
-              <caret line="12" column="54" lean-forward="true" selection-start-line="12" selection-start-column="54" selection-end-line="12" selection-end-column="54" />
-              <folding />
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="GUI.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/GUI.py">
-          <provider selected="true" editor-type-id="text-editor">
-<<<<<<< HEAD
-            <state relative-caret-position="1121">
-              <caret line="71" column="19" lean-forward="false" selection-start-line="71" selection-start-column="19" selection-end-line="71" selection-end-column="19" />
-              <folding>
-                <element signature="e#1#11#0" expanded="true" />
-                <element signature="e#2710#2774#1" expanded="true" />
-                <element signature="e#3103#3164#1" expanded="true" />
-                <element signature="e#3434#3742#1" expanded="true" />
-                <element signature="e#5098#5214#1" expanded="true" />
-                <element signature="e#5516#5600#1" expanded="true" />
-                <element signature="e#6748#6995#0" expanded="false" />
-                <element signature="e#7159#7448#0" expanded="false" />
-=======
-            <state relative-caret-position="-564">
-              <caret line="109" column="29" lean-forward="false" selection-start-line="109" selection-start-column="29" selection-end-line="109" selection-end-column="29" />
-              <folding>
-                <element signature="e#2110#2238#0" expanded="true" />
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-<<<<<<< HEAD
-      <file leaf-file-name="KappaVarConfirmDialog.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/KappaVarConfirmDialog.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="893">
-              <caret line="117" column="0" lean-forward="false" selection-start-line="117" selection-start-column="0" selection-end-line="117" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="KappaUI.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/KappaUI.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2831">
-              <caret line="159" column="52" lean-forward="false" selection-start-line="159" selection-start-column="52" selection-end-line="159" selection-end-column="52" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AlignmentUI.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/AlignmentUI.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="570">
-              <caret line="42" column="42" lean-forward="false" selection-start-line="42" selection-start-column="42" selection-end-line="42" selection-end-column="42" />
-              <folding>
-                <element signature="e#0#28#0" expanded="true" />
-=======
-      <file leaf-file-name="AlignmentUI.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/AlignmentUI.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="924">
-              <caret line="79" column="66" lean-forward="false" selection-start-line="79" selection-start-column="66" selection-end-line="79" selection-end-column="66" />
-              <folding>
-                <element signature="e#3888#6345#0" expanded="true" />
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-<<<<<<< HEAD
-      <file leaf-file-name="Changelog" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Changelog">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="171">
-              <caret line="9" column="31" lean-forward="false" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-=======
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
-    </leaf>
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Python Script" />
-      </list>
-    </option>
+    <splitter split-orientation="horizontal" split-proportion="0.5">
+      <split-first>
+        <leaf>
+          <file leaf-file-name="Graphs.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/Graphs.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="0">
+                  <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                  <folding>
+                    <element signature="e#0#22#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="MainView.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/MainView.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="347">
+                  <caret line="67" column="39" lean-forward="false" selection-start-line="67" selection-start-column="39" selection-end-line="67" selection-end-column="39" />
+                  <folding>
+                    <element signature="e#90#103#0" expanded="true" />
+                    <marker date="1523407903589" expanded="true" signature="11816:11918" ph="..." />
+                    <marker date="1523407903589" expanded="true" signature="11859:11918" ph="..." />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="OldFunctions.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/OldFunctions.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="639">
+                  <caret line="711" column="0" lean-forward="false" selection-start-line="711" selection-start-column="0" selection-end-line="711" selection-end-column="0" />
+                  <folding>
+                    <element signature="e#28994#28995#0" expanded="false" />
+                    <element signature="e#30402#30403#0" expanded="false" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="KappaUI.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/KappaUI.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-7259">
+                  <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                  <folding>
+                    <element signature="e#0#28#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="ModalDialogs.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/ModalDialogs.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="352">
+                  <caret line="73" column="48" lean-forward="true" selection-start-line="73" selection-start-column="48" selection-end-line="73" selection-end-column="48" />
+                  <folding>
+                    <element signature="e#0#26#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="HelperFunctions.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/HelperFunctions.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-9834">
+                  <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                  <folding>
+                    <element signature="e#0#10#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="FastDpCalculator.pyx" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/FastDpCalculator.pyx">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="0">
+                  <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="Exceptions.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/Exceptions.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="0">
+                  <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                  <folding />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="CustomButton.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/CustomButton.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="0">
+                  <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+                  <folding>
+                    <element signature="e#0#26#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="OneScan.py" pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/OneScan.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="1017">
+                  <caret line="323" column="22" lean-forward="false" selection-start-line="323" selection-start-column="21" selection-end-line="323" selection-end-column="22" />
+                  <folding>
+                    <element signature="e#0#22#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf>
+          <file leaf-file-name="MainView.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/MainView.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="577">
+                  <caret line="305" column="0" lean-forward="true" selection-start-line="303" selection-start-column="8" selection-end-line="305" selection-end-column="0" />
+                  <folding>
+                    <element signature="e#90#103#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>scan_alignment_summary_figure</find>
-      <find>invalid_k_points_list</find>
-      <find>kappa_excel</find>
-      <find>clone</find>
-      <find>all_scans_alignment_graph</find>
-      <find>usable_for_kappa_cal_list</find>
-      <find>current_kappa_point</find>
-      <find>graph_current_selection</find>
-      <find>refitt</find>
-      <find>self.ccnc_sig</find>
-      <find>ccnc_sig_list</find>
-      <find>normalized_concentration_list</find>
-      <find>usable_for</find>
-      <find>graph</find>
-      <find>usable_</find>
-      <find>current_point</find>
-      <find>self.usable</find>
-      <find>def reset</find>
-      <find>import gc`</find>
-      <find>show_ui</find>
-      <find>gc</find>
-      <find>reset</find>
-      <find>self.reset</find>
-      <find>get_r</find>
-      <find>controller.run</find>
-      <find>controller.</find>
-      <find>bar</find>
-      <find>show_update</find>
-      <find>self.con</find>
-      <find>files</find>
-<<<<<<< HEAD
-      <find>smpsTxtFilePath</find>
-      <find>mergeCSVFiles</find>
-      <find>MainWindow</find>
-      <find>setView</find>
-      <find>run</find>
-      <find>preparationProcedure</find>
-      <find>getFileNames</find>
-      <find>getFlowRate</find>
-      <find>getSMPSAndCCNC</find>
-      <find>raw_ccnc_data</find>
-      <find>csvContent</find>
-      <find>aFile</find>
-      <find>smps</find>
-      <find>startTimeEntries</find>
-      <find>endTimeEntries</find>
-      <find>maxPeak</find>
-      <find>num_of_peak</find>
-      <find>dnlog</find>
-      <find>dNlog</find>
-      <find>self.dnlog</find>
-      <find>matchSMPSCCNCData</find>
-      <find>peakAlignAndGraph</find>
-      <find>update</find>
-      <find>updateDpDNLogFigures</find>
-      <find>preparePeak</find>
-      <find>peak</find>
-      <find>charge</find>
-      <find>optimizePeak</find>
-=======
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
+      <find>self.counts</find>
+      <find>clean</find>
     </findStrings>
-    <replaceStrings>
-      <replace>preprocess_data</replace>
-      <replace>get_</replace>
-      <replace>get_smps_and_ccnc_data</replace>
-      <replace>a_file</replace>
-      <replace>smps_data</replace>
-      <replace>start_time_list</replace>
-      <replace>end_time_list</replace>
-      <replace>number_of_peak</replace>
-      <replace>dnlog</replace>
-      <replace>self.dnlog_list</replace>
-      <replace>match_smps_ccnc_data</replace>
-      <replace>update_dp_dnlog_figures</replace>
-      <replace>peak_align_and_graph</replace>
-    </replaceStrings>
   </component>
   <component name="Git.Settings">
-    <option name="ROOT_SYNC" value="DONT_SYNC" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/testFunction.py" />
-        <option value="$PROJECT_DIR$/Controller.py" />
-        <option value="$PROJECT_DIR$/InfoTable.py" />
-        <option value="$PROJECT_DIR$/ButtonStyle.py" />
-        <option value="$PROJECT_DIR$/kappaUI.py" />
-        <option value="$PROJECT_DIR$/CustomButton" />
-        <option value="$PROJECT_DIR$/PeakAlignUI.py" />
-        <option value="$PROJECT_DIR$/KappaTableStyle.py" />
-        <option value="$PROJECT_DIR$/Backup.py" />
-        <option value="$PROJECT_DIR$/InputDialog.py" />
-        <option value="$PROJECT_DIR$/webbrowser.py" />
-        <option value="$PROJECT_DIR$/Changelog" />
-        <option value="$PROJECT_DIR$/CustomButton.py" />
-        <option value="$PROJECT_DIR$/fast_dp_cal.py" />
-        <option value="$PROJECT_DIR$/test.py" />
-        <option value="$PROJECT_DIR$/test.pyx" />
-        <option value="$PROJECT_DIR$/../FastDpCalculator.pyx" />
-        <option value="$PROJECT_DIR$/vfastexp.h" />
-        <option value="$PROJECT_DIR$/setup.py" />
-        <option value="$PROJECT_DIR$/KappaVarConfirmDialog.py" />
         <option value="$PROJECT_DIR$/OldFunctions.py" />
-        <option value="$PROJECT_DIR$/InfoTableStyle.py" />
-        <option value="$PROJECT_DIR$/settings.py" />
-        <option value="$PROJECT_DIR$/Exceptions.py" />
-        <option value="$PROJECT_DIR$/HelperFunctions.py" />
-<<<<<<< HEAD
-        <option value="$PROJECT_DIR$/Changelog" />
-=======
-        <option value="$PROJECT_DIR$/FastDpCalculator.pyx" />
-        <option value="$PROJECT_DIR$/AlignmentUI.py" />
-        <option value="$PROJECT_DIR$/KappaUI.py" />
-        <option value="$PROJECT_DIR$/APP_VERSION" />
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
-        <option value="$PROJECT_DIR$/GUI.py" />
-        <option value="$PROJECT_DIR$/AlignmentUI.py" />
-        <option value="$PROJECT_DIR$/Chemics.py" />
+        <option value="$PROJECT_DIR$/MainView.py" />
       </list>
     </option>
   </component>
@@ -437,38 +188,11 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="JsbtTreeLayoutManager">
-    <layout place="tools.popupGrunt">
-      <scroll-view-position x="0" y="0" />
-    </layout>
-  </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="-13" />
-    <option name="y" value="-13" />
-    <option name="width" value="2762" />
-    <option name="height" value="1770" />
-  </component>
-  <component name="ProjectInspectionProfilesVisibleTreeState">
-    <entry key="Project Default">
-      <profile-state>
-        <expanded-state>
-          <State>
-            <id />
-          </State>
-          <State>
-            <id>Python</id>
-          </State>
-        </expanded-state>
-        <selected-state>
-          <State>
-            <id>PyPep8NamingInspection</id>
-          </State>
-        </selected-state>
-      </profile-state>
-    </entry>
-  </component>
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
-    <ConfirmationsSetting value="2" id="Add" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-257" />
+    <option name="y" value="475" />
+    <option name="width" value="1400" />
+    <option name="height" value="1000" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -489,44 +213,20 @@
       <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Chemics" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Chemics" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
+          <expand>
+            <path>
+              <item name="Chemics" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Chemics" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
         </subPane>
       </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-<<<<<<< HEAD
-    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
-    <property name="settings.editor.splitter.proportion" value="0.2" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-=======
-    <property name="settings.editor.selected.configurable" value="editor.preferences.completion" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/FastDpCalculator.pyx" />
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
-    <property name="ignore_missing_gitignore" value="true" />
-    <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file://C:/Users/KKK/PycharmProjects/Chemics/HelperFunctions.py" />
-    <property name="js.eslint.eslintPackage" value="" />
-    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
-    <property name="last.edited.regexp" value="Sample Text" />
-  </component>
-  <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\quang\PycharmProjects\Chemics" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\KKK\PycharmProjects\Chemics" />
-      <recent name="C:\Users\quang\PycharmProjects\Chemics" />
-    </key>
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -540,8 +240,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.Chemics">
-    <configuration default="false" name="GUI" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.MainView">
+    <configuration name="MainView" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -554,1061 +254,101 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="Chemics" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/GUI.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/MainView.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
-      <method />
     </configuration>
-    <configuration default="false" name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Chemics" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="testFunction" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Chemics" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/testFunction.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="AlignmentUI" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Chemics" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/AlignmentUI.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Chemics" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="TARGET" value="" />
-      <option name="SETTINGS_FILE" value="" />
-      <option name="CUSTOM_SETTINGS" value="false" />
-      <option name="USE_OPTIONS" value="false" />
-      <option name="OPTIONS" value="" />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavaScriptTestRunnerJest" factoryName="Jest">
-      <node-interpreter value="project" />
-      <working-dir value="" />
-      <envs />
-      <scope-kind value="ALL" />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavaScriptTestRunnerProtractor" factoryName="Protractor">
-      <config-file value="" />
-      <node-interpreter value="project" />
-      <envs />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
-      <method />
-    </configuration>
-    <configuration default="true" type="PyBehaveRunConfigurationType" factoryName="Behave">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Chemics" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="ADDITIONAL_ARGS" value="" />
-      <method />
-    </configuration>
-    <configuration default="true" type="PyLettuceRunConfigurationType" factoryName="Lettuce">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Chemics" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="ADDITIONAL_ARGS" value="" />
-      <method />
-    </configuration>
-    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Chemics" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <configuration default="true" type="Tox" factoryName="Tox">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <module name="Chemics" />
-      <method />
-    </configuration>
-    <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
-      <node-interpreter>project</node-interpreter>
-      <node-options />
-      <gulpfile />
-      <tasks />
-      <arguments />
-      <envs />
-      <method />
-    </configuration>
-    <configuration default="true" type="js.build_tools.npm" factoryName="npm">
-      <command value="run" />
-      <scripts />
-      <node-interpreter value="project" />
-      <envs />
-      <method />
-    </configuration>
-    <configuration default="true" type="tests" factoryName="Doctests">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Chemics" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <method />
-    </configuration>
-    <configuration default="true" type="tests" factoryName="Nosetests">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Chemics" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="_new_regexPattern" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;.&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method />
-    </configuration>
-    <configuration default="true" type="tests" factoryName="Unittests">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Chemics" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;.&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method />
-    </configuration>
-    <configuration default="true" type="tests" factoryName="py.test">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Chemics" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="_new_keywords" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;.&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method />
-    </configuration>
-<<<<<<< HEAD
-    <list size="4">
-      <item index="0" class="java.lang.String" itemvalue="Python.Chemics" />
-      <item index="1" class="java.lang.String" itemvalue="Python.GUI" />
-      <item index="2" class="java.lang.String" itemvalue="Python.test" />
-      <item index="3" class="java.lang.String" itemvalue="Python.testFunction" />
-    </list>
     <recent_temporary>
-      <list size="4">
-        <item index="0" class="java.lang.String" itemvalue="Python.Chemics" />
-        <item index="1" class="java.lang.String" itemvalue="Python.GUI" />
-        <item index="2" class="java.lang.String" itemvalue="Python.testFunction" />
-        <item index="3" class="java.lang.String" itemvalue="Python.test" />
+      <list size="1">
+        <item index="0" class="java.lang.String" itemvalue="Python.MainView" />
       </list>
     </recent_temporary>
-    <configuration default="true" type="tests" factoryName="Attests">
-=======
-    <configuration default="false" name="Chemics" type="PythonConfigurationType" factoryName="Python">
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Chemics" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-<<<<<<< HEAD
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <method />
-    </configuration>
-=======
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Chemics.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
-    <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python.Chemics" />
-      <item index="1" class="java.lang.String" itemvalue="Python.GUI" />
-      <item index="2" class="java.lang.String" itemvalue="Python.test" />
-      <item index="3" class="java.lang.String" itemvalue="Python.testFunction" />
-      <item index="4" class="java.lang.String" itemvalue="Python.AlignmentUI" />
-    </list>
-    <recent_temporary>
-      <list size="4">
-        <item index="0" class="java.lang.String" itemvalue="Python.AlignmentUI" />
-        <item index="1" class="java.lang.String" itemvalue="Python.GUI" />
-        <item index="2" class="java.lang.String" itemvalue="Python.testFunction" />
-        <item index="3" class="java.lang.String" itemvalue="Python.test" />
-      </list>
-    </recent_temporary>
-    <configuration default="true" type="tests" factoryName="Attests">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="Chemics" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <method />
-    </configuration>
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
     <option name="remove_strategy" value="false" />
   </component>
-  <component name="StructureViewFactory">
-    <option name="ACTIVE_ACTIONS" value=",SHOW_FIELDS" />
-  </component>
-  <component name="SvnConfiguration">
-    <configuration />
-  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="52680c79-2416-4816-9b69-b1aa9e4f4874" name="Default" comment="" />
-      <created>1464879435777</created>
+      <changelist id="3135eaf7-983d-4f1c-afd9-5dc79b7d928a" name="Default" comment="" />
+      <created>1523401887138</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1464879435777</updated>
+      <updated>1523401887138</updated>
     </task>
-    <task id="LOCAL-00002" summary="test">
-      <created>1465074802961</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1465074802961</updated>
-    </task>
-    <task id="LOCAL-00003" summary="UI + data processing">
-      <created>1465074863706</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1465074863706</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Visualization and a lot of other things">
-      <created>1465328919440</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1465328919440</updated>
-    </task>
-    <task id="LOCAL-00005" summary="Visualization and a lot of other things">
-      <created>1465425936941</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1465425936941</updated>
-    </task>
-    <task id="LOCAL-00006" summary="Visualization and a lot of other things">
-      <created>1465938765264</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1465938765264</updated>
-    </task>
-    <task id="LOCAL-00007" summary="Visualization and a lot of other things">
-      <created>1465973109323</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1465973109323</updated>
-    </task>
-    <task id="LOCAL-00008" summary="Make UI">
-      <created>1466000291708</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1466000291708</updated>
-    </task>
-    <task id="LOCAL-00009" summary="Update GUI. Almost finished">
-      <created>1466054269354</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1466054269354</updated>
-    </task>
-    <task id="LOCAL-00010" summary="Update GUI. Almost finished">
-      <created>1466566886584</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1466566886584</updated>
-    </task>
-    <task id="LOCAL-00011" summary="Update GUI. Almost finished">
-      <created>1467046626851</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1467046626851</updated>
-    </task>
-    <task id="LOCAL-00012" summary="Update GUI. Almost finished">
-      <created>1467218804921</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1467218804921</updated>
-    </task>
-    <task id="LOCAL-00013" summary="Update GUI. Almost finished">
-      <created>1467218817987</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1467218817987</updated>
-    </task>
-    <task id="LOCAL-00014" summary="Update GUI. Almost finished">
-      <created>1467380987190</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1467380987190</updated>
-    </task>
-    <task id="LOCAL-00015" summary="Update GUI. And a hell lot of other things">
-      <created>1467672408620</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1467672408620</updated>
-    </task>
-    <task id="LOCAL-00016" summary="Update GUI. And a hell lot of other things">
-      <created>1467724087970</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1467724087970</updated>
-    </task>
-    <task id="LOCAL-00017" summary="Update GUI. And a hell lot of other things">
-      <created>1468340553884</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1468340553884</updated>
-    </task>
-    <task id="LOCAL-00018" summary="Update GUI. And a hell lot of other things">
-      <created>1468382732417</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1468382732417</updated>
-    </task>
-    <task id="LOCAL-00019" summary="Update GUI. And a hell lot of other things">
-      <created>1468468244751</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1468468244751</updated>
-    </task>
-    <task id="LOCAL-00020" summary="Update GUI. And a hell lot of other things">
-      <created>1468483499820</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1468483499820</updated>
-    </task>
-    <task id="LOCAL-00021" summary="Update GUI. And a hell lot of other things">
-      <created>1468551220457</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1468551220457</updated>
-    </task>
-    <task id="LOCAL-00022" summary="Update GUI. And a hell lot of other things">
-      <created>1468564989583</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1468564989583</updated>
-    </task>
-    <task id="LOCAL-00023" summary="Update GUI. And a hell lot of other things">
-      <created>1468642957807</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1468642957807</updated>
-    </task>
-    <task id="LOCAL-00024" summary="Update GUI. And a hell lot of other things">
-      <created>1468722752814</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1468722752815</updated>
-    </task>
-    <task id="LOCAL-00025" summary="Update GUI. And a hell lot of other things">
-      <created>1468723240675</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1468723240675</updated>
-    </task>
-    <task id="LOCAL-00026" summary="Update GUI. And a hell lot of other things">
-      <created>1468771278686</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1468771278686</updated>
-    </task>
-    <task id="LOCAL-00027" summary="Update GUI. And a hell lot of other things">
-      <created>1468793430436</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
-      <option name="project" value="LOCAL" />
-      <updated>1468793430436</updated>
-    </task>
-    <task id="LOCAL-00028" summary="Update GUI. And a hell lot of other things">
-      <created>1468849013018</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1468849013018</updated>
-    </task>
-    <task id="LOCAL-00029" summary="Update GUI. And a hell lot of other things">
-      <created>1468857081587</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1468857081587</updated>
-    </task>
-    <task id="LOCAL-00030" summary="Fix a TONS of things">
-      <created>1469062173663</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1469062173663</updated>
-    </task>
-    <task id="LOCAL-00031" summary="Fix a TONS of things">
-      <created>1469113419601</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1469113419601</updated>
-    </task>
-    <task id="LOCAL-00032" summary="Fix a TONS of things">
-      <created>1469138700284</created>
-      <option name="number" value="00032" />
-      <option name="presentableId" value="LOCAL-00032" />
-      <option name="project" value="LOCAL" />
-      <updated>1469138700284</updated>
-    </task>
-    <task id="LOCAL-00033" summary="Fix a TONS of things">
-      <created>1469199238890</created>
-      <option name="number" value="00033" />
-      <option name="presentableId" value="LOCAL-00033" />
-      <option name="project" value="LOCAL" />
-      <updated>1469199238890</updated>
-    </task>
-    <task id="LOCAL-00034" summary="Fix a TONS of things">
-      <created>1469254287613</created>
-      <option name="number" value="00034" />
-      <option name="presentableId" value="LOCAL-00034" />
-      <option name="project" value="LOCAL" />
-      <updated>1469254287613</updated>
-    </task>
-    <task id="LOCAL-00035" summary="Fix a TONS of things">
-      <created>1469377914761</created>
-      <option name="number" value="00035" />
-      <option name="presentableId" value="LOCAL-00035" />
-      <option name="project" value="LOCAL" />
-      <updated>1469377914761</updated>
-    </task>
-    <task id="LOCAL-00036" summary="Fix a TONS of things">
-      <created>1469389327586</created>
-      <option name="number" value="00036" />
-      <option name="presentableId" value="LOCAL-00036" />
-      <option name="project" value="LOCAL" />
-      <updated>1469389327586</updated>
-    </task>
-    <task id="LOCAL-00037" summary="Fix a TONS of things">
-      <created>1469408143955</created>
-      <option name="number" value="00037" />
-      <option name="presentableId" value="LOCAL-00037" />
-      <option name="project" value="LOCAL" />
-      <updated>1469408143955</updated>
-    </task>
-    <task id="LOCAL-00038" summary="Fix a TONS of things">
-      <created>1469411386973</created>
-      <option name="number" value="00038" />
-      <option name="presentableId" value="LOCAL-00038" />
-      <option name="project" value="LOCAL" />
-      <updated>1469411386973</updated>
-    </task>
-    <task id="LOCAL-00039" summary="Fix a TONS of things">
-      <created>1469413694747</created>
-      <option name="number" value="00039" />
-      <option name="presentableId" value="LOCAL-00039" />
-      <option name="project" value="LOCAL" />
-      <updated>1469413694747</updated>
-    </task>
-    <task id="LOCAL-00040" summary="Fix a TONS of things">
-      <created>1469414714882</created>
-      <option name="number" value="00040" />
-      <option name="presentableId" value="LOCAL-00040" />
-      <option name="project" value="LOCAL" />
-      <updated>1469414714882</updated>
-    </task>
-    <task id="LOCAL-00041" summary="Fix a TONS of things">
-      <created>1469453632339</created>
-      <option name="number" value="00041" />
-      <option name="presentableId" value="LOCAL-00041" />
-      <option name="project" value="LOCAL" />
-      <updated>1469453632339</updated>
-    </task>
-    <task id="LOCAL-00042" summary="Fix a TONS of things">
-      <created>1469456094862</created>
-      <option name="number" value="00042" />
-      <option name="presentableId" value="LOCAL-00042" />
-      <option name="project" value="LOCAL" />
-      <updated>1469456094862</updated>
-    </task>
-    <task id="LOCAL-00043" summary="Fix a TONS of things">
-      <created>1469457124877</created>
-      <option name="number" value="00043" />
-      <option name="presentableId" value="LOCAL-00043" />
-      <option name="project" value="LOCAL" />
-      <updated>1469457124877</updated>
-    </task>
-    <task id="LOCAL-00044" summary="Fix a TONS of things">
-      <created>1469458887165</created>
-      <option name="number" value="00044" />
-      <option name="presentableId" value="LOCAL-00044" />
-      <option name="project" value="LOCAL" />
-      <updated>1469458887165</updated>
-    </task>
-    <task id="LOCAL-00045" summary="Fix a TONS of things">
-      <created>1470365907995</created>
-      <option name="number" value="00045" />
-      <option name="presentableId" value="LOCAL-00045" />
-      <option name="project" value="LOCAL" />
-      <updated>1470365907995</updated>
-    </task>
-    <task id="LOCAL-00046" summary="Fix a TONS of things">
-<<<<<<< HEAD
-      <created>1490711122759</created>
-      <option name="number" value="00046" />
-      <option name="presentableId" value="LOCAL-00046" />
-      <option name="project" value="LOCAL" />
-      <updated>1490711122759</updated>
-    </task>
-    <option name="localTasksCounter" value="47" />
-=======
-      <created>1499275541648</created>
-      <option name="number" value="00046" />
-      <option name="presentableId" value="LOCAL-00046" />
-      <option name="project" value="LOCAL" />
-      <updated>1499275541648</updated>
-    </task>
-    <task id="LOCAL-00047" summary="Fix a TONS of things">
-      <created>1499275759807</created>
-      <option name="number" value="00047" />
-      <option name="presentableId" value="LOCAL-00047" />
-      <option name="project" value="LOCAL" />
-      <updated>1499275759807</updated>
-    </task>
-    <task id="LOCAL-00048" summary="Fix a TONS of things">
-      <created>1499275773829</created>
-      <option name="number" value="00048" />
-      <option name="presentableId" value="LOCAL-00048" />
-      <option name="project" value="LOCAL" />
-      <updated>1499275773829</updated>
-    </task>
-    <task id="LOCAL-00049" summary="Fix a TONS of things">
-      <created>1499348731091</created>
-      <option name="number" value="00049" />
-      <option name="presentableId" value="LOCAL-00049" />
-      <option name="project" value="LOCAL" />
-      <updated>1499348731091</updated>
-    </task>
-    <task id="LOCAL-00050" summary="Fix a TONS of things">
-      <created>1499348774740</created>
-      <option name="number" value="00050" />
-      <option name="presentableId" value="LOCAL-00050" />
-      <option name="project" value="LOCAL" />
-      <updated>1499348774741</updated>
-    </task>
-    <option name="localTasksCounter" value="51" />
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
     <servers />
   </component>
-  <component name="TodoView">
-    <todo-panel id="selected-file">
-      <is-autoscroll-to-source value="true" />
-    </todo-panel>
-    <todo-panel id="all">
-      <are-packages-shown value="true" />
-      <is-autoscroll-to-source value="true" />
-    </todo-panel>
-  </component>
   <component name="ToolWindowManager">
-<<<<<<< HEAD
     <frame x="-8" y="-8" width="1936" height="1176" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26972282" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32919955" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-=======
-    <frame x="-13" y="-13" width="2762" height="1770" extended-state="6" />
-    <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.259009" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32876712" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3284625" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32844242" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-<<<<<<< HEAD
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32827735" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20415778" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.66630554" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39712155" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="-1792" y="40" width="1713" height="878" />
-      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-=======
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3281148" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.131006" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.1642764" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.44594595" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="-1792" y="40" width="1713" height="878" />
-      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295796" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24973205" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.27254903" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Duplicates" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941943" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32028702" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Concurrent Activities Diagram" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32941943" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-    </layout>
-    <layout-to-restore>
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32919955" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3284625" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32844242" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3281148" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16634052" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.259009" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Duplicates" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32941943" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32159165" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.131006" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995737" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3855105" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="-1792" y="40" width="1713" height="878" />
-      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-    </layout-to-restore>
+    </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="processedProjectFiles" value="true" />
-  </component>
-  <component name="Vcs.Log.UiProperties">
-    <option name="RECENTLY_FILTERED_USER_GROUPS">
-      <collection />
-    </option>
-    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
-      <collection />
-    </option>
+    <option name="version" value="1" />
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="test" />
-    <MESSAGE value="UI + data processing" />
-    <MESSAGE value="Visualization and a lot of other things" />
-    <MESSAGE value="Make UI" />
-    <MESSAGE value="Update GUI. Almost finished" />
-    <MESSAGE value="Update GUI. And a hell lot of other things" />
-    <MESSAGE value="Fix a TONS of things" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix a TONS of things" />
-  </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <breakpoint enabled="true" type="python-exception">
-          <properties notifyOnTerminate="true" exception="mhlib.Error">
-            <option name="notifyOnTerminate" value="true" />
-          </properties>
-          <option name="timeStamp" value="398" />
-        </breakpoint>
-        <breakpoint enabled="true" type="python-exception">
-          <properties notifyOnTerminate="true" exception="TypeError">
-            <option name="notifyOnTerminate" value="true" />
-          </properties>
-          <option name="timeStamp" value="418" />
-        </breakpoint>
-        <breakpoint enabled="true" type="python-exception">
-          <properties notifyOnTerminate="true" exception="IndexError">
-            <option name="notifyOnTerminate" value="true" />
-          </properties>
-          <option name="timeStamp" value="689" />
-        </breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Chemics.py</url>
-          <line>1345</line>
-          <option name="timeStamp" value="942" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/Chemics.py</url>
-          <line>207</line>
-          <option name="timeStamp" value="944" />
-        </line-breakpoint>
-      </breakpoints>
-      <breakpoints-dialog>
-        <breakpoints-dialog />
-      </breakpoints-dialog>
-      <default-breakpoints>
-        <breakpoint enabled="true" type="python-exception">
-          <dependency master-id="0" />
-          <properties notifyOnTerminate="true" exception="BaseException">
-            <option name="notifyOnTerminate" value="true" />
-          </properties>
-        </breakpoint>
-        <breakpoint enabled="true" type="django-exception">
-          <properties exception="VariableDoesNotExist" />
-        </breakpoint>
-        <breakpoint enabled="true" type="jinja2-exception">
-          <properties exception="TemplateError" />
-        </breakpoint>
-        <breakpoint enabled="true" type="javascript-exception">
-          <dependency id="0" />
-          <properties />
-        </breakpoint>
-      </default-breakpoints>
-      <option name="time" value="945" />
-    </breakpoint-manager>
-    <watches-manager>
-      <configuration name="PythonConfigurationType">
-        <watch expression="self.current_scan" language="Python" />
-        <watch expression="self.usable_for_sigmoid_fit_list" language="Python" />
-        <watch expression="self.current_kappa_point_index" language="Python" />
-        <watch expression="html[0]" language="Python" />
-        <watch expression="html" language="Python" />
-      </configuration>
-    </watches-manager>
+    <breakpoint-manager />
+    <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://C:/Python27/Lib/site-packages/pandas/core/common.py" />
-    <entry file="file://C:/Python27/Lib/site-packages/scipy/signal/_peak_finding.py" />
-    <entry file="file://$PROJECT_DIR$/InputDialog.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="18" column="35" lean-forward="false" selection-start-line="18" selection-start-column="35" selection-end-line="18" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.PyCharm2016.2/system/python_stubs/-762174762/__builtin__.py" />
-    <entry file="file://C:/Python27/Lib/_strptime.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5100">
-          <caret line="324" column="0" lean-forward="false" selection-start-line="324" selection-start-column="0" selection-end-line="324" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Chemics.spec" />
-    <entry file="file://$PROJECT_DIR$/Backup.py" />
-    <entry file="file://$PROJECT_DIR$/webbrowser.py">
+    <entry file="file://$PROJECT_DIR$/Graphs.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Changelog">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="297">
-          <caret line="9" column="31" lean-forward="false" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/pandas/core/indexing.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="46872">
-          <caret line="1324" column="0" lean-forward="false" selection-start-line="1324" selection-start-column="0" selection-end-line="1324" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/pandas/core/series.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="14076">
-          <caret line="464" column="0" lean-forward="false" selection-start-line="464" selection-start-column="0" selection-end-line="464" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/matplotlib/pyplot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15984">
-          <caret line="494" column="0" lean-forward="false" selection-start-line="494" selection-start-column="0" selection-end-line="494" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/HelperFunctions.c" />
-    <entry file="file://$PROJECT_DIR$/HelperFunctions.pyx" />
-    <entry file="file://$PROJECT_DIR$/fast_dp_cal.py" />
-    <entry file="file://$PROJECT_DIR$/FastDpCalculator.py" />
-    <entry file="file://$PROJECT_DIR$/test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="6" column="7" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../FastDpCalculator.pyx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="132">
-          <caret line="4" column="0" lean-forward="true" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vfastexp.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="594">
-          <caret line="18" column="68" lean-forward="false" selection-start-line="18" selection-start-column="68" selection-end-line="18" selection-end-column="68" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/timeit.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="74" column="4" lean-forward="false" selection-start-line="74" selection-start-column="4" selection-end-line="74" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/numpy/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/matplotlib/lines.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="595">
-          <caret line="1067" column="70" lean-forward="false" selection-start-line="1067" selection-start-column="70" selection-end-line="1067" selection-end-column="70" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/setup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="12" column="12" lean-forward="false" selection-start-line="12" selection-start-column="12" selection-end-line="12" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test.pyx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="297">
-          <caret line="9" column="14" lean-forward="false" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/matplotlib/backends/backend_qt5agg.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="175" column="0" lean-forward="false" selection-start-line="175" selection-start-column="0" selection-end-line="175" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/matplotlib/figure.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="310">
-          <caret line="406" column="0" lean-forward="false" selection-start-line="406" selection-start-column="0" selection-end-line="406" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/matplotlib/axes/_base.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="325">
-          <caret line="2437" column="0" lean-forward="false" selection-start-line="2437" selection-start-column="0" selection-end-line="2437" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/KappaVarConfirmDialog.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="15" column="0" lean-forward="false" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CustomButton.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="363">
-          <caret line="33" column="31" lean-forward="true" selection-start-line="33" selection-start-column="31" selection-end-line="33" selection-end-column="31" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/OldFunctions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="880">
-          <caret line="599" column="0" lean-forward="true" selection-start-line="599" selection-start-column="0" selection-end-line="599" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/InfoTableStyle.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="690">
-          <caret line="118" column="27" lean-forward="false" selection-start-line="118" selection-start-column="27" selection-end-line="118" selection-end-column="27" />
           <folding>
-            <element signature="e#1405#1687#0" expanded="false" />
-            <element signature="e#1725#1754#0" expanded="false" />
-            <element signature="e#2792#2796#0" expanded="false" />
-            <element signature="e#3513#3517#0" expanded="false" />
-            <element signature="e#4340#4473#0" expanded="false" />
+            <element signature="e#0#22#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/settings.py">
+    <entry file="file://$PROJECT_DIR$/KappaUI.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="462">
-          <caret line="50" column="36" lean-forward="false" selection-start-line="50" selection-start-column="36" selection-end-line="50" selection-end-column="36" />
+        <state relative-caret-position="-7259">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/matplotlib/artist.py">
+    <entry file="file://$PROJECT_DIR$/HelperFunctions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="498">
-          <caret line="241" column="0" lean-forward="false" selection-start-line="241" selection-start-column="0" selection-end-line="241" selection-end-column="0" />
+        <state relative-caret-position="-9834">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/matplotlib/backends/backend_qt5.py">
+    <entry file="file://$PROJECT_DIR$/FastDpCalculator.pyx">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="688">
-          <caret line="345" column="0" lean-forward="true" selection-start-line="345" selection-start-column="0" selection-end-line="345" selection-end-column="0" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1616,296 +356,57 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/pandas/core/generic.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="827">
-          <caret line="1608" column="0" lean-forward="false" selection-start-line="1608" selection-start-column="0" selection-end-line="1608" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/pandas/core/frame.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="769" column="0" lean-forward="false" selection-start-line="769" selection-start-column="0" selection-end-line="769" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/numpy/core/numerictypes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="753" column="0" lean-forward="false" selection-start-line="753" selection-start-column="0" selection-end-line="753" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/numpy/core/shape_base.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="484">
-          <caret line="274" column="0" lean-forward="false" selection-start-line="274" selection-start-column="0" selection-end-line="274" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/peakutils/peak.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="282">
-          <caret line="47" column="0" lean-forward="false" selection-start-line="47" selection-start-column="0" selection-end-line="47" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/numpy/core/numeric.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6270">
-          <caret line="481" column="0" lean-forward="false" selection-start-line="481" selection-start-column="0" selection-end-line="481" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/HelperFunctions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1815">
-          <caret line="323" column="32" lean-forward="false" selection-start-line="323" selection-start-column="32" selection-end-line="323" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/matplotlib/transforms.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="325">
-          <caret line="660" column="0" lean-forward="false" selection-start-line="660" selection-start-column="0" selection-end-line="660" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-<<<<<<< HEAD
-    <entry file="file://$PROJECT_DIR$/HelperFunctions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4142">
-          <caret line="264" column="27" lean-forward="false" selection-start-line="264" selection-start-column="27" selection-end-line="264" selection-end-column="27" />
-          <folding>
-            <element signature="e#6346#6415#2" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/GUI.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1121">
-          <caret line="71" column="19" lean-forward="false" selection-start-line="71" selection-start-column="19" selection-end-line="71" selection-end-column="19" />
-=======
-    <entry file="file://$PROJECT_DIR$/APP_VERSION" />
-    <entry file="file://$PROJECT_DIR$/KappaUI.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1418">
-          <caret line="296" column="52" lean-forward="false" selection-start-line="296" selection-start-column="52" selection-end-line="296" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/httplib.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="547" column="0" lean-forward="false" selection-start-line="547" selection-start-column="0" selection-end-line="547" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/socket.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="287" column="0" lean-forward="true" selection-start-line="287" selection-start-column="0" selection-end-line="287" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlignmentUI.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="924">
-          <caret line="79" column="66" lean-forward="false" selection-start-line="79" selection-start-column="66" selection-end-line="79" selection-end-column="66" />
-          <folding>
-            <element signature="e#3888#6345#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/GUI.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-564">
-          <caret line="109" column="29" lean-forward="false" selection-start-line="109" selection-start-column="29" selection-end-line="109" selection-end-column="29" />
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
-          <folding>
-            <element signature="e#2110#2238#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-<<<<<<< HEAD
-    <entry file="file://$PROJECT_DIR$/KappaVarConfirmDialog.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="893">
-          <caret line="117" column="0" lean-forward="false" selection-start-line="117" selection-start-column="0" selection-end-line="117" selection-end-column="0" />
-=======
-    <entry file="file://$PROJECT_DIR$/FastDpCalculator.pyx">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3663">
-          <caret line="12" column="54" lean-forward="true" selection-start-line="12" selection-start-column="54" selection-end-line="12" selection-end-column="54" />
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
           <folding />
         </state>
       </provider>
     </entry>
-<<<<<<< HEAD
-    <entry file="file://$PROJECT_DIR$/KappaUI.py">
+    <entry file="file://$PROJECT_DIR$/CustomButton.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2831">
-          <caret line="159" column="52" lean-forward="false" selection-start-line="159" selection-start-column="52" selection-end-line="159" selection-end-column="52" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/AlignmentUI.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="570">
-          <caret line="42" column="42" lean-forward="false" selection-start-line="42" selection-start-column="42" selection-end-line="42" selection-end-column="42" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#0#26#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Chemics.py">
+    <entry file="file://$PROJECT_DIR$/OneScan.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="769" column="40" lean-forward="true" selection-start-line="769" selection-start-column="40" selection-end-line="769" selection-end-column="40" />
+        <state relative-caret-position="1017">
+          <caret line="323" column="22" lean-forward="false" selection-start-line="323" selection-start-column="21" selection-end-line="323" selection-end-column="22" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
-            <element signature="e#507#594#1" expanded="true" />
-            <element signature="e#5020#5089#1" expanded="true" />
-            <element signature="e#5227#5300#1" expanded="true" />
-            <element signature="e#7556#7616#1" expanded="true" />
-            <element signature="e#8106#8182#1" expanded="true" />
-            <element signature="e#14629#14705#1" expanded="true" />
-            <element signature="e#17910#18013#1" expanded="true" />
-            <element signature="e#20515#20579#1" expanded="true" />
-            <element signature="e#20780#20936#1" expanded="true" />
-            <element signature="e#22414#22475#1" expanded="true" />
-            <element signature="e#22751#22800#1" expanded="true" />
-            <element signature="e#27571#27664#1" expanded="true" />
-            <element signature="e#30951#31028#1" expanded="true" />
-            <element signature="e#32753#32846#1" expanded="true" />
-            <element signature="e#34399#34491#1" expanded="true" />
-            <element signature="e#36001#36052#1" expanded="true" />
-            <element signature="e#37750#37849#1" expanded="true" />
-            <element signature="e#40077#40141#1" expanded="true" />
-            <element signature="e#40295#40358#1" expanded="true" />
-            <element signature="e#40457#40546#1" expanded="true" />
-            <element signature="e#45816#45869#1" expanded="true" />
-            <element signature="e#46535#46602#1" expanded="true" />
-            <element signature="e#47048#49188#0" expanded="false" />
-            <element signature="e#47048#47116#1" expanded="true" />
-            <element signature="e#49286#49421#1" expanded="true" />
-            <element signature="e#51158#51233#1" expanded="true" />
-            <element signature="e#52108#52189#1" expanded="true" />
-            <element signature="e#53970#54043#1" expanded="true" />
-            <element signature="e#54413#54516#1" expanded="true" />
-            <element signature="e#60164#60243#1" expanded="true" />
-            <element signature="e#64269#64644#0" expanded="false" />
-            <element signature="e#64688#64862#0" expanded="false" />
-            <element signature="e#64688#64766#1" expanded="true" />
-            <element signature="e#64931#67097#0" expanded="false" />
-            <element signature="e#64931#65028#1" expanded="true" />
-            <element signature="e#67447#69966#0" expanded="false" />
-            <element signature="e#67447#67565#1" expanded="true" />
-=======
-    <entry file="file://$PROJECT_DIR$/Chemics.py">
+            <element signature="e#0#22#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/OldFunctions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="921">
-          <caret line="1641" column="5" lean-forward="true" selection-start-line="1641" selection-start-column="5" selection-end-line="1641" selection-end-column="5" />
+        <state relative-caret-position="639">
+          <caret line="711" column="0" lean-forward="false" selection-start-line="711" selection-start-column="0" selection-end-line="711" selection-end-column="0" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
-            <element signature="e#605#5392#0" expanded="true" />
-            <element signature="e#5600#5820#0" expanded="true" />
-            <element signature="e#5600#5765#1" expanded="false" />
-            <element signature="e#5858#8885#0" expanded="true" />
-            <element signature="e#5858#6553#1" expanded="false" />
-            <element signature="e#6997#7185#0" expanded="false" />
-            <element signature="e#7513#7725#0" expanded="false" />
-            <element signature="e#7602#7725#0" expanded="false" />
-            <element signature="e#7916#8068#0" expanded="false" />
-            <element signature="e#8081#8179#0" expanded="false" />
-            <element signature="e#8256#8663#0" expanded="false" />
-            <element signature="e#8482#8615#0" expanded="false" />
-            <element signature="e#8939#9378#1" expanded="false" />
-            <element signature="e#9404#9896#0" expanded="false" />
-            <element signature="e#9460#9574#0" expanded="false" />
-            <element signature="e#9533#9574#0" expanded="false" />
-            <element signature="e#10016#10273#1" expanded="false" />
-            <element signature="e#11375#11505#0" expanded="false" />
-            <element signature="e#11429#11505#0" expanded="false" />
-            <element signature="e#12174#17478#0" expanded="false" />
-            <element signature="e#12533#12582#0" expanded="false" />
-            <element signature="e#12693#12901#0" expanded="false" />
-            <element signature="e#12786#12853#0" expanded="false" />
-            <element signature="e#12969#13064#0" expanded="false" />
-            <element signature="e#13353#17478#0" expanded="false" />
-            <element signature="e#13720#14934#0" expanded="false" />
-            <element signature="e#13794#13846#0" expanded="false" />
-            <element signature="e#14261#14490#0" expanded="false" />
-            <element signature="e#15096#15154#0" expanded="false" />
-            <element signature="e#15467#15765#0" expanded="false" />
-            <element signature="e#15765#15841#0" expanded="false" />
-            <element signature="e#15948#16212#0" expanded="false" />
-            <element signature="e#16274#17321#0" expanded="false" />
-            <element signature="e#16648#16877#0" expanded="false" />
-            <element signature="e#17794#18214#1" expanded="false" />
-            <element signature="e#21760#24354#0" expanded="true" />
-            <element signature="e#22981#23133#0" expanded="false" />
-            <element signature="e#24033#24164#0" expanded="false" />
-            <element signature="e#24223#24348#0" expanded="false" />
-            <element signature="e#24499#25900#0" expanded="false" />
-            <element signature="e#25927#26271#0" expanded="false" />
-            <element signature="e#26406#28541#0" expanded="true" />
-            <element signature="e#28604#30415#0" expanded="true" />
-            <element signature="e#30609#32193#0" expanded="true" />
-            <element signature="e#32829#33353#0" expanded="false" />
-            <element signature="e#32919#33257#0" expanded="false" />
-            <element signature="e#33120#33257#0" expanded="false" />
-            <element signature="e#33206#33257#0" expanded="false" />
-            <element signature="e#33312#33353#0" expanded="false" />
-            <element signature="e#33512#33660#0" expanded="false" />
-            <element signature="e#33568#33642#0" expanded="false" />
-            <element signature="e#33772#34055#0" expanded="false" />
-            <element signature="e#33837#34055#0" expanded="false" />
-            <element signature="e#33901#34055#0" expanded="false" />
-            <element signature="e#34399#34745#0" expanded="false" />
-            <element signature="e#34455#34534#0" expanded="false" />
-            <element signature="e#34662#34745#0" expanded="false" />
-            <element signature="e#35477#36996#0" expanded="true" />
-            <element signature="e#35606#35789#0" expanded="false" />
-            <element signature="e#35689#35789#0" expanded="false" />
-            <element signature="e#35880#35961#0" expanded="false" />
-            <element signature="e#37118#40026#0" expanded="true" />
-            <element signature="e#40092#41692#0" expanded="true" />
-            <element signature="e#41759#42709#0" expanded="true" />
-            <element signature="e#42841#48427#0" expanded="true" />
-            <element signature="e#50546#50746#0" expanded="false" />
-            <element signature="e#52993#53066#1" expanded="false" />
-            <element signature="e#54449#54551#0" expanded="false" />
-            <element signature="e#54586#54650#0" expanded="false" />
-            <element signature="e#54981#55117#0" expanded="false" />
-            <element signature="e#55035#55117#0" expanded="false" />
-            <element signature="e#55395#55609#0" expanded="false" />
-            <element signature="e#55973#56187#0" expanded="false" />
-            <element signature="e#56465#56592#0" expanded="false" />
-            <element signature="e#56724#57060#0" expanded="false" />
-            <element signature="e#56874#57060#0" expanded="false" />
-            <element signature="e#59478#66227#0" expanded="true" />
-            <element signature="e#69844#73281#0" expanded="true" />
-            <element signature="e#71140#71331#0" expanded="false" />
-            <element signature="e#74713#75083#0" expanded="false" />
-            <element signature="e#75439#77049#0" expanded="true" />
-            <element signature="e#77095#77279#0" expanded="true" />
-            <element signature="e#77095#77173#1" expanded="false" />
-            <element signature="e#77316#77828#0" expanded="true" />
-            <element signature="e#77859#79291#0" expanded="true" />
-            <element signature="e#79463#79683#0" expanded="true" />
-            <element signature="e#79597#79683#0" expanded="false" />
->>>>>>> ce5b242c238e196dfe20cf2038e62c260c5c95bd
+            <element signature="e#28994#28995#0" expanded="false" />
+            <element signature="e#30402#30403#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ModalDialogs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="352">
+          <caret line="73" column="48" lean-forward="true" selection-start-line="73" selection-start-column="48" selection-end-line="73" selection-end-column="48" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MainView.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="577">
+          <caret line="305" column="0" lean-forward="true" selection-start-line="303" selection-start-column="8" selection-end-line="305" selection-end-column="0" />
+          <folding>
+            <element signature="e#90#103#0" expanded="true" />
           </folding>
         </state>
       </provider>
