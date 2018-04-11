@@ -22,9 +22,6 @@ from Graphs import *
 #
 ###############################
 
-width = 0
-height = 0
-
 class MainView(QMainWindow):
     """
     The main window (view) of the program
@@ -38,7 +35,6 @@ class MainView(QMainWindow):
         self.setWindowTitle('Chemics')
         self.setMinimumHeight(800)
         self.setMinimumWidth(800)
-        global width, height
         # set style
         # QApplication.setStyle(QStyleFactory.create('Cleanlooks'))
         self.raw_conc_time_graph = ConcOverTimeRawDataGraph()
@@ -61,27 +57,9 @@ class MainView(QMainWindow):
         # create left dock widget for information related stuff
         self.create_left_docker()
 
-    def update_alignment_graphs(self,a_scan):
-        self.update_raw_conc_time_graph(a_scan)
-        self.update_smooth_conc_time_graph(a_scan)
-        self.update_temp_graph(a_scan)
-        self.update_ratio_dp_graph(a_scan)
-
-    def update_raw_conc_time_graph(self,a_scan):
-        self.raw_conc_time_graph.update_graph(a_scan)
-
-    def update_smooth_conc_time_graph(self,a_scan):
-        self.smoothed_conc_time_graph.update_graph(a_scan)
-
-    def update_temp_graph(self,a_scan):
-        self.temp_graph.update_graph(a_scan)
-
-    def update_ratio_dp_graph(self,a_scan):
-        self.ratio_dp_graph.update_graph(a_scan)
-
     def create_progress_bar(self):
         self.progress_dialog = QProgressDialog("Starting..", "Cancel", 0, 100, self)
-        self.progress_dialog.canceled.connect(self.cancel_progress_bar)
+        # self.progress_dialog.canceled.connect(self.cancel_progress_bar)
         self.progress_dialog.setWindowModality(Qt.WindowModal)
         self.progress_dialog.setAutoReset(True)
         self.progress_dialog.setAutoClose(True)
@@ -105,40 +83,11 @@ class MainView(QMainWindow):
         self.menuBar().addAction(feedback_action)
 
     def create_left_docker(self):
-        left_widget = QDockWidget("Information",self)
-        information_table = ScanInformationTable(left_widget)
+        left_widget = DockerAlignment("Information", self)
         left_widget.setAllowedAreas(Qt.RightDockWidgetArea|Qt.LeftDockWidgetArea)
         left_widget.setFeatures(QDockWidget.DockWidgetMovable | QDockWidget.DockWidgetClosable)
         self.menuBar().addAction(left_widget.toggleViewAction())
         self.addDockWidget(Qt.LeftDockWidgetArea, left_widget)
-
-    def submit_feedback(self):
-        """
-        Submit feedback by showing a google form
-        """
-        webbrowser.open("https://goo.gl/forms/X9OB6AQSJSiKScBs2")
-
-    def check_for_update(self):
-        """
-        Check for update by accessing a file callede APP_VERSION.html on github. Very much hard-coded
-        :return:
-        """
-        try:
-            response = urllib2.urlopen(
-                'https://raw.githubusercontent.com/khaiquangnguyen/Chemics/master/APP_VERSION.html')
-            html = response.read()
-            update = int(html[0])
-            self.show_update_dialog(update)
-        except urllib2.URLError, e:
-            # For Python 2.6
-            if isinstance(e.reason, socket.timeout):
-                pass
-            else:
-                # reraise the original error
-                raise
-        except socket.timeout, e:
-            # For Python 2.7
-            pass
 
     def select_files(self):
         """
@@ -155,7 +104,6 @@ class MainView(QMainWindow):
             if input[1]:
                 return float(input[0])
 
-
     @Slot(str)
     def init_progress_bar(self,task_name):
         self.progress_dialog.setLabelText(task_name)
@@ -170,11 +118,6 @@ class MainView(QMainWindow):
     @Slot()
     def close_progress_bar(self):
         self.progress_dialog.reset()
-
-    def cancel_progress_bar(self):
-        """
-        Action when the cancelling_progress_bar button of the progress bar is clicked
-        """
         self.controller.cancel_progress_bar()
 
     def show_error_dialog(self, error_message='Unknown Error!'):
@@ -300,8 +243,29 @@ class MainView(QMainWindow):
                 self.centralWidget().graph_widget.control_widget.toggle_k_point_status_button.setText("Enable")
         self.centralWidget().setFocus()
 
+    def submit_feedback(self):
+        """
+        Submit feedback by showing a google form
+        """
+        webbrowser.open("https://goo.gl/forms/X9OB6AQSJSiKScBs2")
 
+    def update_alignment_graphs(self, a_scan):
+        self.update_raw_conc_time_graph(a_scan)
+        self.update_smooth_conc_time_graph(a_scan)
+        self.update_temp_graph(a_scan)
+        self.update_ratio_dp_graph(a_scan)
 
+    def update_raw_conc_time_graph(self, a_scan):
+        self.raw_conc_time_graph.update_graph(a_scan)
+
+    def update_smooth_conc_time_graph(self, a_scan):
+        self.smoothed_conc_time_graph.update_graph(a_scan)
+
+    def update_temp_graph(self, a_scan):
+        self.temp_graph.update_graph(a_scan)
+
+    def update_ratio_dp_graph(self, a_scan):
+        self.ratio_dp_graph.update_graph(a_scan)
 
 #######################################################
 #
@@ -333,94 +297,14 @@ class CentralWidgetAlignment(QWidget):
         self.setLayout(hbox)
 
 
-    #
-    # def switch_to_kappa_widget(self):
-    #     self.clear_layout(self.layout)
-    #     self.info_widget = KappaInformationAndDataWidget(self.main_window)
-    #     self.graph_widget = KappaGraphWidget(self.main_window)
-    #     self.layout.addWidget(self.info_widget)
-    #     self.layout.addWidget(self.graph_widget)
-    #     self.setLayout(self.layout)
-    #     self.resize()
-    #
-    # def switch_to_scan_widget(self):
-    #     self.clear_layout(self.layout)
-    #     self.info_widget = ScanInformationWidget(self.main_window)
-    #     self.graph_widget = ScanGraphsWidget(self.main_window)
-    #     self.layout.addWidget(self.info_widget)
-    #     self.layout.addWidget(self.graph_widget)
-    #     self.setLayout(self.layout)
-    #     self.resize()
-    #
-    # def clear_layout(self, layout):
-    #     if layout is not None:
-    #         while layout.count():
-    #             item = layout.takeAt(0)
-    #             widget = item.widget()
-    #             if widget is not None:
-    #                 widget.deleteLater()
-    #             else:
-    #                 self.clear_layout(item.layout())
-    #
-    # def keyReleaseEvent(self, event):
-    #     # finish kappa
-    #     if self.main_window.controller.kappa_ax:
-    #         self.main_window.controller.on_key_release_kappa_graph(event)
-    #     else:
-    #         self.main_window.controller.on_key_release(event)
-#
-# class CentralWidgetKappaCalc(QWidget):
-#     def __init__(self, parent, raw_conc_time_graph, smoothed_conc_time_graph, ratio_dp_graph, temp_graph):
-#         QWidget.__init__(self)
-#         # Add widgets
-#         # init the necessary contents
-#         self.raw_conc_time_graph = raw_conc_time_graph
-#         self.smoothed_conc_time_graph = smoothed_conc_time_graph
-#         self.ratio_dp_graph = ratio_dp_graph
-#         self.temp_graph = temp_graph
-#         self.h_splitter_1 = QSplitter(Qt.Horizontal)
-#         self.h_splitter_1.addWidget(self.smoothed_conc_time_graph)
-#         self.h_splitter_1.addWidget(self.raw_conc_time_graph)
-#         self.h_splitter_2 = QSplitter(Qt.Horizontal)
-#         self.h_splitter_2.addWidget(self.ratio_dp_graph)
-#         self.h_splitter_2.addWidget(self.temp_graph)
-#         self.v_splitter = QSplitter(Qt.Vertical)
-#         self.v_splitter.addWidget(self.h_splitter_1,self.h_splitter_2)
-#
-#     def switch_to_kappa_widget(self):
-#         self.clear_layout(self.layout)
-#         self.info_widget = KappaInformationAndDataWidget(self.main_window)
-#         self.graph_widget = KappaGraphWidget(self.main_window)
-#         self.layout.addWidget(self.info_widget)
-#         self.layout.addWidget(self.graph_widget)
-#         self.setLayout(self.layout)
-#         self.resize()
-#
-#     def switch_to_scan_widget(self):
-#         self.clear_layout(self.layout)
-#         self.info_widget = ScanInformationWidget(self.main_window)
-#         self.graph_widget = ScanGraphsWidget(self.main_window)
-#         self.layout.addWidget(self.info_widget)
-#         self.layout.addWidget(self.graph_widget)
-#         self.setLayout(self.layout)
-#         self.resize()
-#
-#     def clear_layout(self, layout):
-#         if layout is not None:
-#             while layout.count():
-#                 item = layout.takeAt(0)
-#                 widget = item.widget()
-#                 if widget is not None:
-#                     widget.deleteLater()
-#                 else:
-#                     self.clear_layout(item.layout())
-#
-#     def keyReleaseEvent(self, event):
-#         # finish kappa
-#         if self.main_window.controller.kappa_ax:
-#             self.main_window.controller.on_key_release_kappa_graph(event)
-#         else:
-#             self.main_window.controller.on_key_release(event)
+class DockerAlignment(QDockWidget):
+    def __init__(self,title, parent=None):
+        super(self.__class__, self).__init__(title,parent)
+        form_layout = QFormLayout()
+        h_layout = QHBoxLayout()
+        h_layout.addWidget()
+
+
 
 
 if __name__ == "__main__":
