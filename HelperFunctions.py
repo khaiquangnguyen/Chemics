@@ -77,6 +77,9 @@ class Worker(QRunnable):
         finally:
             self.signals.finished.emit()  # Done
 
+def get_layout_widgets(layout):
+    return (layout.itemAt(i) for i in range(layout.count()))
+
 def smooth(a_list, method = "Savitzky-Golay filter"):
     if method == "Savitzky-Golay filter":
         try:

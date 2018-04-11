@@ -1,31 +1,28 @@
 from MainView import *
-import matplotlib
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import settings as CONST
 from HelperFunctions import *
 
-matplotlib.style.use('ggplot')
 
 
 class ConcOverTimeRawDataGraph(FigureCanvas):
     def __init__(self, parent=None):
-        self.fig, self.ax = plt.subplots(facecolor=CONST.GRAPH_BACKGROUND_COLOR)
+        plt.style.use('dark_background')
+        self.fig, self.ax = plt.subplots()
         super(self.__class__, self).__init__(self.fig)
-        self.ax.set_autoscale_on(True)
         self.ax.axes.set_frame_on(False)
-        self.ax.grid(color=CONST.GRID_COLOR)
-        self.ax.axhline(0, color=CONST.AX_LINE_COLOR, linewidth=4)
-        self.ax.axvline(0, color=CONST.AX_LINE_COLOR, linewidth=4)
-        self.ax.tick_params(color=CONST.AX_TICK_COLOR, which='both', labelcolor=CONST.AX_TICK_COLOR,
-                            labelsize=CONST.AX_TICK_SIZE)
-        self.ax.set_xlabel("Scan time(s)", color=CONST.LABEL_COLOR, size=CONST.LABEL_SIZE)
-        self.ax.set_ylabel("Concentration (1/cm3)", color=CONST.LABEL_COLOR, size=CONST.LABEL_SIZE)
-        self.smps_points, = self.ax.plot([], [], linewidth=4, color=CONST.SMPS_LINE_COLOR, label="Raw SMPS")
-        self.ccnc_points, = self.ax.plot([], [], linewidth=4, color=CONST.CCNC_LINE_COLOR, label="Raw CCNC")
+        self.ax.axhline(0)
+        self.ax.axvline(0)
+        self.ax.tick_params(which='both')
+        self.ax.set_xlabel("Scan time(s)")
+        self.ax.set_ylabel("Concentration (1/cm3)")
+        self.smps_points, = self.ax.plot([], [], label="Raw SMPS")
+        self.ccnc_points, = self.ax.plot([], [], label="Raw CCNC")
         handles, labels = self.ax.get_legend_handles_labels()
-        legend = self.ax.legend(handles, labels, loc=2, fontsize=CONST.LEGEND_FONT_SIZE)
+        legend = self.ax.legend(handles, labels, loc=2, )
         legend.get_frame().set_alpha(0.3)
-        self.ax.set_title("Raw SMPS and CCNC concentration over time", color=CONST.TITLE_COLOR, size=CONST.TITLE_SIZE)
+        self.ax.set_title("Raw SMPS and CCNC concentration over time")
 
     def update_graph(self, a_scan, smooth_ccnc=False):
         smps_counts = a_scan.raw_smps_counts

@@ -14,6 +14,7 @@ import webbrowser
 from PySide.QtCore import *
 from AlignmentUI import *
 from KappaUI import *
+from HelperFunctions import *
 from Graphs import *
 # matplotlib.rcParams['backend.qt4'] = 'PySide'
 ###############################
@@ -36,7 +37,6 @@ class MainView(QMainWindow):
         self.setMinimumHeight(800)
         self.setMinimumWidth(800)
         # set style
-        # QApplication.setStyle(QStyleFactory.create('Cleanlooks'))
         self.raw_conc_time_graph = ConcOverTimeRawDataGraph()
         self.smoothed_conc_time_graph = ConcOverTimeSmoothGraph()
         self.temp_graph = TemperatureGraph()
@@ -83,11 +83,13 @@ class MainView(QMainWindow):
         self.menuBar().addAction(feedback_action)
 
     def create_left_docker(self):
-        left_widget = DockerAlignment("Information", self)
-        left_widget.setAllowedAreas(Qt.RightDockWidgetArea|Qt.LeftDockWidgetArea)
-        left_widget.setFeatures(QDockWidget.DockWidgetMovable | QDockWidget.DockWidgetClosable)
-        self.menuBar().addAction(left_widget.toggleViewAction())
-        self.addDockWidget(Qt.LeftDockWidgetArea, left_widget)
+        docker = QDockWidget("Information and Settings", self)
+        content_widget = DockerWidgetAlignment()
+        docker.setWidget(content_widget)
+        docker.setAllowedAreas(Qt.RightDockWidgetArea|Qt.LeftDockWidgetArea)
+        docker.setFeatures(QDockWidget.DockWidgetMovable | QDockWidget.DockWidgetClosable)
+        self.menuBar().addAction(docker.toggleViewAction())
+        self.addDockWidget(Qt.LeftDockWidgetArea, docker)
 
     def select_files(self):
         """
@@ -176,6 +178,7 @@ class MainView(QMainWindow):
                 self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Disable Scan")
             else:
                 self.centralWidget().graph_widget.buttons_widget.change_scan_status_button.setText("Enable Scan")
+
 
     def update_scan_information_after_sigmoid_fit(self):
         """
@@ -276,7 +279,6 @@ class MainView(QMainWindow):
 class CentralWidgetAlignment(QWidget):
     def __init__(self,parent,raw_conc_time_graph, smoothed_conc_time_graph, ratio_dp_graph, temp_graph):
         super(self.__class__, self).__init__()
-
         # Add widgets
         # init the necessary contents
         self.raw_conc_time_graph = raw_conc_time_graph
@@ -296,19 +298,115 @@ class CentralWidgetAlignment(QWidget):
         hbox.addWidget(self.v_splitter)
         self.setLayout(hbox)
 
+class LongLabel(QLabel):
+    def paintEvent( self, event ):
+        painter = QPainter(self)
+        metrics = QFontMetrics(self.font())
+        elided  = metrics.elidedText(self.text(), Qt.ElideRight, self.width())
+        painter.drawText(self.rect(), self.alignment(), elided)
 
-class DockerAlignment(QDockWidget):
-    def __init__(self,title, parent=None):
-        super(self.__class__, self).__init__(title,parent)
+class DockerWidgetAlignment(QWidget):
+    def __init__(self):
+        super(self.__class__, self).__init__()
+        # set up the layout
         form_layout = QFormLayout()
+        # The basic information of a scan
+        # add a title
+        self.directory = LongLabel("C://asdfasfasdfasghgfhghfghfhgfhgfhgfdfasdfasfdss")
+        self.directory.setMaximumWidth(150)
+        self.directory.setToolTip(self.directory.text())
+        self.directory.setAlignment(Qt.AlignRight)
+        form_layout.addRow("Directory", self.directory)
+        # add a title
+        form_layout.addRow(TitleHLine("Experiment Information"))
+        # add the items
+        # -- add date
+        self.experiment_date = QLabel("10/6/2017")
+        self.experiment_date.setAlignment(Qt.AlignRight)
+        form_layout.addRow("Date (m/d/y)", self.experiment_date)
+        # -- add smps duration
+        self.scan_duration = QLabel("135")
+        self.scan_duration.setAlignment(Qt.AlignRight)
+        form_layout.addRow("Scan duration(s)", self.scan_duration)
+        #-- add Counts2ConcConv
+        self.counts_2_conc_conv = QLabel("0.06")
+        self.counts_2_conc_conv.setAlignment(Qt.AlignRight)
+        form_layout.addRow("Counts2ConcConv",self.counts_2_conc_conv)
+
+        #-------------------
+        # add a title
+        form_layout.addRow(TitleHLine("Scan Information"))
+        #-- add the scan selector
+        self.scan_selector = CustomSpinBox()
+        form_layout.addRow("Scan Index", self.scan_selector)
+        #-- add the shift selector
+        self.shift_selector = CustomSpinBox()
+        form_layout.addRow("Shift (s)", self.shift_selector)
+        # -- add the super saturation indicator
+        self.super_saturation = QLabel("0.2")
+        self.super_saturation.setAlignment(Qt.AlignRight)
+        form_layout.addRow("Super Saturation (%)", self.super_saturation)
+
+        # -- add the start time
+        self.scan_start_time = QLabel("10:26:25")
+        self.scan_start_time.setAlignment(Qt.AlignRight)
+        form_layout.addRow("Start Time (h:m:s)", self.scan_start_time)
+        # -- ad the end time
+        self.scan_end_time = QLabel("10:24:25")
+        self.scan_end_time.setAlignment(Qt.AlignRight)
+        form_layout.addRow("End Time (h:m:s)", self.scan_end_time)
+        # add the layout
+        self.setLayout(form_layout)
+
+class TitleHLine(QWidget):
+    def __init__(self,title):
+        super(self.__class__, self).__init__()
         h_layout = QHBoxLayout()
-        h_layout.addWidget()
+        h_layout.addWidget(QHLine())
+        h_layout.addWidget(QLabel(title))
+        h_layout.addWidget(QHLine())
+        self.setLayout(h_layout)
 
 
+class QHLine(QFrame):
+    def __init__(self):
+        super(QHLine, self).__init__()
+        self.setFrameShape(QFrame.HLine)
+        self.setFrameShadow(QFrame.Raised)
+        self.setLineWidth(2)
+
+
+class QVLine(QFrame):
+    def __init__(self):
+        super(QVLine, self).__init__()
+        self.setFrameShape(QFrame.VLine)
+        self.setFrameShadow(QFrame.Sunken)
+
+class CustomSpinBox(QWidget):
+    def __init__(self):
+        super(self.__class__, self).__init__()
+        h_layout = QHBoxLayout()
+        prev_button = QToolButton()
+        prev_button.setArrowType(Qt.LeftArrow)
+        next_button = QToolButton()
+        next_button.setArrowType(Qt.RightArrow)
+        content_box = QSpinBox()
+        content_box.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        content_box.setMinimumWidth(80)
+        content_box.setAlignment(Qt.AlignCenter)
+        h_layout.addWidget(prev_button)
+        h_layout.addWidget(content_box)
+        h_layout.addWidget(next_button)
+        h_layout.setAlignment(Qt.AlignRight)
+        h_layout.setContentsMargins(0,0,0,0)
+        self.setLayout(h_layout)
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setStyle("cleanlooks")
+    font = QFont("Calibri")
+    app.setFont(font)
     main_window = MainView()
     main_window.show()
     sys.exit(app.exec_())
