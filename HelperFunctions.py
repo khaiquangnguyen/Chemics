@@ -17,43 +17,15 @@ import threading
 from PySide.QtCore import *
 import traceback, sys
 
+
 class WorkerSignals(QObject):
-    '''
-    Defines the signals available from a running worker thread.
-
-    Supported signals are:
-
-    finished
-        No data
-
-    error
-        `tuple` (exctype, value, traceback.format_exc() )
-
-    result
-        `object` data returned from processing, anything
-
-    progress
-        `int` indicating % progress
-
-    '''
     started = Signal(str)
     finished = Signal()
     error = Signal(tuple)
     progress = Signal(int)
 
+
 class Worker(QRunnable):
-    '''
-    Worker thread
-
-    Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
-
-    :param callback: The function callback to run on this worker thread. Supplied args and
-                     kwargs will be passed through to the runner.
-    :type callback: function
-    :param args: Arguments to pass to the callback function
-    :param kwargs: Keywords to pass to the callback function
-    '''
-
     def __init__(self, fn, *args, **kwargs):
         super(Worker, self).__init__()
         # Store constructor arguments (re-used for processing)
@@ -65,9 +37,6 @@ class Worker(QRunnable):
         kwargs['progress_update'] = self.signals.progress
 
     def run(self):
-        '''
-        Initialise the runner function with passed args, kwargs.
-        '''
         try:
             self.fn(*self.args, **self.kwargs)
         except:
@@ -77,16 +46,6 @@ class Worker(QRunnable):
         finally:
             self.signals.finished.emit()  # Done
 
-def get_layout_widgets(layout):
-    return (layout.itemAt(i) for i in range(layout.count()))
-
-def smooth(a_list, method = "Savitzky-Golay filter"):
-    if method == "Savitzky-Golay filter":
-        try:
-            a_list = scipy.signal.savgol_filter(a_list, 5, 2)
-        except:
-            pass
-    return a_list
 
 def run_new_thread(fn_name, started_fn, finished_fn, progress_fn):
     worker = Worker(fn_name)
@@ -96,16 +55,37 @@ def run_new_thread(fn_name, started_fn, finished_fn, progress_fn):
     return worker
 
 
-def fill_zeros_to_end(a_list,length_to_fill):
+def get_layout_widgets(layout):
+    return (layout.itemAt(i) for i in range(layout.count()))
+
+
+def smooth(a_list, method="Savitzky-Golay filter"):
+    if method == "Savitzky-Golay filter":
+        try:
+            a_list = scipy.signal.savgol_filter(a_list, 5, 2)
+        except:
+            pass
+    return a_list
+
+def heavy_smooth(a_list):
+    try:
+        a_list = scipy.signal.savgol_filter(a_list, 15, 2)
+    except:
+        pass
+    return a_list
+
+def fill_zeros_to_end(a_list, length_to_fill):
     if len(a_list) < length_to_fill:
         filler_array = numpy.asarray([0] * (length_to_fill - len(a_list)))
-        a_list = numpy.append(a_list,filler_array)
+        a_list = numpy.append(a_list, filler_array)
     return numpy.asarray(a_list)
 
-def fill_zeros_to_begin(a_list,fill_amount):
+
+def fill_zeros_to_begin(a_list, fill_amount):
     filler_array = numpy.asarray([0] * fill_amount)
-    a_list = numpy.append(filler_array,a_list)
+    a_list = numpy.append(filler_array, a_list)
     return numpy.asarray(a_list)
+
 
 def resolve_small_ccnc_vals(ccnc_vals):
     for i in range(len(ccnc_vals)):
@@ -114,8 +94,10 @@ def resolve_small_ccnc_vals(ccnc_vals):
     return ccnc_vals
 
 
-def compare_float(a,b, err = 0.01):
+def are_floats_equal(a, b, err=0.01):
     return abs(a - b) < err
+
+
 def get_ave_none_zero(a_list):
     sum = 0
     count = 0
@@ -129,23 +111,33 @@ def get_ave_none_zero(a_list):
         return 0
 
 
-def f(x, d, c):
-    """
-    The function for the optimization method
-    :param x: the variable
-    :param d: the first optimizing parameter
-    :param c: the second optimizing parameter
-    :return: a number
-    """
-    return 0.903 / (1 + (x / d) ** c)
+# def f(x, d, c):
+#     """
+#     The function for the optimization method
+#     :param x: the variable
+#     :param d: the first optimizing parameter
+#     :param c: the second optimizing parameter
+#     :return: a number
+#     """
+#     return 0.923 / (1 + (x / d) ** c)
 
+def outliers_iqr_ver_2(value_array, index_array):
+    quartile_1, quartile_3 = numpy.percentile(value_array, [25, 75])
+    iqr = quartile_3 - quartile_1
+    lower_bound = quartile_1 - (iqr * 1.25)
+    upper_bound = quartile_3 + (iqr * 1.25)
+    indexes = []
+    for i in range(len(value_array)):
+        if lower_bound <= value_array[i] <= upper_bound:
+            indexes.append(index_array[i])
+    return indexes
 
 def get_asym_list(x_list, y_list):
     asym_list = []
     # Normalize x_list
-    x_list = normalize_list(x_list)
+    x_list = normalize_dndlogdp_list(x_list)
     # Normalize y_list
-    y_list = normalize_list(y_list)
+    y_list = normalize_dndlogdp_list(y_list)
     # Get the asymptote
     for i in range(0, len(x_list) - 1):
         if (x_list[i + 1] - x_list[i]) != 0:
@@ -154,11 +146,32 @@ def get_asym_list(x_list, y_list):
             asym_list.append(9999)
         if 0 > asym_list[i] > -0.001:
             asym_list[i] = 0
-
     return asym_list
 
-def safe_div(x,y):
+def cal_percentage_more(a_list,value, min_diff):
+    count = 0
+    for a_val in a_list:
+        if a_val > value or abs(value-a_val) < min_diff:
+            count += 1
+    return safe_div(count,len(a_list))
+
+def cal_percentage_less(a_list,value, min_diff):
+    count = 0
+    for a_val in a_list:
+        if value>a_val or abs(value-a_val) < min_diff:
+            count += 1
+    return safe_div(count, len(a_list))
+
+
+def safe_div(x, y):
     return 0 if y == 0 else x / y
+
+def safe_div_array(l1,l2):
+    length = min(len(l1), len(l2))
+    result_list = []
+    for i in range(length):
+        result_list.append(safe_div(l1[i],l2[i]))
+    return  result_list
 
 def create_size_list():
     # Steps to get the CCNC count. These values are hard-coded. Don't change them!
@@ -171,25 +184,16 @@ def create_size_list():
     return size_list
 
 
-def normalize_list(a_list):
-    """
-    Normalize aParam list by divide for the largest number
-    :param a_list: the input list
-    :return: the output list after normalized
-    """
-    # convert to float
-    a_list = [float(x) for x in a_list]
-    # remove invalids
-    for i in range(len(a_list)):
-        if pandas.isnull(a_list[i]):
-            a_list[i] = 0
-    max_value = max(a_list[10:])
+def normalize_dndlogdp_list(a_list):
+    # the assumption here is that the first few data points are probably not quite right
+    # so we only normalized based on the max after a certain point
+    max_value = max(a_list[5:])
     if max_value == 0:
         return a_list
     for x in range(len(a_list)):
         if a_list[x]:
             a_list[x] /= max_value
-    return a_list
+    return numpy.asarray(a_list)
 
 
 def process_csv_files(file_path):
@@ -280,7 +284,7 @@ def process_text_files(file_path):
         return txt_content
 
 
-def find_ref_index_smps(smps_data,up_time):
+def find_ref_index_smps(smps_data, up_time):
     """
     Find the reference point of smps data, based on the information that the first peak of smps data is
     between index 0 and index up_time, and the second peak is between up_time and the last index
@@ -304,7 +308,7 @@ def find_ref_index_smps(smps_data,up_time):
         return None
     ref_index = left_max + potential_mins[0][0]
     # The reference point should be within a reasonable range of the up_time
-    if abs(up_time - ref_index) > len(smps_data)/20:
+    if abs(up_time - ref_index) > len(smps_data) / 20:
         return None
     else:
         return ref_index
@@ -320,98 +324,11 @@ def find_ref_index_ccnc(ccnc_list, potential_loc):
     first_point = ccnc_list[potential_loc - 1]
     second_point = ccnc_list[potential_loc]
     slope = second_point - first_point
-    if slope > max(ccnc_list) /20:
+    if slope > max(ccnc_list) / 20:
         return potential_loc - 1
     else:
         return potential_loc
 
-
-# def find_ref_index_ccnc(ccnc_list,potential_loc):
-#     # we are working with a lot of assumptions here
-#     # The first one is that the two ref values must be quite close to each other
-#     # find absolute max
-#     # the potential location is the sum of the smps local minimum and the base shift factor calculated from other
-#     # scans
-#     left_max = numpy.argmax(ccnc_list)
-#     # find the right list which contains the lower point.
-#     right_list = ccnc_list[left_max:]
-#     # smooth the hell out of the data
-#     right_list = smooth(right_list)
-#     #find min
-#     potential_mins = scipy.signal.argrelmin(right_list, order=2)
-#     # if find no min, return error
-#     # plt.plot(right_list)
-#     # plt.show()
-#     if len(potential_mins[0]) == 0:
-#         return None
-#     print potential_mins
-#     # now, compare among the potential mins to see if which one has the closest value to the smps low
-#     for i in range(len(potential_mins[0])):
-#         ref_index = left_max + potential_mins[0][i]
-#         # if agree with the potential loc
-#         if abs(ref_index - potential_loc) <= 2:
-#             return ref_index
-#     return None
-
-
-def get_min_index_ccnc_old(a_list,scan_up_time = 0):
-    """
-    get the position of the smallest value of aParam list
-    :param processed_data: the processed_data to process
-    :return: the index of the smallest value. -1 if the peak is not usable
-    """
-    a_list = numpy.asarray(a_list)
-    # TODO: improve this method
-    first_max = 0
-    max_pos = 0
-    if sum(a_list) == 0:
-        return -1
-    max_pos = peakutils.indexes(a_list, thres=0.5, min_dist=len(a_list) / 10)
-    if len(max_pos) == 0:
-        return -1
-    else:
-        max_pos = max_pos[0]
-    first_max = a_list[max_pos]
-
-    # Get the second maximum
-    second_max = 0
-    second_max_dis = 0
-    second_max_pos = 0
-    for i in range(max_pos + 2, len(a_list)):
-        max_dis = 0
-        if a_list[i] < first_max * 0.1:
-            continue
-        for j in range(1, i - max_pos):
-            if a_list[i] <= a_list[i - j]:
-                break
-            else:
-                max_dis += 1
-        if max_dis >= second_max_dis:
-            second_max = a_list[i]
-            second_max_pos = i
-            second_max_dis = max_dis
-
-    # Check if the two peaks are actually usable
-    # Get the minimum between two peaks
-    min = first_max
-    min_pos = max_pos
-    for i in range(max_pos, second_max_pos):
-        if a_list[i] <= min:
-            min = a_list[i]
-            min_pos = i
-        if a_list[i] - min < 10:
-            min = a_list[i]
-            min_pos = i
-    # If the second peak is too small,then not valid
-    if second_max < first_max * 0.1:
-        return -1
-    # if the minimum is too big, the not valid as well
-    if min >= first_max * 0.9:
-        return -1
-    # If either peak is 0
-    if second_max == 0 or first_max == 0:
-        return -1
-    return min_pos
 
 def convert_date(df):
     dt = df.index
@@ -485,6 +402,7 @@ def find_dp(dp, lambda_air, n):
 
 def calculate_ave_list(a_list):
     return sum(a_list) / len(a_list)
+
 
 def calculate_moving_average(a_list, n):
     """

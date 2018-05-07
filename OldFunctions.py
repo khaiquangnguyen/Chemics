@@ -1,3 +1,554 @@
+if not scCalcs:
+    # Calculate the sc Calculation
+    firstAKappa = self.appKappa
+    # Calcualte the first row of scCalcs
+    for i in range(len(self.dp50_list)):
+        if self.dp50_list[i][0] != 0:
+            dList1 = [float(self.dp50_list[i][0]) * 0.000000001]
+            break
+    for i in range(1000):
+        dList1.append(dList1[-1] * 1.005)
+
+    # Calcualte the second row of scCalcs
+    sList1 = []
+    firstNum = dList1[0]
+    for i in range(len(dList1)):
+        aNum = dList1[i]
+        sList1.append(
+            (aNum ** 3 - firstNum ** 3) / (aNum ** 3 - firstNum ** 3 * (1 - firstAKappa)) * math.exp(
+                a_param / aNum))
+
+    # Calculate the third colum
+    dList2 = [self.dd_1 * 0.000000001]
+    for i in range(1000):
+        dList2.append(dList2[-1] * 1.005)
+
+    # Calculate the fourth column
+    sList2 = []
+    firstNum = dList2[0]
+    for i in range(len(dList1)):
+        aNum = dList2[i]
+        sList2.append(
+            (aNum ** 3 - firstNum ** 3) / (aNum ** 3 - firstNum ** 3 * (1 - self.i_kappa_1)) * math.exp(
+                a_param / aNum))
+
+    dList3 = [self.dd_2 * 0.000000001]
+    for i in range(1000):
+        dList3.append(dList3[-1] * 1.005)
+
+    kappaList = []
+    firstNum = dList3[0]
+    for i in range(len(dList3)):
+        aNum = dList3[i]
+        kappaList.append(min((aNum ** 3 / firstNum ** 3 - 1) * self.solubility, 1) * self.i_kappa_2)
+
+    sList3 = []
+    firstNum = dList3[0]
+    for i in range(len(dList1)):
+        aNum = dList3[i]
+        if kappaList[i] == 0:
+            sList3.append(0)
+        else:
+            sList3.append(
+                (aNum ** 3 - firstNum ** 3) / (aNum ** 3 - firstNum ** 3 * (1 - kappaList[i])) * math.exp(
+                    a_param / aNum))
+    self.sc = (max(sList2) - 1) * 100
+    self.sc2 = (max(sList3) - 1) * 100
+    scCalcs = True
+
+def draw_complete_sigmoid_graph(self, new_figure=None):
+    """
+    Make complete graph of the dry diameter after optimization and sigmodal fit
+    """
+    # if there is no ax, make a new one
+    if self.sigmoid_fit_ax is None:
+        figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
+        ax.axes.set_frame_on(False)
+        ax.grid(color=GRID_COLOR)
+        ax.axhline(0, color=AX_LINE_COLOR, linewidth=2)
+        ax.axvline(0, color=AX_LINE_COLOR, linewidth=4)
+        ax.axhline(1, color=str(float(AX_LINE_COLOR) + 0.1), linewidth=2, linestyle='dashed')
+        ax.tick_params(color=AX_TICK_COLOR, which='both', labelcolor=AX_TICK_COLOR, labelsize=AX_TICK_SIZE)
+        ax.set_xlabel("Dry diameter(nm)", color=LABEL_COLOR, size=LABEL_SIZE)
+        ax.set_ylabel("CCNC/SMPS ratio and dN/dLogDp", color=LABEL_COLOR, size=LABEL_SIZE)
+        ax.set_title("CCNC/SMPS over Dry Diameter and Sigmoid Line", color=TITLE_COLOR, size=TITLE_SIZE)
+        yLim = min(2, max(self.ccn_cn_ratio_list)) + 0.2
+        ax.axes.set_ylim([-0.1, yLim])
+        self.ccn_cn_ratio_points, = ax.plot(self.particle_diameter_list, self.ccn_cn_ratio_list, 'o',
+                                            color=CCNC_SMPS_POINT_COLOR,
+                                            mew=0.5, ms=9, label="CCNC/SMPS")
+        if self.is_usable_for_sigmoid_fit_list[self.current_scan]:
+            self.normalized_concentration_points, = plt.plot(self.diameter_midpoint_list, self.ccn_normalized_list,
+                                                             linewidth=4,
+                                                             color=NORMALIZED_CONCENTRATION_POINT_COLOR,
+                                                             label="dN/dLogDp")
+
+            self.ccn_cn_ratio_corrected_points, = ax.plot(self.particle_diameter_list, self.ccnc_sig_list, 'o',
+                                                          color=CCNC_SMPS_RATIO_CORRECTED_POINT_COLOR, mew=0.5,
+                                                          mec="#0D47A1",
+                                                          ms=9, label="CCNC/SMPS (Corrected)")
+        if self.is_usable_for_kappa_cal_list[self.current_scan]:
+            self.sigmoid_line, = ax.plot(self.particle_diameter_list, self.ccn_cn_sim_list, linewidth=5,
+                                         color=SIGMOID_LINE_COLOR, label="Sigmodal Fit")
+        handles, labels = ax.get_legend_handles_labels()
+        legend = ax.legend(handles, labels, loc=5, fontsize='small')
+        legend.get_frame().set_alpha(0.3)
+        self.sigmoid_fit_figure = figure
+        self.sigmoid_fit_ax = ax
+    # otherwise, use the old one
+    else:
+        yLim = min(2, max(self.ccn_cn_ratio_list)) + 0.2
+        self.sigmoid_fit_ax.axes.set_ylim([-0.1, yLim])
+        self.ccn_cn_ratio_points.set_xdata(self.particle_diameter_list)
+        self.ccn_cn_ratio_points.set_ydata(self.ccn_cn_ratio_list)
+        if self.is_usable_for_sigmoid_fit_list[self.current_scan]:
+            if self.normalized_concentration_points is None:
+                self.normalized_concentration_points, = plt.plot(self.diameter_midpoint_list,
+                                                                 self.ccn_normalized_list,
+                                                                 linewidth=4,
+                                                                 color=NORMALIZED_CONCENTRATION_POINT_COLOR,
+                                                                 label="dN/dLogDp")
+            else:
+                self.normalized_concentration_points.set_xdata(self.diameter_midpoint_list)
+                self.normalized_concentration_points.set_ydata(self.ccn_normalized_list)
+            if self.ccn_cn_ratio_corrected_points is None:
+                self.ccn_cn_ratio_corrected_points, = self.sigmoid_fit_ax.plot(self.particle_diameter_list,
+                                                                               self.ccnc_sig_list, 'o',
+                                                                               color=CCNC_SMPS_RATIO_CORRECTED_POINT_COLOR,
+                                                                               mew=0.5,
+                                                                               mec="#0D47A1",
+                                                                               ms=9, label="CCNC/SMPS (Corrected)")
+            else:
+                self.ccn_cn_ratio_corrected_points.set_xdata(self.particle_diameter_list)
+                self.ccn_cn_ratio_corrected_points.set_ydata(self.ccnc_sig_list)
+        else:
+            if self.normalized_concentration_points is not None:
+                self.normalized_concentration_points.set_xdata([])
+                self.normalized_concentration_points.set_ydata([])
+            if self.ccn_cn_ratio_corrected_points is not None:
+                self.ccn_cn_ratio_corrected_points.set_xdata([])
+                self.ccn_cn_ratio_corrected_points.set_ydata([])
+        if self.is_usable_for_kappa_cal_list[self.current_scan]:
+            if self.sigmoid_line is None:
+                self.sigmoid_line, = self.sigmoid_fit_ax.plot(self.particle_diameter_list, self.ccn_cn_sim_list,
+                                                              linewidth=5, color='#EF5350', label="Sigmodal Fit")
+            else:
+                self.sigmoid_line.set_xdata(self.particle_diameter_list)
+                self.sigmoid_line.set_ydata(self.ccn_cn_sim_list)
+        else:
+            if self.sigmoid_line is not None:
+                self.sigmoid_line.set_xdata([])
+                self.sigmoid_line.set_ydata([])
+        handles, labels = self.sigmoid_fit_ax.get_legend_handles_labels()
+        legend = self.sigmoid_fit_ax.legend(handles, labels, loc=5, fontsize='small')
+        legend.get_frame().set_alpha(0.3)
+
+    self.view.update_alignment_and_sigmoid_fit_figures(None, self.sigmoid_fit_figure)
+
+
+def draw_all_scans_alignment_summary_graph(self):
+    """
+    Make a summary graph of all the runs. Used color to show the status of each scan
+    Red represents fail scans.
+    Blue represents good scans.
+    White represents undecided scans.
+    Green (or yellow? I think I am color blind) represents visited scan
+    :return:
+    """
+    if self.all_scans_alignment_ax is None:
+        for i in range(self.number_of_scan):
+            self.all_scans_alignment_visited_list.append(False)
+
+        figure, ax = plt.subplots(facecolor=settings.GRAPH_BACKGROUND_COLOR)
+        ax.axes.set_frame_on(False)
+        ax.grid(False)
+        ax.axhline(0, color=AX_LINE_COLOR, linewidth=4)
+        ax.axvline(0, color=AX_LINE_COLOR, linewidth=4)
+        index = numpy.arange(1, self.number_of_scan + 1)
+        ax.set_xticks(index)
+        ax.set_xticklabels(index, color=AX_TICK_COLOR, size=AX_TICK_SIZE)
+        ax.set_yticks(range(0, max(self.shift_factor_list)))
+        ax.set_yticklabels(range(0, max(self.shift_factor_list)), color=AX_TICK_COLOR, size=AX_TICK_SIZE)
+        ax.set_xlabel("Scan #", color=LABEL_COLOR, size=LABEL_SIZE)
+        ax.set_ylabel("CCNC Shift (s)", color=LABEL_COLOR, size=LABEL_SIZE)
+        ax.set_title("All Scans Shift", color=TITLE_COLOR, size=TITLE_SIZE)
+        figure.canvas.mpl_connect('pick_event', self.on_pick)
+        self.all_scans_alignment_bars = ax.bar(range(1, self.number_of_scan + 1), self.shift_factor_list,
+                                               color=SCAN_SUMMARY_USABLE_SCAN_COLOR, picker=True, align='center')
+        for i in range(len(self.is_usable_for_sigmoid_fit_list)):
+            if not self.is_usable_for_sigmoid_fit_list[i] or not self.is_usable_for_kappa_cal_list[i]:
+                self.all_scans_alignment_bars[i].set_facecolor(SCAN_SUMMARY_UNUSABLE_SCAN_COLOR)
+        for i in self.unfinished_sigmoid_fit_scans_list:
+            self.all_scans_alignment_bars[i].set_facecolor(UNDECIDED_USABILITY_COLOR)
+        self.all_scans_alignment_visited_list[self.current_scan] = True
+        for i in range(len(self.all_scans_alignment_visited_list)):
+            if self.all_scans_alignment_visited_list[i]:
+                self.all_scans_alignment_bars[i].set_alpha(1)
+            else:
+                self.all_scans_alignment_bars[i].set_alpha(0.3)
+        self.all_scans_alignment_bars[self.current_scan].set_facecolor(SCAN_SUMMARY_HIGHLIGHT_COLOR)
+        self.all_scans_alignment_figure = figure
+        valid_patch = mpatches.Patch(color=SCAN_SUMMARY_USABLE_SCAN_COLOR, label='usable scans')
+        invalid_patch = mpatches.Patch(color=SCAN_SUMMARY_UNUSABLE_SCAN_COLOR, label='unusable scans')
+        undecided_patch = mpatches.Patch(color=UNDECIDED_USABILITY_COLOR, label='undecided scans')
+        visted_patch = mpatches.Patch(color=SCAN_SUMMARY_HIGHLIGHT_COLOR, label='visited scans')
+        legend = ax.legend(handles=[valid_patch, invalid_patch, undecided_patch, visted_patch],
+                           fontsize=LEGEND_FONT_SIZE, loc=2)
+        self.all_scans_alignment_ax = ax
+        legend.get_frame().set_alpha(0.3)
+    else:
+        for i in range(len(self.is_usable_for_sigmoid_fit_list)):
+            if not self.is_usable_for_sigmoid_fit_list[i] or not self.is_usable_for_kappa_cal_list[i]:
+                self.all_scans_alignment_bars[i].set_facecolor(SCAN_SUMMARY_UNUSABLE_SCAN_COLOR)
+            else:
+                self.all_scans_alignment_bars[i].set_facecolor(SCAN_SUMMARY_USABLE_SCAN_COLOR)
+        for i in self.unfinished_sigmoid_fit_scans_list:
+            self.all_scans_alignment_bars[i].set_facecolor(UNDECIDED_USABILITY_COLOR)
+        self.all_scans_alignment_visited_list[self.current_scan] = True
+        for i in range(len(self.all_scans_alignment_visited_list)):
+            if self.all_scans_alignment_visited_list[i]:
+                self.all_scans_alignment_bars[i].set_alpha(1)
+            else:
+                self.all_scans_alignment_bars[i].set_alpha(0.3)
+        self.all_scans_alignment_bars[self.current_scan].set_facecolor(SCAN_SUMMARY_HIGHLIGHT_COLOR)
+
+    self.view.update_temp_and_min_figure(self.all_scans_alignment_figure)
+
+    def get_parameters_for_sigmoid_fit(self, min_dp=None, min_dp_asym=None, max_dp_asym=None):
+        """
+        Automatically generate parameters to fit sigmoid lines into the data. If the paramaters are declared
+        then the process will work with the parameter instead of automatically deciding the parameters.
+        :param min_dp:
+        :param min_dp_asym:
+        :param max_dp_asym:
+        :return:
+        """
+        try:
+            if min_dp and min_dp_asym and max_dp_asym:
+                self.min_dp = min_dp
+                self.min_dp_asym = min_dp_asym
+                self.max_dp_asym = max_dp_asym
+            else:
+                asymList = get_asym_list(self.particle_diameter_list, self.ccnc_sig_list)
+                mpIndex = 0
+
+                # Find the index of midPoint
+                checkLength = self.scan_duration / 20
+                for i in range(checkLength, len(self.ccnc_sig_list) - checkLength):
+                    isMid = False
+                    if self.ccnc_sig_list[i] > 0.5:
+                        isMid = True
+                        # check if the previous 5 numbers are smaller and the next 5 numbers are bigger
+                        for j in range(1, checkLength):
+                            if self.ccnc_sig_list[i + j] < self.ccnc_sig_list[i]:
+                                isMid = False
+                                break
+                    if isMid:
+                        mpIndex = i
+                        break
+
+                minDpAsymPos = 0
+                currMax = 0
+                # Get minDP
+                for i in range(mpIndex, 1, -1):
+                    if self.ccnc_sig_list[i] < 0.1:
+                        self.min_dp = self.particle_diameter_list[i]
+                        break
+
+                # Get minDpAsym
+                for i in range(mpIndex, mpIndex + self.scan_duration / 10):
+                    if i < len(self.particle_diameter_list):
+                        if self.ccnc_sig_list[i] > currMax:
+                            minDpAsymPos = i
+                            currMax = self.ccnc_sig_list[i]
+                            self.min_dp_asym = self.particle_diameter_list[i]
+
+                maxCCN = max(self.ccnc_sig_list)
+                if maxCCN <= 1.2:
+                    stableThreshold = 0.075
+                else:
+                    stableThreshold = 0.25
+                # determine maxDplen(self.ccncSigList)
+                for i in range(minDpAsymPos + 5, len(self.ccnc_sig_list)):
+                    if self.ccnc_sig_list[i] > 1.3:
+                        self.max_dp_asym = self.particle_diameter_list[i]
+                        break
+                    elif abs(self.ccnc_sig_list[i] - self.ccnc_sig_list[i - 1]) > 2 * stableThreshold:
+                        self.max_dp_asym = self.particle_diameter_list[i - 1]
+                        break
+
+            self.max_dp = self.max_dp_asym
+            # Get the processed_data
+            asymsList = []
+            for i in range(len(self.particle_diameter_list)):
+                if self.min_dp_asym < self.particle_diameter_list[i] < self.max_dp_asym:
+                    asymsList.append(self.ccnc_sig_list[i])
+                else:
+                    asymsList.append(0)
+            # Calcualte constants
+            self.b = get_ave_none_zero(asymsList)
+        except:
+            if self.current_scan not in self.unfinished_sigmoid_fit_scans_list:
+                self.unfinished_sigmoid_fit_scans_list.append(self.current_scan)
+            raise SigmoidFitGetParameterError()
+
+    def fit_sigmoid_line(self):
+        """
+        As the name suggest, using the parameters to fit a sigmoid line into the data
+        I use the curve_fit function provided by scipy.optimize library to run this
+        :return:
+        """
+        try:
+            xList = []
+            yList = []
+            for i in range(len(self.particle_diameter_list)):
+                if self.min_dp < self.particle_diameter_list[i] < self.max_dp:
+                    xList.append(self.particle_diameter_list[i])
+                    yList.append(self.ccnc_sig_list[i])
+            initGuess = [30, -10]
+            for i in range(len(yList)):
+                if math.isnan(yList[i]) or math.isinf(yList[i]):
+                    yList[i] = 0
+            xList = numpy.asarray(xList)
+            yList = numpy.asarray(yList)
+            result = opt.curve_fit(f, xList, yList, bounds=([self.min_dp, -200], [self.max_dp, -1]), method="trf")
+            self.d = result[0][0]
+            self.c = result[0][1]
+            self.ccn_cn_sim_list = [0]
+            for i in range(1, len(self.particle_diameter_list)):
+                if self.particle_diameter_list[i] > self.d:
+                    self.dp50_wet = self.drop_size_list[i - 1]
+                    break
+            for i in range(1, len(self.particle_diameter_list)):
+                if self.particle_diameter_list[i] > (self.d + 20):
+                    self.dp50_plus_20 = self.drop_size_list[i - 1]
+                    break
+            self.is_usable_for_kappa_cal_list[self.current_scan] = True
+        except:
+            if self.current_scan not in self.unfinished_sigmoid_fit_scans_list:
+                self.unfinished_sigmoid_fit_scans_list.append(self.current_scan)
+            raise SigmoidFitLineFitError()
+
+    def refitting_sigmoid_line(self, min_dry_diameter, min_dry_diameter_asymptote, max_dry_diameter_asymptote):
+        """
+        As the name suggest, this function is for the users to refit a failed sigmoid line.
+        :param min_dry_diameter:
+        :param min_dry_diameter_asymptote:
+        :param max_dry_diameter_asymptote:
+        :return:
+        """
+        self.move_progress_bar_forward("Refitting sigmoid line to scan #" + str(self.current_scan + 1),
+                                       max_value=2)
+        try:
+            if not self.is_usable_for_sigmoid_fit_list[self.current_scan]:
+                self.view.show_error_dialog("Can't fit sigmoid line to current scan!")
+                raise SigmoidFitLineFitError()
+            self.prepare_scan_data()
+            self.move_progress_bar_forward()
+            self.min_dp = min_dry_diameter
+            self.min_dp_asym = min_dry_diameter_asymptote
+            self.max_dp_asym = max_dry_diameter_asymptote
+            self.max_dp = self.max_dp_asym
+            asymsList = []
+            for i in range(len(self.particle_diameter_list)):
+                if self.min_dp_asym < self.particle_diameter_list[i] < self.max_dp_asym:
+                    asymsList.append(self.ccnc_sig_list[i])
+                else:
+                    asymsList.append(0)
+            self.b = get_ave_none_zero(asymsList)
+            self.fit_sigmoid_line()
+            self.move_progress_bar_forward()
+        except:
+            self.is_usable_for_kappa_cal_list[self.current_scan] = False
+            self.b_list[self.current_scan] = 0
+            self.d_list[self.current_scan] = 0
+            self.c_list[self.current_scan] = 0
+            self.dp50_list[self.current_scan] = (0, 0)
+            self.dp50_wet_list[self.current_scan] = 0
+            self.dp50_plus_20_list[self.current_scan] = 0
+            self.min_dp_list[self.current_scan] = 0
+            self.min_dp_asym_list[self.current_scan] = 0
+            self.max_dp_asym_list[self.current_scan] = 0
+        else:
+            self.is_usable_for_kappa_cal_list[self.current_scan] = True
+            self.min_dp_list[self.current_scan] = self.min_dp
+            self.min_dp_asym_list[self.current_scan] = self.min_dp_asym
+            self.max_dp_asym_list[self.current_scan] = self.max_dp_asym
+            self.b_list[self.current_scan] = self.b
+            self.d_list[self.current_scan] = self.d
+            self.c_list[self.current_scan] = self.c
+            self.dp50_list[self.current_scan] = (self.d, self.super_saturation_list[self.current_scan])
+            self.dp50_wet_list[self.current_scan] = self.dp50_wet
+            self.dp50_plus_20_list[self.current_scan] = self.dp50_plus_20
+        finally:
+            self.move_progress_bar_forward(complete=True)
+            # remove current scan from the list of unfinished scan
+            for i in range(len(self.unfinished_sigmoid_fit_scans_list)):
+                if self.unfinished_sigmoid_fit_scans_list[i] == self.current_scan:
+                    self.unfinished_sigmoid_fit_scans_list = self.unfinished_sigmoid_fit_scans_list[:i] \
+                                                             + self.unfinished_sigmoid_fit_scans_list[i + 1:]
+                    break
+            self.update_view()
+
+    def correct_charges_and_fit_sigmoid_one_scan(self):
+        """
+        the control center to correct charges and fit sigmoid line to a single scan.
+
+        """
+        try:
+            if not self.is_usable_for_sigmoid_fit_list[self.current_scan]:
+                raise SigmoidFitCorrectChargesError  # this scan is not usable, so we raise a serious error
+            self.ccnc_sig_list = []
+            self.prepare_scan_data()
+            self.correct_charges()
+            self.get_parameters_for_sigmoid_fit()
+            self.fit_sigmoid_line()
+        except Exception as e:
+            self.is_usable_for_kappa_cal_list[self.current_scan] = False
+            self.b_list.append(0)
+            self.d_list.append(0)
+            self.c_list.append(0)
+            self.dp50_list.append((0, 0))
+            self.dp50_wet_list.append(0)
+            self.dp50_plus_20_list.append(0)
+            self.min_dp_list.append(0)
+            self.min_dp_asym_list.append(0)
+            self.max_dp_asym_list.append(0)
+            self.ccnc_sig_list_list.append(self.ccnc_sig_list)
+        else:
+            self.is_usable_for_kappa_cal_list[self.current_scan] = True
+            self.min_dp_list.append(self.min_dp)
+            self.min_dp_asym_list.append(self.min_dp_asym)
+            self.max_dp_asym_list.append(self.max_dp_asym)
+            self.b_list.append(self.b)
+            self.d_list.append(self.d)
+            self.c_list.append(self.c)
+            self.dp50_list.append((self.d, self.super_saturation_list[self.current_scan]))
+            self.dp50_wet_list.append(self.dp50_wet)
+            self.dp50_plus_20_list.append(self.dp50_plus_20)
+            self.ccnc_sig_list_list.append(self.ccnc_sig_list)
+
+    def correct_charges_and_fit_sigmoid_all_scans(self):
+        """
+        Perform charge correction and sigmoid fit for all scans.
+        :return:
+        """
+        try:
+            self.move_progress_bar_forward(max_value=self.number_of_scan)
+            for i in range(0, self.number_of_scan):
+                self.current_scan = i
+                self.move_progress_bar_forward("Correcting charges and fitting sigmoid for scan # " + str(i + 1),
+                                               value=0)
+                self.correct_charges_and_fit_sigmoid_one_scan()
+            self.current_scan = -1
+            self.move_progress_bar_forward(complete=True)
+            self.finish_scan_alignment_and_auto_sig_fit = True
+            self.switch_to_scan(0)
+        except ProgressBarInterruptException:
+            self.view.show_error_dialog("The sigmoid fitting process is cancelled!")
+            self.finish_scan_alignment_and_auto_sig_fit = False
+            self.parse_and_match_smps_ccnc_data()
+
+
+# def find_ref_index_ccnc(ccnc_list,potential_loc):
+#     # we are working with a lot of assumptions here
+#     # The first one is that the two ref values must be quite close to each other
+#     # find absolute max
+#     # the potential location is the sum of the smps local minimum and the base shift factor calculated from other
+#     # scans
+#     left_max = numpy.argmax(ccnc_list)
+#     # find the right list which contains the lower point.
+#     right_list = ccnc_list[left_max:]
+#     # smooth the hell out of the data
+#     right_list = smooth(right_list)
+#     #find min
+#     potential_mins = scipy.signal.argrelmin(right_list, order=2)
+#     # if find no min, return error
+#     # plt.plot(right_list)
+#     # plt.show()
+#     if len(potential_mins[0]) == 0:
+#         return None
+#     print potential_mins
+#     # now, compare among the potential mins to see if which one has the closest value to the smps low
+#     for i in range(len(potential_mins[0])):
+#         ref_index = left_max + potential_mins[0][i]
+#         # if agree with the potential loc
+#         if abs(ref_index - potential_loc) <= 2:
+#             return ref_index
+#     return None
+
+def show_error_dialog(self, error_message='Unknown Error!'):
+    """
+    Show the error message
+    :param errorMessage: The message to show in the error message
+    """
+    self.progress_dialog.reset()
+    warning = QMessageBox()
+    warning.setIcon(QMessageBox.Warning)
+    warning.setText(error_message)
+    warning.exec_()
+
+
+def get_min_index_ccnc_old(a_list,scan_up_time = 0):
+    """
+    get the position of the smallest value of aParam list
+    :param processed_data: the processed_data to process
+    :return: the index of the smallest value. -1 if the peak is not usable
+    """
+    a_list = numpy.asarray(a_list)
+    # TODO: improve this method
+    first_max = 0
+    max_pos = 0
+    if sum(a_list) == 0:
+        return -1
+    max_pos = peakutils.indexes(a_list, thres=0.5, min_dist=len(a_list) / 10)
+    if len(max_pos) == 0:
+        return -1
+    else:
+        max_pos = max_pos[0]
+    first_max = a_list[max_pos]
+
+    # Get the second maximum
+    second_max = 0
+    second_max_dis = 0
+    second_max_pos = 0
+    for i in range(max_pos + 2, len(a_list)):
+        max_dis = 0
+        if a_list[i] < first_max * 0.1:
+            continue
+        for j in range(1, i - max_pos):
+            if a_list[i] <= a_list[i - j]:
+                break
+            else:
+                max_dis += 1
+        if max_dis >= second_max_dis:
+            second_max = a_list[i]
+            second_max_pos = i
+            second_max_dis = max_dis
+
+    # Check if the two peaks are actually usable
+    # Get the minimum between two peaks
+    min = first_max
+    min_pos = max_pos
+    for i in range(max_pos, second_max_pos):
+        if a_list[i] <= min:
+            min = a_list[i]
+            min_pos = i
+        if a_list[i] - min < 10:
+            min = a_list[i]
+            min_pos = i
+    # If the second peak is too small,then not valid
+    if second_max < first_max * 0.1:
+        return -1
+    # if the minimum is too big, the not valid as well
+    if min >= first_max * 0.9:
+        return -1
+    # If either peak is 0
+    if second_max == 0 or first_max == 0:
+        return -1
+    return min_pos
+
+
 def create_temperature_graph(self, new_figure=None):
     try:
         if new_figure is None:
@@ -305,7 +856,7 @@ def refitting_sigmoid_line(self, min_dry_diameter, min_dry_diameter_asymptote, m
         self.dp50_list[self.current_scan] = (self.d, self.super_saturation_list[self.current_scan])
         self.usable_for_kappa_cal_list[self.current_scan] = True
         self.usable_for_sigmoid_fit_list[self.current_scan] = True
-        self.update_view()
+        self.update_scan_info_and_graphs()
         self.move_progress_bar_forward(complete=True)
     except:
         self.usable_for_kappa_cal_list[self.current_scan] = False
@@ -317,7 +868,7 @@ def refitting_sigmoid_line(self, min_dry_diameter, min_dry_diameter_asymptote, m
         self.d_list[self.current_scan] = 0
         self.c_list[self.current_scan] = 0
         self.dp50_list[self.current_scan] = (0, 0)
-        self.update_view()
+        self.update_scan_info_and_graphs()
         self.move_progress_bar_forward(complete=True)
 
 
