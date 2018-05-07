@@ -71,7 +71,6 @@ class Scan:
         # the main reason we need this is because we have to handle fitting in two sigmoid lines
         self.sigmoid_params = []
         # b,d and c
-        # interestingly, b can be an input from users
         self.functions_params = []
         # dps of interest
         # dp50, dp50wet, dp50+20
@@ -260,7 +259,17 @@ class Scan:
                     ratio_corrected[i] = 0
         return ratio_corrected
 
-    def cal_params_for_sigmoid_fit(self, asym_limits = [0.75,1.5]):
+    def cal_params_for_sigmoid_fit(self):
+        asym_limits = [0.75, 1.5]
+        while True:
+            try:
+                self.cal_params_for_sigmoid_fit_single_loop(asym_limits)
+                break
+            except:
+                # widen the gap between the limits so that we can cover a larger area
+                asym_limits = [asym_limits[0]-0.1, asym_limits[1] + 0.1]
+
+    def cal_params_for_sigmoid_fit_single_loop(self, asym_limits = [0.75,1.5]):
         if not self.is_valid():
             return
         # first, got to clean up everything
@@ -284,13 +293,16 @@ class Scan:
                 break
         # get the top inflation point
         # get the top 10% of the data
-        high_list = []
         high_index_list = []
         for i in range(len(ratio_corrected)):
             if asym_limits[0] <= ratio_corrected[i] <= asym_limits[1]:
                 high_index_list.append(i)
         high_list = ratio_corrected[high_index_list]
         high_index_list = outliers_iqr_ver_2(high_list, high_index_list)
+        # if the return is an error/meaning we can't detect any outliers
+        # then we simply get the highest possible value from the array
+        if high_index_list == -1:
+            high_index_list = numpy.argmax(ratio_corrected)
         high_index_list = numpy.sort(high_index_list)
         # next, remove outliers
         top_inflation_index = high_index_list[0]
@@ -359,7 +371,7 @@ class Scan:
             d = 60
             c = -2
         self.functions_params.append([b,d,c])
-        dp_50 = round(d,4)
+        dp_50 = d
         dp_50_wet = 0
         dp_50_20_wet = 0
         # find dp50 and dp50 wet
@@ -379,6 +391,9 @@ class Scan:
             else:
                 sigmoid_points.append(sigmoid_points[i-1])
         self.sigmoid_y_vals.append(sigmoid_points)
+        dp_50 = round(dp_50,3)
+        dp_50_wet = round(dp_50_wet,3)
+        dp_50_20_wet = round(dp_50_20_wet,3)
         self.dps.append([dp_50,dp_50_wet,dp_50_20_wet])
 
     def is_valid(self):

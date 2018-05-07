@@ -182,28 +182,47 @@ class DockerSigmoidWidget(QFrame):
             del self.dp_widgets[-1]
             to_del.widget().deleteLater()
 
-    def add_params_group_box(self,init_values = [0,0,0,0]):
+    def add_params_group_box(self, sigmoid_params = [0, 0, 0, 0], dp_params = [0,0,0]):
         self.num_sigmoid_lines += 1
         self.sigmoid_line_spinbox.setValue(self.num_sigmoid_lines)
         params_group_box = QGroupBox("Params #" + str(self.num_sigmoid_lines))
         maximum = max(self.controller.scans[self.curr_scan_index].ave_smps_diameters)
         begin_rise_dp = LabelDoublelSpinbox("begin rise dp")
         begin_rise_dp.setMaximum(maximum)
-        begin_rise_dp.setValue(init_values[0])
+        begin_rise_dp.setValue(sigmoid_params[0])
         end_rise_dp = LabelDoublelSpinbox("end rise dp")
         end_rise_dp.setMaximum(maximum)
-        end_rise_dp.setValue(init_values[1])
+        end_rise_dp.setValue(sigmoid_params[1])
         begin_asymp_dp = LabelDoublelSpinbox("begin asymp dp")
         begin_asymp_dp.setMaximum(maximum)
-        begin_asymp_dp.setValue(init_values[2])
+        begin_asymp_dp.setValue(sigmoid_params[2])
         end_asymp_dp = LabelDoublelSpinbox("end asymp dp")
-        end_asymp_dp.setValue(init_values[3])
+        end_asymp_dp.setValue(sigmoid_params[3])
         end_asymp_dp.setMaximum(maximum)
         v_layout = QVBoxLayout()
         v_layout.addWidget(begin_rise_dp)
         v_layout.addWidget(end_rise_dp)
         v_layout.addWidget(begin_asymp_dp)
         v_layout.addWidget(end_asymp_dp)
+        h_layout = QHBoxLayout()
+        dp_group_box = QGroupBox("Dp50 parameters")
+        dp_50_label = QLabel("Dp50")
+        dp_50_box = QLineEdit(str(dp_params[0]))
+        dp_50_box.setReadOnly(True)
+        dp_50_wet_label = QLabel("Dp50_wet")
+        dp_50_wet_box = QLineEdit(str(dp_params[1]))
+        dp_50_wet_box.setReadOnly(True)
+        dp_50_20_label = QLabel("Dp50+20 wet")
+        dp_50_20_box = QLineEdit(str(dp_params[2]))
+        dp_50_20_box.setReadOnly(True)
+        h_layout.addWidget(dp_50_label)
+        h_layout.addWidget(dp_50_box)
+        h_layout.addWidget(dp_50_wet_label)
+        h_layout.addWidget(dp_50_wet_box)
+        h_layout.addWidget(dp_50_20_label)
+        h_layout.addWidget(dp_50_20_box)
+        dp_group_box.setLayout(h_layout)
+        v_layout.addWidget(dp_group_box)
         params_group_box.setLayout(v_layout)
         self.dp_widgets.append([begin_rise_dp,end_rise_dp,begin_asymp_dp,end_asymp_dp])
         self.layout().insertRow(len(self.dp_widgets)+2, params_group_box)
@@ -216,6 +235,7 @@ class DockerSigmoidWidget(QFrame):
             begin_asymp = a_param_set[2].content_box.value()
             end_asymp = a_param_set[3].content_box.value()
             param_list.append([begin_rise,end_rise,begin_asymp,end_asymp])
+        # set the sigmoid parameters. Also immediately fit new sigmoid lines using the new params
         self.controller.scans[self.controller.curr_scan_index].set_sigmoid_params(param_list)
         self.controller.switch_to_scan(self.controller.curr_scan_index)
 
@@ -223,17 +243,22 @@ class DockerSigmoidWidget(QFrame):
         self.controller.set_scan_index(n)
         self.controller.switch_to_scan(n)
 
-
-
     def update_scan_info(self):
+        self.num_scan = len(self.controller.scans) - 1
+        self.scan_selector.setRange(0, self.num_scan)
         self.scan_selector.setValue(self.controller.curr_scan_index)
         # remove all dp
         for i in range(len(self.dp_widgets)):
             self.sub_params_group_box()
         self.num_sigmoid_lines = 0
-        params = self.controller.scans[self.controller.curr_scan_index].sigmoid_params
-        for a_param_list in params:
-            self.add_params_group_box(a_param_list)
+        sigmoid_params = self.controller.scans[self.controller.curr_scan_index].sigmoid_params
+        dp_params = self.controller.scans[self.controller.curr_scan_index].dps
+        for i in range(len(sigmoid_params)):
+            a_sigmoid_param = sigmoid_params[i]
+            a_dp_param = [0,0,0]
+            if i < len(dp_params):
+                a_dp_param = dp_params[i]
+            self.add_params_group_box(a_sigmoid_param, a_dp_param)
 
 
 class DockerKappaWidget(QFrame):

@@ -122,15 +122,19 @@ def get_ave_none_zero(a_list):
 #     return 0.923 / (1 + (x / d) ** c)
 
 def outliers_iqr_ver_2(value_array, index_array):
-    quartile_1, quartile_3 = numpy.percentile(value_array, [25, 75])
-    iqr = quartile_3 - quartile_1
-    lower_bound = quartile_1 - (iqr * 1.25)
-    upper_bound = quartile_3 + (iqr * 1.25)
-    indexes = []
-    for i in range(len(value_array)):
-        if lower_bound <= value_array[i] <= upper_bound:
-            indexes.append(index_array[i])
-    return indexes
+    try:
+        quartile_1, quartile_3 = numpy.percentile(value_array, [25, 75])
+        iqr = quartile_3 - quartile_1
+        lower_bound = quartile_1 - (iqr * 1.25)
+        upper_bound = quartile_3 + (iqr * 1.25)
+        indexes = []
+        for i in range(len(value_array)):
+            if lower_bound <= value_array[i] <= upper_bound:
+                indexes.append(index_array[i])
+        return indexes
+    except:
+        return -1
+
 
 def get_asym_list(x_list, y_list):
     asym_list = []

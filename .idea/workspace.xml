@@ -2,22 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="39b2c264-f223-47be-aa91-235b8554908b" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/CustomCentralWidgets.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/CustomDockerWidgets.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/CustomWidgets.py" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/AlignmentUI.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/CustomButton.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/kappaUI.py" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/ModalDialogs.py" afterPath="$PROJECT_DIR$/CustomModalDialogs.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/OneScan.py" afterPath="$PROJECT_DIR$/Scan.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/KhaiNguyen.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/KhaiNguyen.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Controller.py" afterPath="$PROJECT_DIR$/Controller.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Graphs.py" afterPath="$PROJECT_DIR$/Graphs.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CustomDockerWidgets.py" afterPath="$PROJECT_DIR$/CustomDockerWidgets.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/HelperFunctions.py" afterPath="$PROJECT_DIR$/HelperFunctions.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/MainView.py" afterPath="$PROJECT_DIR$/MainView.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/OldFunctions.py" afterPath="$PROJECT_DIR$/OldFunctions.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Scan.py" afterPath="$PROJECT_DIR$/Scan.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -27,95 +15,114 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/Chemics$MainView.coverage" NAME="MainView Coverage Results" MODIFIED="1525667628683" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Chemics$MainView.coverage" NAME="MainView Coverage Results" MODIFIED="1525713524005" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.5">
-      <split-first>
-        <leaf>
-          <file leaf-file-name="MainView.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/MainView.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="387">
-                  <caret line="367" column="0" lean-forward="false" selection-start-line="367" selection-start-column="0" selection-end-line="367" selection-end-column="0" />
-                  <folding>
-                    <element signature="e#0#20#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="CustomCentralWidgets.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/CustomCentralWidgets.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="454">
-                  <caret line="51" column="24" lean-forward="false" selection-start-line="51" selection-start-column="13" selection-end-line="51" selection-end-column="24" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="Scan.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/Scan.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-111">
-                  <caret line="360" column="21" lean-forward="false" selection-start-line="360" selection-start-column="20" selection-end-line="360" selection-end-column="21" />
-                  <folding />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="Graphs.py" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/Graphs.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="328">
-                  <caret line="306" column="23" lean-forward="false" selection-start-line="306" selection-start-column="23" selection-end-line="306" selection-end-column="23" />
-                  <folding>
-                    <element signature="e#0#29#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="CustomWidgets.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/CustomWidgets.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="582">
-                  <caret line="200" column="0" lean-forward="true" selection-start-line="200" selection-start-column="0" selection-end-line="200" selection-end-column="0" />
-                  <folding>
-                    <element signature="e#0#26#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-first>
-      <split-second>
-        <leaf>
-          <file leaf-file-name="CustomDockerWidgets.py" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/CustomDockerWidgets.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="109">
-                  <caret line="261" column="35" lean-forward="false" selection-start-line="261" selection-start-column="35" selection-end-line="261" selection-end-column="35" />
-                  <folding>
-                    <element signature="e#0#27#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-second>
-    </splitter>
+    <leaf>
+      <file leaf-file-name="MainView.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/MainView.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="230">
+              <caret line="339" column="0" lean-forward="false" selection-start-line="339" selection-start-column="0" selection-end-line="339" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#20#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CustomDockerWidgets.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/CustomDockerWidgets.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="10">
+              <caret line="253" column="52" lean-forward="false" selection-start-line="253" selection-start-column="52" selection-end-line="253" selection-end-column="52" />
+              <folding>
+                <element signature="e#0#27#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Controller.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Controller.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="308">
+              <caret line="403" column="38" lean-forward="false" selection-start-line="403" selection-start-column="26" selection-end-line="403" selection-end-column="38" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CustomCentralWidgets.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/CustomCentralWidgets.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="472">
+              <caret line="51" column="24" lean-forward="false" selection-start-line="51" selection-start-column="13" selection-end-line="51" selection-end-column="24" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Graphs.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Graphs.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-753">
+              <caret line="299" column="41" lean-forward="false" selection-start-line="299" selection-start-column="41" selection-end-line="299" selection-end-column="41" />
+              <folding>
+                <element signature="e#0#29#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CustomWidgets.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/CustomWidgets.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="252">
+              <caret line="138" column="0" lean-forward="true" selection-start-line="138" selection-start-column="0" selection-end-line="138" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#26#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Scan.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Scan.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="607">
+              <caret line="395" column="43" lean-forward="false" selection-start-line="395" selection-start-column="43" selection-end-line="395" selection-end-column="43" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="function_base.py" pinned="false" current-in-tab="false">
+        <entry file="file://C:/Python27/Lib/site-packages/numpy/lib/function_base.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="184">
+              <caret line="4404" column="0" lean-forward="false" selection-start-line="4404" selection-start-column="0" selection-end-line="4404" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="fromnumeric.py" pinned="false" current-in-tab="false">
+        <entry file="file://C:/Python27/Lib/site-packages/numpy/core/fromnumeric.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="184">
+              <caret line="51" column="0" lean-forward="false" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>switch_to_sigmoi</find>
-      <find>show_sigmoid</find>
-      <find>ka</find>
-      <find>create_dock</find>
-      <find>docker</find>
       <find>switch_to_kap</find>
       <find>set_menu</find>
       <find>def cal_kappa</find>
@@ -139,7 +146,12 @@
       <find>dp50</find>
       <find>switch_to_kappa</find>
       <find>KappaCentra</find>
+      <find>cal_params_for_sigmoid_fit</find>
+      <find>fit_sigmoids</find>
+      <find>set_sigmoid</find>
       <find>self.draw</find>
+      <find>sigmoid_params</find>
+      <find>functions</find>
       <find>round</find>
     </findStrings>
   </component>
@@ -152,12 +164,13 @@
         <option value="$USER_HOME$/AppData/Local/Temp/python - Matplotlib plots- removing axis, legends and white spaces ..-.url" />
         <option value="$PROJECT_DIR$/CustomModalDialogs.py" />
         <option value="$PROJECT_DIR$/Controller.py" />
-        <option value="$PROJECT_DIR$/CustomDockerWidgets.py" />
-        <option value="$PROJECT_DIR$/CustomWidgets.py" />
         <option value="$PROJECT_DIR$/CustomCentralWidgets.py" />
         <option value="$PROJECT_DIR$/MainView.py" />
-        <option value="$PROJECT_DIR$/Scan.py" />
         <option value="$PROJECT_DIR$/Graphs.py" />
+        <option value="$PROJECT_DIR$/HelperFunctions.py" />
+        <option value="$PROJECT_DIR$/CustomWidgets.py" />
+        <option value="$PROJECT_DIR$/CustomDockerWidgets.py" />
+        <option value="$PROJECT_DIR$/Scan.py" />
       </list>
     </option>
   </component>
@@ -297,7 +310,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="23" />
+      <option name="time" value="26" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
@@ -370,79 +383,103 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Controller.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="392">
-          <caret line="575" column="0" lean-forward="true" selection-start-line="575" selection-start-column="0" selection-end-line="575" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CustomDockerWidgets.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="109">
-          <caret line="261" column="35" lean-forward="false" selection-start-line="261" selection-start-column="35" selection-end-line="261" selection-end-column="35" />
-          <folding>
-            <element signature="e#0#27#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CustomWidgets.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="582">
-          <caret line="200" column="0" lean-forward="true" selection-start-line="200" selection-start-column="0" selection-end-line="200" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/CustomModalDialogs.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="205">
           <caret line="14" column="42" lean-forward="false" selection-start-line="14" selection-start-column="42" selection-end-line="14" selection-end-column="42" />
           <folding>
-            <element signature="e#0#20#0" expanded="true" />
+            <element signature="e#0#20#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CustomCentralWidgets.py">
+    <entry file="file://$PROJECT_DIR$/HelperFunctions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="454">
-          <caret line="51" column="24" lean-forward="false" selection-start-line="51" selection-start-column="13" selection-end-line="51" selection-end-column="24" />
+        <state relative-caret-position="404">
+          <caret line="135" column="17" lean-forward="true" selection-start-line="135" selection-start-column="17" selection-end-line="135" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python27/Lib/site-packages/numpy/core/fromnumeric.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="184">
+          <caret line="51" column="0" lean-forward="false" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/MainView.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="387">
-          <caret line="367" column="0" lean-forward="false" selection-start-line="367" selection-start-column="0" selection-end-line="367" selection-end-column="0" />
+        <state relative-caret-position="230">
+          <caret line="339" column="0" lean-forward="false" selection-start-line="339" selection-start-column="0" selection-end-line="339" selection-end-column="0" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Scan.py">
+    <entry file="file://$PROJECT_DIR$/Controller.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-111">
-          <caret line="360" column="21" lean-forward="false" selection-start-line="360" selection-start-column="20" selection-end-line="360" selection-end-column="21" />
+        <state relative-caret-position="308">
+          <caret line="403" column="38" lean-forward="false" selection-start-line="403" selection-start-column="26" selection-end-line="403" selection-end-column="38" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python27/Lib/site-packages/numpy/lib/function_base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="184">
+          <caret line="4404" column="0" lean-forward="false" selection-start-line="4404" selection-start-column="0" selection-end-line="4404" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Graphs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="328">
-          <caret line="306" column="23" lean-forward="false" selection-start-line="306" selection-start-column="23" selection-end-line="306" selection-end-column="23" />
+        <state relative-caret-position="-753">
+          <caret line="299" column="41" lean-forward="false" selection-start-line="299" selection-start-column="41" selection-end-line="299" selection-end-column="41" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CustomCentralWidgets.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="472">
+          <caret line="51" column="24" lean-forward="false" selection-start-line="51" selection-start-column="13" selection-end-line="51" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CustomWidgets.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="138" column="0" lean-forward="true" selection-start-line="138" selection-start-column="0" selection-end-line="138" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CustomDockerWidgets.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="10">
+          <caret line="253" column="52" lean-forward="false" selection-start-line="253" selection-start-column="52" selection-end-line="253" selection-end-column="52" />
+          <folding>
+            <element signature="e#0#27#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Scan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="607">
+          <caret line="395" column="43" lean-forward="false" selection-start-line="395" selection-start-column="43" selection-end-line="395" selection-end-column="43" />
+          <folding />
         </state>
       </provider>
     </entry>
