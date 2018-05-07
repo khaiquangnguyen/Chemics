@@ -1,5 +1,6 @@
 from CustomWidgets import *
 from datetime import date
+from CustomModalDialogs import ScanInformationDialog
 
 class DockerWidgetAlignment(QFrame):
     def __init__(self, controller):
@@ -40,6 +41,7 @@ class DockerWidgetAlignment(QFrame):
         form_layout.addRow(TitleHLine("Scan Information"))
         # -- add show data action
         self.show_data_button = QPushButton("Show Data")
+        self.show_data_button.clicked.connect(self.show_data)
         form_layout.addRow("Data", self.show_data_button)
         # -- add the scan time
         self.scan_time = QLabel("10:26:25-10:26:25")
@@ -75,6 +77,11 @@ class DockerWidgetAlignment(QFrame):
         form_layout.addRow(self.enable_disable_button)
         # add the layout
         self.setLayout(form_layout)
+
+    def show_data(self):
+        a_scan = self.controller.scans[self.controller.curr_scan_index]
+        dialog =  ScanInformationDialog(a_scan)
+        dialog.exec_()
 
     def update_scan_info(self):
         a_scan = self.controller.scans[self.controller.curr_scan_index]
@@ -218,18 +225,24 @@ class DockerSigmoidWidget(QFrame):
         dp_50_label = QLabel("Dp50")
         dp_50_box = QLineEdit(str(dp_params[0]))
         dp_50_box.setReadOnly(True)
+        another_v_layout = QVBoxLayout()
+        another_v_layout.addWidget(dp_50_label)
+        another_v_layout.addWidget(dp_50_box)
+        h_layout.addLayout(another_v_layout)
         dp_50_wet_label = QLabel("Dp50_wet")
         dp_50_wet_box = QLineEdit(str(dp_params[1]))
         dp_50_wet_box.setReadOnly(True)
+        another_v_layout = QVBoxLayout()
+        another_v_layout.addWidget(dp_50_wet_label)
+        another_v_layout.addWidget(dp_50_wet_box)
+        h_layout.addLayout(another_v_layout)
         dp_50_20_label = QLabel("Dp50+20 wet")
         dp_50_20_box = QLineEdit(str(dp_params[2]))
         dp_50_20_box.setReadOnly(True)
-        h_layout.addWidget(dp_50_label)
-        h_layout.addWidget(dp_50_box)
-        h_layout.addWidget(dp_50_wet_label)
-        h_layout.addWidget(dp_50_wet_box)
-        h_layout.addWidget(dp_50_20_label)
-        h_layout.addWidget(dp_50_20_box)
+        another_v_layout = QVBoxLayout()
+        another_v_layout.addWidget(dp_50_20_label)
+        another_v_layout.addWidget(dp_50_20_box)
+        h_layout.addLayout(another_v_layout)
         dp_group_box.setLayout(h_layout)
         v_layout.addWidget(dp_group_box)
         params_group_box.setLayout(v_layout)

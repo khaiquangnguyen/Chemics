@@ -5,6 +5,7 @@ from HelperFunctions import *
 import FastDpCalculator
 import settings as CONST
 
+
 class Scan:
     """
     Class for one scan, which contains all the information related to a scan
@@ -80,17 +81,19 @@ class Scan:
         # the asym limits to fit sigmoid lines and predict params for sigmoid line
         # the reason we need a class variable for this (sigh) is because we use them for two
         # different functions
-        self.asym_limits = [0.75,1.5]
+        self.asym_limits = [0.75, 1.5]
 
     def pre_align_self_test(self):
-        # if the length of smps data is not in sync with duration, the consider the scan invalid
+        # if the length of smps data is not in sync with duration, then consider the scan invalid
         if len(self.raw_smps_counts) != self.duration:
             self.status = 0
             self.set_status_code(2)
+            # todo: more work over here. Can always improve
             # todo: perform Hartigan's dip test to test for bimodality
 
+
     def post_align_self_test(self):
-        # todo: implement something so that we know that a scan is good or not
+        # todo: more work over here. Can always improve this one
         # check for error in super saturation
         for i in range(len(self.processed_super_sats)):
             if not are_floats_equal(self.true_super_sat, self.processed_super_sats[i]):
@@ -98,8 +101,22 @@ class Scan:
                 self.set_status(0)
                 self.set_status_code(7)
                 break
-        if numpy.std(self.processed_T1s) > 1.5 or  numpy.std(self.processed_T2s) > 1.5 or  numpy.std(
-                self.processed_T3s) > 1.5:
+        # check for standard deviation
+        if numpy.std(self.processed_T1s) > 1 or numpy.std(self.processed_T2s) > 1 or numpy.std(self.processed_T3s) > 1:
+            self.set_status(0)
+            self.set_status_code(7)
+        # check for uniform values
+        for i in range(len(self.processed_T1s)):
+            # check for temperature 1
+            if not are_floats_equal(self.processed_T1s[0], self.processed_T1s[i], 1):
+                self.set_status(0)
+                self.set_status_code(7)
+            # check for temperature 2
+            if not are_floats_equal(self.processed_T2s[0], self.processed_T2s[i], 1):
+                self.set_status(0)
+                self.set_status_code(7)
+            # check for temperature 3
+            if not are_floats_equal(self.processed_T2s[0], self.processed_T2s[i], 1):
                 self.set_status(0)
                 self.set_status_code(7)
 
@@ -230,7 +247,7 @@ class Scan:
         for i in range(CONST.NUM_OF_CHARGES_CORR):
             ave_smps_dp, smps, ccnc, corrected_smps, corrected_ccnc, prev_smps, prev_ccnc = \
                 FastDpCalculator.correct_charges(
-                ave_smps_dp, smps, ccnc, corrected_smps, corrected_ccnc, prev_smps, prev_ccnc)
+                    ave_smps_dp, smps, ccnc, corrected_smps, corrected_ccnc, prev_smps, prev_ccnc)
         # save the smps and ccnc data after charge correction to new variables
         self.corrected_smps_counts = corrected_smps
         self.corrected_ccnc_counts = corrected_ccnc
@@ -270,7 +287,7 @@ class Scan:
                 break
             except:
                 # widen the gap between the limits so that we can cover a larger area
-                self.asym_limits = [self.asym_limits[0]-0.1, self.asym_limits[1] + 0.1]
+                self.asym_limits = [self.asym_limits[0] - 0.1, self.asym_limits[1] + 0.1]
 
     def cal_params_for_sigmoid_fit_single_loop(self):
         if not self.is_valid():
@@ -317,13 +334,13 @@ class Scan:
             last_dp_index = high_index_list[-1]
             interested_list = ratio_corrected[top_inflation_index:last_dp_index]
             std = numpy.std(interested_list)
-            if std <= (self.asym_limits[1] - self.asym_limits[0])/2:
+            if std <= (self.asym_limits[1] - self.asym_limits[0]) / 2:
                 break
             else:
                 high_index_list = high_index_list[:-1]
         end_rise = self.ave_smps_diameters[top_inflation_index]
         end_asymp = self.ave_smps_diameters[last_dp_index]
-        self.sigmoid_params.append([begin_rise,end_rise,end_rise, end_asymp])
+        self.sigmoid_params.append([begin_rise, end_rise, end_rise, end_asymp])
 
     def fit_sigmoids(self):
         if not self.is_valid():
@@ -351,9 +368,11 @@ class Scan:
         b = get_ave_none_zero(ave_list)
         if not self.asym_limits[0] <= b <= self.asym_limits[1]:
             b = 1
+
         # the function for which we will fit the sigmoid line for
         def fn(x, d, c):
             return b / (1 + (x / d) ** c)
+
         x_list = []
         y_list = []
         # get all data points on the rise
@@ -369,20 +388,20 @@ class Scan:
         x_list = numpy.asarray(x_list)
         y_list = numpy.asarray(y_list)
         try:
-            result = opt.curve_fit(fn, x_list, y_list, bounds=([begin_rise, -200], [end_asymp+1, -1]), method="trf")
+            result = opt.curve_fit(fn, x_list, y_list, bounds=([begin_rise, -200], [end_asymp + 1, -1]), method="trf")
             d = result[0][0]
             c = result[0][1]
         except:
             d = 60
             c = -2
-        self.functions_params.append([b,d,c])
+        self.functions_params.append([b, d, c])
         dp_50 = d
         dp_50_wet = 0
         dp_50_20_wet = 0
         # find dp50 and dp50 wet
-        for i in range(1,len(self.ave_smps_diameters)):
+        for i in range(1, len(self.ave_smps_diameters)):
             if self.ave_smps_diameters[i] > d:
-                dp_50_wet = self.processed_ave_ccnc_sizes[i-1]
+                dp_50_wet = self.processed_ave_ccnc_sizes[i - 1]
                 break
         # find dp50 +20 (wet)
         for i in range(1, len(self.ave_smps_diameters)):
@@ -390,16 +409,16 @@ class Scan:
                 dp_50_20_wet = self.processed_ave_ccnc_sizes[i - 1]
                 break
         sigmoid_points = [0]
-        for i in range(1,len(self.ave_smps_diameters)):
+        for i in range(1, len(self.ave_smps_diameters)):
             if begin_rise <= self.ave_smps_diameters[i] <= end_asymp:
-                sigmoid_points.append(fn(self.ave_smps_diameters[i],d,c))
+                sigmoid_points.append(fn(self.ave_smps_diameters[i], d, c))
             else:
-                sigmoid_points.append(sigmoid_points[i-1])
+                sigmoid_points.append(sigmoid_points[i - 1])
         self.sigmoid_y_vals.append(sigmoid_points)
-        dp_50 = round(dp_50,3)
-        dp_50_wet = round(dp_50_wet,3)
-        dp_50_20_wet = round(dp_50_20_wet,3)
-        self.dps.append([dp_50,dp_50_wet,dp_50_20_wet])
+        dp_50 = round(dp_50, 3)
+        dp_50_wet = round(dp_50_wet, 3)
+        dp_50_20_wet = round(dp_50_20_wet, 3)
+        self.dps.append([dp_50, dp_50_wet, dp_50_20_wet])
 
     def is_valid(self):
         return self.status == 1
@@ -431,7 +450,7 @@ class Scan:
         elif self.status_code == 6:
             return "The scan do not have enough CCNC or SMPS data. Most likely because we shift the data too much"
         elif self.status_code == 7:
-            return "The super saturation rate do not remain constant throughout the scan!"
+            return "The super saturation rate or temperature do not remain constant throughout the scan!"
         elif self.status_code == 8:
             return "The temperature do not remain constant enough throughout the scan!"
         elif self.status_code == 9:
@@ -502,6 +521,6 @@ class Scan:
     def set_counts_2_conc(self, n):
         self.counts_to_conc = n
 
-    def set_sigmoid_params(self,params):
+    def set_sigmoid_params(self, params):
         self.sigmoid_params = params
         self.fit_sigmoids()

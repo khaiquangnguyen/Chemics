@@ -1,3 +1,5 @@
+import webbrowser
+
 from Graphs import *
 from HelperFunctions import *
 from CustomCentralWidgets import *
@@ -37,6 +39,7 @@ class MainView(QMainWindow):
         # create menu
         self.create_menus()
         # create central widget
+        self.stacked_central_widget = None
         self.central_widget_alignment = None
         self.central_widget_kappa = None
         self.create_central_widget()
@@ -62,8 +65,11 @@ class MainView(QMainWindow):
                                                                self.smoothed_conc_time_graph, self.ratio_dp_graph,
                                                                self.temp_graph)
         self.central_widget_kappa = CentralWidgetKappa(self, self.kappa_graph)
+        self.stacked_central_widget = QStackedWidget()
+        self.stacked_central_widget.addWidget(self.central_widget_alignment)
+        self.stacked_central_widget.addWidget(self.central_widget_kappa)
         # lock out the menus that we will not use
-        self.setCentralWidget(self.central_widget_alignment)
+        self.setCentralWidget(self.stacked_central_widget)
         # Lock down all actions in the action menu
         self.action_menu.setDisabled(True)
 
@@ -123,6 +129,7 @@ class MainView(QMainWindow):
             self.action_menu.setDisabled(True)
             self.window_menu.actions()[1].setDisabled(True)
             self.window_menu.actions()[2].setDisabled(True)
+            self.window_menu.actions()[3].setDisabled(True)
             file_action_list = self.file_menu.actions()
             file_action_list[3].setDisabled(True)
             file_action_list[4].setDisabled(True)
@@ -133,6 +140,7 @@ class MainView(QMainWindow):
             # Enable action menu and lock down the ability to edit sigmoid
             self.window_menu.actions()[1].setDisabled(True)
             self.window_menu.actions()[2].setDisabled(True)
+            self.window_menu.actions()[3].setDisabled(True)
             self.action_menu.setDisabled(False)
             action_list = self.action_menu.actions()
             action_list[6].setDisabled(True)
@@ -151,15 +159,36 @@ class MainView(QMainWindow):
             self.action_menu.setDisabled(False)
             self.window_menu.actions()[1].setDisabled(False)
             self.window_menu.actions()[2].setDisabled(True)
+            self.window_menu.actions()[3].setDisabled(True)
             action_list[6].setEnabled(True)
             action_list[7].setEnabled(True)
             action_list[8].setEnabled(True)
-            action_list[9].setDisabled(False)
+            action_list[9].setEnabled(True)
             file_action_list = self.file_menu.actions()
             # enable all file action
             for i in range(len(file_action_list)):
                 file_action_list[i].setDisabled(False)
         elif self.controller.stage == "kappa":
+            self.window_menu.actions()[1].setDisabled(False)
+            self.window_menu.actions()[2].setDisabled(False)
+            self.window_menu.actions()[3].setDisabled(False)
+
+            self.action_menu.setDisabled(False)
+            action_list = self.action_menu.actions()
+            action_list[6].setDisabled(True)
+            action_list[7].setDisabled(True)
+            action_list[8].setDisabled(True)
+            action_list[9].setDisabled(True)
+            file_action_list = self.file_menu.actions()
+            file_action_list[3].setDisabled(False)
+            file_action_list[4].setDisabled(False)
+            file_action_list[5].setDisabled(False)
+            file_action_list[6].setDisabled(False)
+            file_action_list[7].setDisabled(False)
+            action_list[6].setEnabled(True)
+            action_list[7].setEnabled(True)
+            action_list[8].setEnabled(True)
+            action_list[9].setEnabled(True)
             self.window_menu.actions()[1].setDisabled(False)
             self.window_menu.actions()[2].setDisabled(False)
 
@@ -193,6 +222,9 @@ class MainView(QMainWindow):
         self.kappa_docker.setFeatures(QDockWidget.DockWidgetMovable | QDockWidget.DockWidgetClosable)
         self.window_menu.addAction(self.kappa_docker.toggleViewAction())
         self.addDockWidget(Qt.LeftDockWidgetArea, self.kappa_docker)
+        show_window_action = QAction("&Show Alignment Graphs", self, triggered=self.switch_central_widget)
+        show_window_action.setCheckable(True)
+        self.window_menu.addAction(show_window_action)
 
     def show_sigmoid_docker(self):
         # self.addDockWidget(Qt.LeftDockWidgetArea, self.sigmoid_docker)
@@ -364,7 +396,7 @@ class MainView(QMainWindow):
             self.window_menu.actions()[0].trigger()
         if self.window_menu.actions()[1].isChecked():
             self.window_menu.actions()[1].trigger()
-        self.setCentralWidget(self.central_widget_kappa)
+        self.stacked_central_widget.setCurrentWidget(self.central_widget_kappa)
         self.kappa_graph.update_all_kappa_points(self.controller.alpha_pinene_dict,
                                                  self.controller.is_valid_kappa_points)
         self.kappa_docker_widget.update_kappa_values()
@@ -426,6 +458,14 @@ class MainView(QMainWindow):
             self.window_menu.actions()[1].trigger()
         if self.window_menu.actions()[2].isChecked():
             self.window_menu.actions()[2].trigger()
+        self.stacked_central_widget.setCurrentWidget(self.central_widget_alignment)
+
+    def switch_central_widget(self):
+        self.stacked_central_widget.setCurrentIndex(self.stacked_central_widget.count() - 1 -
+                                                    self.stacked_central_widget.currentIndex())
+
+
+
 
 
 if __name__ == "__main__":

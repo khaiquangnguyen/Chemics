@@ -2,6 +2,50 @@ from Graphs import *
 from CustomWidgets import *
 import settings
 from copy import deepcopy
+from datetime import date
+
+class ScanInformationDialog(QDialog):
+    def __init__(self, scan):
+        super(self.__class__, self).__init__()
+        # initiate the layout
+        form_layout = QFormLayout()
+        # scan status
+        self.additional_information = QTextEdit("Welcome to Chemics!")
+        self.additional_information.setReadOnly(True)
+        self.additional_information.setMaximumHeight(100)
+        if scan.is_valid():
+            self.scan_status = QLabel("VALID")
+            self.scan_status.setStyleSheet("QWidget { background-color:None}")
+            self.additional_information.setText("The scan shows no problem.")
+        else:
+            self.scan_status = QLabel("INVALID")
+            self.scan_status.setStyleSheet("QWidget { color: white; background-color:red}")
+            self.additional_information.setText(scan.decode_status_code())
+        form_layout.addRow("Scan status", self.scan_status)
+        form_layout.addRow("Status Info", self.additional_information)
+        # times: start time, end time, duration
+        start_time = date.strftime(scan.start_time, "%H:%M:%S")
+        end_time = date.strftime(scan.end_time, "%H:%M:%S")
+        duration = str(scan.duration)
+        time_group_box = QGroupBox()
+        h_layout = QHBoxLayout()
+        start_time_box = QLineEdit(start_time)
+        start_time_box.setReadOnly(True)
+        end_time_box = QLineEdit(end_time)
+        end_time_box.setReadOnly(True)
+        duration_box = QLineEdit(duration)
+        duration_box.setReadOnly(True)
+        h_layout.addWidget(QLabel("Start time"))
+        h_layout.addWidget(start_time_box)
+        h_layout.addWidget(QLabel("End Time"))
+        h_layout.addWidget(end_time_box)
+        h_layout.addWidget(QLabel("Duration"))
+        h_layout.addWidget(duration_box)
+        time_group_box.setLayout(h_layout)
+        form_layout.addRow("Times and duration", time_group_box)
+        self.setLayout(form_layout)
+
+
 class SettingDialog(QDialog):
     def __init__(self, main_view):
         super(self.__class__, self).__init__()
