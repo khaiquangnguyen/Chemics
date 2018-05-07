@@ -88,10 +88,12 @@ class DockerWidgetAlignment(QFrame):
         self.shift_selector.setValue(a_scan.shift_factor)
         if a_scan.is_valid():
             self.scan_status.setText("VALID")
+            self.scan_status.setStyleSheet("QWidget { background-color:None}")
             self.additional_information.setText("The scan shows no problem.")
             self.enable_disable_button.setText("Disable this scan")
         else:
             self.scan_status.setText("INVALID")
+            self.scan_status.setStyleSheet("QWidget { color: white; background-color:red}")
             self.additional_information.setText(a_scan.decode_status_code())
             self.enable_disable_button.setText("Enable this scan")
 
@@ -125,10 +127,12 @@ class DockerWidgetAlignment(QFrame):
             curr_scan.status = 1 - curr_scan.status
         if curr_scan.is_valid():
             self.scan_status.setText("VALID")
+            self.scan_status.setStyleSheet("QWidget { background-color:None}")
             self.additional_information.setText("The scan shows no problem.")
             self.enable_disable_button.setText("Disable this scan")
         else:
             self.scan_status.setText("INVALID")
+            self.scan_status.setStyleSheet("QWidget { color: white; background-color:red}")
             self.additional_information.setText(curr_scan.decode_status_code())
             self.enable_disable_button.setText("Enable this scan")
 
@@ -154,6 +158,10 @@ class DockerSigmoidWidget(QFrame):
         self.scan_selector = ArrowSpinBox(forward=True)
         self.scan_selector.setCallback(self.scan_index_changed)
         form_layout.addRow("Scan number", self.scan_selector)
+        # -- add the status of the scan
+        self.scan_status = QLabel("VALID")
+        self.scan_status.setAlignment(Qt.AlignRight)
+        form_layout.addRow("Scan Status", self.scan_status)
         # -- add the area to select params for sigmoid
         self.sigmoid_line_spinbox = ArrowSpinBox(forward=True)
         form_layout.addRow("Number of sigmoid lines", self.sigmoid_line_spinbox)
@@ -177,8 +185,9 @@ class DockerSigmoidWidget(QFrame):
 
     def sub_params_group_box(self):
         self.num_sigmoid_lines = max(self.num_sigmoid_lines - 1, 0)
+        self.sigmoid_line_spinbox.setValue(self.num_sigmoid_lines)
         if len(self.dp_widgets) > 0:
-            to_del = self.layout().takeAt(len(self.dp_widgets)+4)
+            to_del = self.layout().takeAt(len(self.dp_widgets)+6)
             del self.dp_widgets[-1]
             to_del.widget().deleteLater()
 
@@ -244,15 +253,22 @@ class DockerSigmoidWidget(QFrame):
         self.controller.switch_to_scan(n)
 
     def update_scan_info(self):
-        self.num_scan = len(self.controller.scans) - 1
-        self.scan_selector.setRange(0, self.num_scan)
+        num_scan = len(self.controller.scans) - 1
+        self.scan_selector.setRange(0, num_scan)
+        curr_scan = self.controller.scans[self.controller.curr_scan_index]
         self.scan_selector.setValue(self.controller.curr_scan_index)
+        if curr_scan.is_valid():
+            self.scan_status.setText("VALID")
+            self.scan_status.setStyleSheet("QWidget { background-color:None}")
+        else:
+            self.scan_status.setText("INVALID")
+            self.scan_status.setStyleSheet("QWidget { color: white; background-color:red}")
         # remove all dp
         for i in range(len(self.dp_widgets)):
             self.sub_params_group_box()
         self.num_sigmoid_lines = 0
-        sigmoid_params = self.controller.scans[self.controller.curr_scan_index].sigmoid_params
-        dp_params = self.controller.scans[self.controller.curr_scan_index].dps
+        sigmoid_params = curr_scan.sigmoid_params
+        dp_params = curr_scan.dps
         for i in range(len(sigmoid_params)):
             a_sigmoid_param = sigmoid_params[i]
             a_dp_param = [0,0,0]

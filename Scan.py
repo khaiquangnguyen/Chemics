@@ -77,6 +77,10 @@ class Scan:
         self.dps = []
         # sigmoid line y values
         self.sigmoid_y_vals = []
+        # the asym limits to fit sigmoid lines and predict params for sigmoid line
+        # the reason we need a class variable for this (sigh) is because we use them for two
+        # different functions
+        self.asym_limits = [0.75,1.5]
 
     def pre_align_self_test(self):
         # if the length of smps data is not in sync with duration, the consider the scan invalid
@@ -231,7 +235,7 @@ class Scan:
         self.corrected_smps_counts = corrected_smps
         self.corrected_ccnc_counts = corrected_ccnc
 
-    def helper_get_ratio_corrected_smooth(self,asym_limits = [0.75,1.5]):
+    def helper_get_ratio_corrected_smooth(self):
         ratio_corrected = []
         ccnc = self.corrected_ccnc_counts
         smps = self.corrected_smps_counts
@@ -252,7 +256,7 @@ class Scan:
         ratio_corrected = heavy_smooth(ratio_corrected)
         # remove huge data points
         for i in range(len(ratio_corrected)):
-            if ratio_corrected[i] > asym_limits[1]:
+            if ratio_corrected[i] > self.asym_limits[1]:
                 if i > 0:
                     ratio_corrected[i] = ratio_corrected[i - 1]
                 else:
@@ -260,16 +264,15 @@ class Scan:
         return ratio_corrected
 
     def cal_params_for_sigmoid_fit(self):
-        asym_limits = [0.75, 1.5]
         while True:
             try:
-                self.cal_params_for_sigmoid_fit_single_loop(asym_limits)
+                self.cal_params_for_sigmoid_fit_single_loop()
                 break
             except:
                 # widen the gap between the limits so that we can cover a larger area
-                asym_limits = [asym_limits[0]-0.1, asym_limits[1] + 0.1]
+                self.asym_limits = [self.asym_limits[0]-0.1, self.asym_limits[1] + 0.1]
 
-    def cal_params_for_sigmoid_fit_single_loop(self, asym_limits = [0.75,1.5]):
+    def cal_params_for_sigmoid_fit_single_loop(self):
         if not self.is_valid():
             return
         # first, got to clean up everything
@@ -278,7 +281,7 @@ class Scan:
         self.dps = []
         self.sigmoid_y_vals = []
         # this is just an approximation. It doesn't have to be really accurate
-        ratio_corrected = self.helper_get_ratio_corrected_smooth(asym_limits)
+        ratio_corrected = self.helper_get_ratio_corrected_smooth()
         # next, find the min_dp by finding the first point at which all points before it are less than 0.1,
         # with an error of 5%
         # set up all the params we need
@@ -295,7 +298,7 @@ class Scan:
         # get the top 10% of the data
         high_index_list = []
         for i in range(len(ratio_corrected)):
-            if asym_limits[0] <= ratio_corrected[i] <= asym_limits[1]:
+            if self.asym_limits[0] <= ratio_corrected[i] <= self.asym_limits[1]:
                 high_index_list.append(i)
         high_list = ratio_corrected[high_index_list]
         high_index_list = outliers_iqr_ver_2(high_list, high_index_list)
@@ -314,7 +317,7 @@ class Scan:
             last_dp_index = high_index_list[-1]
             interested_list = ratio_corrected[top_inflation_index:last_dp_index]
             std = numpy.std(interested_list)
-            if std <= (asym_limits[1] - asym_limits[0])/2:
+            if std <= (self.asym_limits[1] - self.asym_limits[0])/2:
                 break
             else:
                 high_index_list = high_index_list[:-1]
@@ -322,7 +325,7 @@ class Scan:
         end_asymp = self.ave_smps_diameters[last_dp_index]
         self.sigmoid_params.append([begin_rise,end_rise,end_rise, end_asymp])
 
-    def fit_sigmoids(self, asym_limits = None):
+    def fit_sigmoids(self):
         if not self.is_valid():
             return
         self.functions_params = []
@@ -331,7 +334,7 @@ class Scan:
         for i in range(len(self.sigmoid_params)):
             self.fit_one_sigmoid(i)
 
-    def fit_one_sigmoid(self, params_set_index, asym_limits = [0.75, 1.5]):
+    def fit_one_sigmoid(self, params_set_index):
         begin_rise = self.sigmoid_params[params_set_index][0]
         end_rise = self.sigmoid_params[params_set_index][1]
         begin_asymp = self.sigmoid_params[params_set_index][2]
@@ -342,11 +345,13 @@ class Scan:
         # get b
         ave_list = []
         for i in range(len(self.ave_smps_diameters)):
-            if begin_asymp < self.ave_smps_diameters[i] < end_asymp and asym_limits[0] < ratio_corrected[i] < asym_limits[1]:
+            if begin_asymp < self.ave_smps_diameters[i] < end_asymp and self.asym_limits[0] < ratio_corrected[i] < \
+                    self.asym_limits[1]:
                 ave_list.append(ratio_corrected[i])
         b = get_ave_none_zero(ave_list)
-        if not asym_limits[0] <= b <= asym_limits[1]:
+        if not self.asym_limits[0] <= b <= self.asym_limits[1]:
             b = 1
+        # the function for which we will fit the sigmoid line for
         def fn(x, d, c):
             return b / (1 + (x / d) ** c)
         x_list = []
