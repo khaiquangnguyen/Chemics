@@ -81,7 +81,7 @@ class MainView(QMainWindow):
         save_action = QAction('&Save Project', self, shortcut="Ctrl+S", triggered=self.save_project)
         save_as_action = QAction('&Save Project As', self, triggered=self.save_project_as)
         reset_action = QAction('&Reset Project', self, triggered=self.reset_project)
-        export_data_action = QAction('&Export Project Data', self, triggered=self.reset_project)
+        export_data_action = QAction('&Export Kappa Data', self, triggered=self.export_project_data)
         exit_action = QAction('&Exit', self, triggered=app.quit)
         self.file_menu.addAction(new_action)
         self.file_menu.addSeparator()
@@ -127,70 +127,40 @@ class MainView(QMainWindow):
     def set_menu_bar_by_stage(self):
         if self.controller.stage == "init":
             self.action_menu.setDisabled(True)
-            self.window_menu.actions()[1].setDisabled(True)
-            self.window_menu.actions()[2].setDisabled(True)
-            self.window_menu.actions()[3].setDisabled(True)
             file_action_list = self.file_menu.actions()
-            file_action_list[3].setDisabled(True)
-            file_action_list[4].setDisabled(True)
-            file_action_list[5].setDisabled(True)
-            file_action_list[6].setDisabled(True)
-            file_action_list[7].setDisabled(True)
+            # Disable everything in the file action
+            for an_action in file_action_list:
+                an_action.setDisabled(True)
+            file_action_list[0].setEnabled(True)
+            file_action_list[1].setEnabled(True)
+            file_action_list[2].setEnabled(True)
         elif self.controller.stage == "align":
             # Enable action menu and lock down the ability to edit sigmoid
-            self.window_menu.actions()[1].setDisabled(True)
-            self.window_menu.actions()[2].setDisabled(True)
-            self.window_menu.actions()[3].setDisabled(True)
-            self.action_menu.setDisabled(False)
+            self.action_menu.setEnabled(True)
+            # enable everything in the file action list
+            for an_action in self.file_menu.actions():
+                an_action.setEnabled(True)
             action_list = self.action_menu.actions()
             action_list[6].setDisabled(True)
             action_list[7].setDisabled(True)
             action_list[8].setDisabled(True)
             action_list[9].setDisabled(True)
-            file_action_list = self.file_menu.actions()
-            file_action_list[3].setDisabled(False)
-            file_action_list[4].setDisabled(False)
-            file_action_list[5].setDisabled(False)
-            file_action_list[6].setDisabled(False)
-            file_action_list[7].setDisabled(False)
         elif self.controller.stage == "sigmoid":
+            # enable everything in the file action list
+            for an_action in self.file_menu.actions():
+                an_action.setEnabled(True)
             # Edit action menu
+            self.action_menu.setEnabled(True)
             action_list = self.action_menu.actions()
-            self.action_menu.setDisabled(False)
-            self.window_menu.actions()[1].setDisabled(False)
-            self.window_menu.actions()[2].setDisabled(True)
-            self.window_menu.actions()[3].setDisabled(True)
             action_list[6].setEnabled(True)
             action_list[7].setEnabled(True)
             action_list[8].setEnabled(True)
             action_list[9].setEnabled(True)
-            file_action_list = self.file_menu.actions()
-            # enable all file action
-            for i in range(len(file_action_list)):
-                file_action_list[i].setDisabled(False)
         elif self.controller.stage == "kappa":
-            self.window_menu.actions()[1].setDisabled(False)
-            self.window_menu.actions()[2].setDisabled(False)
-            self.window_menu.actions()[3].setDisabled(False)
-
-            self.action_menu.setDisabled(False)
-            action_list = self.action_menu.actions()
-            action_list[6].setDisabled(True)
-            action_list[7].setDisabled(True)
-            action_list[8].setDisabled(True)
-            action_list[9].setDisabled(True)
-            file_action_list = self.file_menu.actions()
-            file_action_list[3].setDisabled(False)
-            file_action_list[4].setDisabled(False)
-            file_action_list[5].setDisabled(False)
-            file_action_list[6].setDisabled(False)
-            file_action_list[7].setDisabled(False)
-            action_list[6].setEnabled(True)
-            action_list[7].setEnabled(True)
-            action_list[8].setEnabled(True)
-            action_list[9].setEnabled(True)
-            self.window_menu.actions()[1].setDisabled(False)
-            self.window_menu.actions()[2].setDisabled(False)
+            self.action_menu.setEnabled(True)
+            # enable everything in the file action list
+            for an_action in self.file_menu.actions():
+                an_action.setEnabled(True)
 
     def show_setting_dialog(self):
         setting_dialog = SettingDialog(self)
@@ -415,6 +385,21 @@ class MainView(QMainWindow):
         """
         webbrowser.open("https://goo.gl/forms/X9OB6AQSJSiKScBs2")
 
+
+    def reset_view(self):
+        # enable align docker, and disable the other dockers
+        if not self.window_menu.actions()[0].isChecked():
+            self.window_menu.actions()[0].trigger()
+        if self.window_menu.actions()[1].isChecked():
+            self.window_menu.actions()[1].trigger()
+        if self.window_menu.actions()[2].isChecked():
+            self.window_menu.actions()[2].trigger()
+        self.stacked_central_widget.setCurrentWidget(self.central_widget_alignment)
+
+    def switch_central_widget(self):
+        self.stacked_central_widget.setCurrentIndex(self.stacked_central_widget.count() - 1 -
+                                                    self.stacked_central_widget.currentIndex())
+
     @Slot(str)
     def init_progress_bar(self, task_name):
         self.progress_dialog.setLabelText(task_name)
@@ -439,6 +424,15 @@ class MainView(QMainWindow):
         warning.setInformativeText(subtext)
         warning.exec_()
 
+    @staticmethod
+    def show_information_message(title=None, text=None, subtext=None):
+        warning = QMessageBox()
+        warning.setIcon(QMessageBox.Information)
+        warning.setWindowTitle(title)
+        warning.setText(text)
+        warning.setInformativeText(subtext)
+        warning.exec_()
+
     def show_error_by_type(self, type):
         if type == "no_data":
             title = "Error!"
@@ -450,19 +444,6 @@ class MainView(QMainWindow):
         self.font = QFont(font.family(),size)
         app.setFont(self.font)
 
-    def reset(self):
-        # enable align docker, and disable the other dockers
-        if not self.window_menu.actions()[0].isChecked():
-            self.window_menu.actions()[0].trigger()
-        if self.window_menu.actions()[1].isChecked():
-            self.window_menu.actions()[1].trigger()
-        if self.window_menu.actions()[2].isChecked():
-            self.window_menu.actions()[2].trigger()
-        self.stacked_central_widget.setCurrentWidget(self.central_widget_alignment)
-
-    def switch_central_widget(self):
-        self.stacked_central_widget.setCurrentIndex(self.stacked_central_widget.count() - 1 -
-                                                    self.stacked_central_widget.currentIndex())
 
 
 

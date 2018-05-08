@@ -1,7 +1,6 @@
 from Scan import *
 import cPickle
 
-
 class Controller:
     """
     The controller class. This class is to handle all of the functionalities of the program.
@@ -85,7 +84,7 @@ class Controller:
              self.is_valid_kappa_points,
              self.save_name) = cPickle.load(handle)
         # got to reset the view first
-        self.view.reset()
+        self.view.reset_view()
         # if got to kappa, go straight to the kappa view
         if self.stage == "kappa":
             self.view.switch_to_kappa_view()
@@ -117,14 +116,13 @@ class Controller:
                 smps_txt_files.append(a_file)
             elif a_file.lower().endswith('.csv'):
                 ccnc_csv_files.append(a_file)
-        # if (len(self.smps_txt_files) == 0) or (len(self.ccnc_csv_files) == 0):
-        #     raise FileNotFoundError()
-        # else:
         smps_txt_files = [str(x) for x in smps_txt_files]
         smps_txt_files = smps_txt_files[0]
         ccnc_csv_files = [str(x) for x in ccnc_csv_files]
         self.ccnc_data = process_csv_files(ccnc_csv_files)
         self.smps_data = process_text_files(smps_txt_files)
+        self.experiment_date = self.ccnc_data[0]
+        self.ccnc_data = self.ccnc_data[1]
 
     def get_scan_timestamps(self):
         scan_down_time = 0
@@ -208,7 +206,6 @@ class Controller:
                 break
 
     def get_ccnc_counts(self):
-        self.ccnc_data = self.ccnc_data[1]
         first_bin_column_index = 25
         bin_sizes = create_size_list()
         # Get the first position of CCNC count in the ccnc file
@@ -328,7 +325,7 @@ class Controller:
         # reset the attributes
         self.init_attributes()
         # got to reset the view first
-        self.view.reset()
+        self.view.reset_view()
         # take in new data and rock on!
         self.data_files = data_files
         # we can't do anything without having the Counts2ConcConv constant
@@ -493,33 +490,26 @@ class Controller:
                 mean_dp, std_dp, mean_app, std_app, mean_ana, std_ana, mean_dev, dev_mean, dp_50s)
             print()
 
-    # --------------------- Graphs -----------------------------
 
-    def export_to_csv(self):
+    def export_project_data(self):
         """
         Export the resulting data to csv.
         :return:
         """
-        file_name = "kappa_" + self.experiment_date.replace("/", ".") + ".xlsx"
-        kappa_dict = self.kappa_calculate_dict
-        usability_list = self.is_valid_kappa_points
+        file_name = "kappa_" + self.experiment_date.replace("/", ".") + ".csv"
         data = []
-        for a_key in key_list:
-            a_row = []
-            if kappa_dict[a_key[1]]:
-                for a_scan_data in kappa_dict[a_key[1]]:
-                    if a_scan_data[0] == a_key[0]:
-                        a_row.append(a_key[1])
-                        a_row.append(a_scan_data[0])
-                        a_row.append(a_scan_data[1])
-                        a_row.append(a_scan_data[2])
-                        a_row.append(a_scan_data[3])
-                        break
+        for a_key in self.kappa_calculate_dict.keys():
+            a_scan = self.kappa_calculate_dict[a_key]
+            for aSS in a_scan:
+                if self.is_valid_kappa_points[(aSS[0], a_key)]:
+                    a_row = [a_key] + aSS + ["Included point"]
+                else:
+                    a_row = [a_key] + aSS + ["Excluded point"]
                 data.append(a_row)
-        data = numpy.array(data)
-        df = pandas.DataFrame(data, columns=["Super Saturation(%)", "dp(nm)", "K/app", "K/ana", "deviation(%"])
-        df.to_excel(file_name, sheet_name='Kappa', index=False)
-        self.view.show_error_dialog("Export to " + file_name + " is successful!")
+        df = pandas.DataFrame(numpy.asarray(data), columns=["Super Saturation(%)", "dp(nm)", "K/app", "K/ana",
+                                                            "deviation(%","Status"])
+        df.to_csv(file_name, index=False)
+        self.view.show_information_message(title = "Export Data", text= "Export to " + file_name + " successful!")
 
     ##############################################
     #
@@ -572,25 +562,3 @@ class Controller:
         self.is_valid_kappa_points[(dp, ss)] = state
         self.calculate_average_kappa_values()
         self.view.update_kappa_graph()
-
-
-def main():
-    example_files = [r"C:\Users\KhaiNguyen\OneDrive\chemics_on_work\Examples\smps.txt",
-                     r"C:\Users\KhaiNguyen\OneDrive\chemics_on_work\Examples\ccnc.csv"]
-    data_files = os.listdir(r"C:\Users\KhaiNguyen\OneDrive\chemics_on_work\data")
-    # os.chdir("../../data")
-    # for i in range(len(data_files)):
-    #     data_files[i] = os.path.join(os.getcwd(), data_files[i])
-    # controller.files = example_files
-    # controller.parse_files()
-    # controller.get_scan_timestamps()
-    # controller.get_normalized_concentration()
-    # controller.get_smps_counts()
-    # controller.get_ccnc_counts()
-    # controller.align_smps_ccnc_data()
-    print()
-    # view.show_ui()
-
-#
-# if __name__ == '__main__':
-#     main()

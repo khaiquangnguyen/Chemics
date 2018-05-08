@@ -482,7 +482,7 @@ def show_error_dialog(self, error_message='Unknown Error!'):
     Show the error message
     :param errorMessage: The message to show in the error message
     """
-    self.progress_dialog.reset()
+    self.progress_dialog.reset_view()
     warning = QMessageBox()
     warning.setIcon(QMessageBox.Warning)
     warning.setText(error_message)

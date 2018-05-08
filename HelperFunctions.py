@@ -67,12 +67,14 @@ def smooth(a_list, method="Savitzky-Golay filter"):
             pass
     return a_list
 
+
 def heavy_smooth(a_list):
     try:
         a_list = scipy.signal.savgol_filter(a_list, 15, 2)
     except:
         pass
     return a_list
+
 
 def fill_zeros_to_end(a_list, length_to_fill):
     if len(a_list) < length_to_fill:
@@ -152,17 +154,19 @@ def get_asym_list(x_list, y_list):
             asym_list[i] = 0
     return asym_list
 
-def cal_percentage_more(a_list,value, min_diff):
-    count = 0
-    for a_val in a_list:
-        if a_val > value or abs(value-a_val) < min_diff:
-            count += 1
-    return safe_div(count,len(a_list))
 
-def cal_percentage_less(a_list,value, min_diff):
+def cal_percentage_more(a_list, value, min_diff):
     count = 0
     for a_val in a_list:
-        if value>a_val or abs(value-a_val) < min_diff:
+        if a_val > value or abs(value - a_val) < min_diff:
+            count += 1
+    return safe_div(count, len(a_list))
+
+
+def cal_percentage_less(a_list, value, min_diff):
+    count = 0
+    for a_val in a_list:
+        if value > a_val or abs(value - a_val) < min_diff:
             count += 1
     return safe_div(count, len(a_list))
 
@@ -170,12 +174,14 @@ def cal_percentage_less(a_list,value, min_diff):
 def safe_div(x, y):
     return 0 if y == 0 else x / y
 
-def safe_div_array(l1,l2):
+
+def safe_div_array(l1, l2):
     length = min(len(l1), len(l2))
     result_list = []
     for i in range(length):
-        result_list.append(safe_div(l1[i],l2[i]))
-    return  result_list
+        result_list.append(safe_div(l1[i], l2[i]))
+    return result_list
+
 
 def create_size_list():
     # Steps to get the CCNC count. These values are hard-coded. Don't change them!
@@ -448,12 +454,12 @@ def get_correct_num(a_list, number, bigger=True):
     for i in range(1, len(a_list)):
         if a_list[i] < number:
             if bigger:
-                return (num, i - 1)
+                return num, i - 1
             else:
-                return (a_list[i], i)
+                return a_list[i], i
         else:
             num = a_list[i]
-    return (a_list[-1], len(a_list) - 1)
+    return a_list[-1], len(a_list) - 1
 
 
 def check_temperature_fluctuation(temp_list):

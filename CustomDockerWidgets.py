@@ -105,7 +105,7 @@ class DockerWidgetAlignment(QFrame):
             self.enable_disable_button.setText("Enable this scan")
 
     def update_experiment_info(self):
-        self.experiment_date = self.controller.experiment_date
+        self.experiment_date.setText(self.controller.experiment_date)
         self.num_scan = len(self.controller.scans) - 1
         self.shift_selector.setRange(-self.controller.scans[0].duration // 2, self.controller.scans[0].duration // 2)
         self.scan_selector.setRange(0, self.num_scan)
