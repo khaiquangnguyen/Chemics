@@ -5,7 +5,7 @@
 #     ext_modules = cythonize("FastDpCalculator.pyx")
 # )
 
-
+#
 from setuptools import setup
 from setuptools import Extension
 from Cython.Build import cythonize
@@ -21,5 +21,7 @@ setup(
   name = "FastDpCalculator",
   cmdclass = {"build_ext": build_ext},
   ext_modules = ext_modules,
-  include_dirs = [numpy.get_include()], install_requires=['matplotlib']
+  include_dirs = [numpy.get_include()], install_requires=['matplotlib', 'PySide', 'scipy', 'peakutils', 'numpy',
+                                                          'pandas']
 )
+

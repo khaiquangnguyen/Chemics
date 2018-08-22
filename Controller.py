@@ -1,5 +1,6 @@
-from Scan import *
 import cPickle
+from Scan import *
+
 
 class Controller:
     """
@@ -100,7 +101,7 @@ class Controller:
         else:
             to_save = (self.scans, self.counts_to_conc_conv, self.data_files, self.ccnc_data, self.smps_data,
                        self.experiment_date, self.smooth_method, self.base_shift_factor, self.b_limits,
-                       self.asym_limits, self.kappa_calculate_dict,  self.alpha_pinene_dict , self.stage,
+                       self.asym_limits, self.kappa_calculate_dict, self.alpha_pinene_dict, self.stage,
                        self.is_valid_kappa_points,
                        self.save_name)
             with open(self.save_name, 'wb') as handle:
@@ -305,7 +306,7 @@ class Controller:
         pass
 
     def preview_scans(self, timer):
-        # becase there is an inherent delay time when switch
+        # because there is an inherent delay time when switch
         timer = max(0, timer - 0.5)
         temp_curr_scan_index = self.curr_scan_index
         self.view.init_progress_bar("Previewing all scans...")
@@ -490,7 +491,6 @@ class Controller:
                 mean_dp, std_dp, mean_app, std_app, mean_ana, std_ana, mean_dev, dev_mean, dp_50s)
             print()
 
-
     def export_project_data(self):
         """
         Export the resulting data to csv.
@@ -507,9 +507,9 @@ class Controller:
                     a_row = [a_key] + aSS + ["Excluded point"]
                 data.append(a_row)
         df = pandas.DataFrame(numpy.asarray(data), columns=["Super Saturation(%)", "dp(nm)", "K/app", "K/ana",
-                                                            "deviation(%","Status"])
+                                                            "deviation(%", "Status"])
         df.to_csv(file_name, index=False)
-        self.view.show_information_message(title = "Export Data", text= "Export to " + file_name + " successful!")
+        self.view.show_information_message(title="Export Data", text="Export to " + file_name + " successful!")
 
     ##############################################
     #
