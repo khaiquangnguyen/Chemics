@@ -1,6 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
+*.pyc
 *$py.class
 
 # C extensions
@@ -27,8 +27,7 @@ var/
 # PyInstaller
 #  Usually these files are written by aParam python script from aParam template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+
 
 # Installer logs
 pip-log.txt

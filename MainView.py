@@ -1,5 +1,4 @@
 import webbrowser
-
 from Graphs import *
 from HelperFunctions import *
 from CustomCentralWidgets import *
@@ -7,7 +6,13 @@ from CustomDockerWidgets import *
 from CustomModalDialogs import *
 from Controller import Controller
 import gc
-
+import os
+if getattr(sys, 'frozen', False):
+# we are running in a |PyInstaller| bundle
+    basedir = sys._MEIPASS
+else:
+# we are running in a normal Python environment
+    basedir = os.path.dirname(__file__)
 ###############################
 #
 # VARIABLES
@@ -265,7 +270,7 @@ class MainView(QMainWindow):
     def preview_all_scans(self):
         timer, ok = QInputDialog.getDouble(self, "Time of each preview", "Enter the amount of pause time between each "
                                                                          "scan", value=0.5,
-                                                                         minValue=0.1, maxValue=3, decimals=1)
+                                           minValue=0.1, maxValue=3, decimals=1)
         if timer and ok:
             self.controller.preview_scans(timer)
 
@@ -372,7 +377,6 @@ class MainView(QMainWindow):
         self.kappa_docker_widget.update_kappa_values()
         self.set_menu_bar_by_stage()
 
-
         if not self.window_menu.actions()[2].isChecked():
             self.window_menu.actions()[2].trigger()
 
@@ -384,7 +388,6 @@ class MainView(QMainWindow):
         Submit feedback by showing a google form
         """
         webbrowser.open("https://goo.gl/forms/X9OB6AQSJSiKScBs2")
-
 
     def reset_view(self):
         # enable align docker, and disable the other dockers
@@ -440,13 +443,9 @@ class MainView(QMainWindow):
             subtext = "Please import scan data through File/New or import a project through File/Open first!"
             self.show_error_message(title, text, subtext)
 
-    def set_font(self,font,size):
-        self.font = QFont(font.family(),size)
+    def set_font(self, font, size):
+        self.font = QFont(font.family(), size)
         app.setFont(self.font)
-
-
-
-
 
 
 if __name__ == "__main__":
