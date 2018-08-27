@@ -8,20 +8,21 @@
 #
 from setuptools import setup
 from setuptools import Extension
-from Cython.Build import cythonize
 from Cython.Distutils import build_ext
 import numpy
 
 
 ext_modules=[ Extension("FastDpCalculator",
               ["FastDpCalculator.pyx"],
-              extra_compile_args = ["-ffast-math"])]
+              extra_compile_args = ["-ffast-math"],
+              include_dirs = [numpy.get_include()])]
 
 setup(
-  name = "FastDpCalculator",
-  cmdclass = {"build_ext": build_ext},
-  ext_modules = ext_modules,
-  include_dirs = [numpy.get_include()], install_requires=['matplotlib', 'PySide', 'scipy', 'peakutils', 'numpy',
+    name = "FastDpCalculator",
+    cmdclass = {"build_ext": build_ext},
+    ext_modules = ext_modules,
+    include_dirs = [numpy.get_include()],
+    install_requires=['matplotlib', 'PySide', 'scipy', 'peakutils', 'numpy',
                                                           'pandas']
 )
 

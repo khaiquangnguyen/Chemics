@@ -1,3 +1,12 @@
+class WorkerSignals(QObject):
+    started = Signal(str)
+    finished = Signal()
+    error = Signal(tuple)
+    progress = Signal(int)
+
+
+
+
 if not scCalcs:
     # Calculate the sc Calculation
     firstAKappa = self.appKappa

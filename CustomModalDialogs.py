@@ -2,7 +2,10 @@ from Graphs import *
 from CustomWidgets import *
 import settings
 from copy import deepcopy
-from datetime import date
+from datetime import *
+from PyQt5.QtCore import *
+from scipy import *
+
 
 class ScanInformationDialog(QDialog):
     def __init__(self, scan):
@@ -229,7 +232,7 @@ class SmoothAlgoDialog(QDialog):
         self.setWindowTitle("Select smoothing algorithm")
         # set up the groupbox which contains the graph of the scan
         # we assume that a scan in the middle will look very nice.
-        self.curr_scan_index = len(self.scans) * 2 / 3
+        self.curr_scan_index = len(self.scans) * 2 // 3
         while not self.scans[self.curr_scan_index].is_valid():
             self.curr_scan_index += 1
         self.a_good_scan = None

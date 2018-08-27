@@ -1,4 +1,4 @@
-import cPickle
+import pickle
 from Scan import *
 
 
@@ -83,7 +83,7 @@ class Controller:
              self.experiment_date, self.smooth_method, self.base_shift_factor, self.b_limits,
              self.asym_limits, self.kappa_calculate_dict, self.alpha_pinene_dict, self.stage,
              self.is_valid_kappa_points,
-             self.save_name) = cPickle.load(handle)
+             self.save_name) = pickle.load(handle)
         # got to reset the view first
         self.view.reset_view()
         # if got to kappa, go straight to the kappa view
@@ -105,8 +105,8 @@ class Controller:
                        self.is_valid_kappa_points,
                        self.save_name)
             with open(self.save_name, 'wb') as handle:
-                cPickle.dump(to_save, handle, protocol=cPickle.HIGHEST_PROTOCOL)
-                print 'saved'
+                pickle.dump(to_save, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                print ('saved')
 
     def parse_files(self):
         smps_txt_files = []

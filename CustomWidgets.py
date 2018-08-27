@@ -1,5 +1,6 @@
-from PySide.QtGui import *
-from PySide.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
 
 
 class TitleHLine(QWidget):
@@ -26,7 +27,7 @@ class QHLine(QFrame):
         self.setFrameShadow(QFrame.Raised)
 
 
-class LabelDoublelSpinbox(QWidget):
+class LabelDoubleSpinbox(QWidget):
     def __init__(self, title):
         super(self.__class__, self).__init__()
         h_layout = QHBoxLayout()

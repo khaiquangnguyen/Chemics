@@ -1,0 +1,7 @@
+File:,c:\CCN data\CCN 100 data 131021124438.csv
+Date ,10/21/13
+Time,12:44:38
+
+    Time, Current SS, Temps Stabilized,  Delta T,   T1 Set,  T1 Read,   T2 Set,  T2 Read,   T3 Set,  T3 Read, Nafion Set, T Nafion, Inlet Set,  T Inlet,  OPC Set,    T OPC, T Sample, Sample Flow, Sheath Flow, Sample Pressure, Laser Current, overflow, Baseline Mon, 1st Stage Mon,    Bin #,    Bin 1,    Bin 2,    Bin 3,   Bin 4 ,    Bin 5,    Bin 6,    Bin 7,    Bin 8,    Bin 9,   Bin 10,   Bin 11,   Bin 12,   Bin 13,   Bin 14,   Bin 15,   Bin 16,   Bin 17,   Bin 18,   Bin 19,   Bin 20, CCN Number Conc, Valve Set, Alarm Code, Alarm Sum
+
+12:44:38,1.000000,0.000000,16.020000,30.299170,29.563692,38.309170,36.455494,45.197769,42.292023,29.299170,27.725439,31.299170,29.443579,47.197769,44.725254,28.299170,35.221367,350.056396,978.490112,84.294998,0.000000,2.725480,0.114680,0.000000,1.000000,3.000000,5.000000,1.000000,0.000000,1.000000,7.000000,2.000000,2.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,37.477249,2.244408,0.000000

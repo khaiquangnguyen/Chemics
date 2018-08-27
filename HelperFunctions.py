@@ -18,13 +18,6 @@ from PyQt5.QtCore import *
 import traceback, sys
 
 
-class WorkerSignals(QObject):
-    started = Signal(str)
-    finished = Signal()
-    error = Signal(tuple)
-    progress = Signal(int)
-
-
 class Worker(QRunnable):
     def __init__(self, fn, *args, **kwargs):
         super(Worker, self).__init__()
@@ -252,7 +245,7 @@ def process_a_csv(file_path):
         time = time.replace("Time,", "")
 
         # clean the processed_data for easier processing
-        csv_content = filter(None, csv_content)
+        csv_content = list(filter(None, csv_content))
 
         # remove the unnecessary processed_data
         csv_content = csv_content[4:]
@@ -260,7 +253,7 @@ def process_a_csv(file_path):
         # process the csv
         for i in range(0, len(csv_content)):
             # remove empty string in each row
-            csv_content[i] = filter(None, csv_content[i])
+            csv_content[i] = list(filter(None, csv_content[i]))
             # remove the "," character in each item
             for j in range(0, len(csv_content[i])):
                 csv_content[i][j] = csv_content[i][j].replace(",", "")
@@ -273,7 +266,7 @@ def process_text_files(file_path):
     :param file_path: the path to the file
     :return: aParam list, which represents the txt
     """
-    with open(file_path, 'r') as csv_file:
+    with open(file_path, 'r',encoding = "ISO-8859-1") as csv_file:
         reader = csv.reader(csv_file, delimiter='\t')
         line = 0
         # convert to list for easier processing
@@ -290,7 +283,7 @@ def process_text_files(file_path):
         txt_content = txt_content[0:1] + txt_content[2:]
         # clean the txt file
         for i in range(0, len(txt_content)):
-            txt_content[i] = filter(None, txt_content[i])
+            txt_content[i] = list(filter(None, txt_content[i]))
         return txt_content
 
 
