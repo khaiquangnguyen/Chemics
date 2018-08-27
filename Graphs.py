@@ -313,7 +313,6 @@ class KappaGraph(FigureCanvas):
         y_valid_ks = []
         x_invalid_ks = []
         y_invalid_ks = []
-        print is_valid_kappa_points
         for a_key in alpha_pinene_dict.keys():
             for i in alpha_pinene_dict[a_key][-1]:
                 if is_valid_kappa_points[i, a_key]:

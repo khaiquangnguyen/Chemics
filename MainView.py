@@ -1,4 +1,3 @@
-import webbrowser
 from Graphs import *
 from HelperFunctions import *
 from CustomCentralWidgets import *
@@ -383,11 +382,11 @@ class MainView(QMainWindow):
     def update_kappa_graph(self):
         self.kappa_docker_widget.update_kappa_graph()
 
-    def submit_feedback(self):
-        """
-        Submit feedback by showing a google form
-        """
-        webbrowser.open("https://goo.gl/forms/X9OB6AQSJSiKScBs2")
+    # def submit_feedback(self):
+    #     """
+    #     Submit feedback by showing a google form
+    #     """
+    #     webbrowser.open("https://goo.gl/forms/X9OB6AQSJSiKScBs2")
 
     def reset_view(self):
         # enable align docker, and disable the other dockers

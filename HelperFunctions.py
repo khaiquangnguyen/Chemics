@@ -14,7 +14,7 @@ import settings as CONST
 import time
 import matplotlib.pyplot as plt
 import threading
-from PySide.QtCore import *
+from PyQt5.QtCore import *
 import traceback, sys
 
 
